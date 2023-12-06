@@ -1,6 +1,8 @@
 package ai.travel.app.di
 
 
+import ai.travel.app.database.DatabaseObject
+import ai.travel.app.database.DatabaseRepo
 import ai.travel.app.repository.ApiService
 import ai.travel.app.repository.ApiServiceImpl
 import android.content.Context
@@ -18,22 +20,23 @@ import io.ktor.client.plugins.json.Json
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.websocket.WebSockets
+import kotlinx.serialization.ExperimentalSerializationApi
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Provides
     @Singleton
     fun provideHttpClient(): HttpClient {
         return HttpClient(CIO) {
             install(ContentNegotiation) {
-                GsonSerializer(){
-                    setPrettyPrinting()
-                    disableHtmlEscaping()
-                }
-                json()
+                json(json = kotlinx.serialization.json.Json {
+                    ignoreUnknownKeys = true
+                    explicitNulls = false
+                })
             }
             install(Logging)
             install(WebSockets)
@@ -47,6 +50,13 @@ object AppModule {
     @Singleton
     fun provideApiService(client: HttpClient): ApiService {
         return ApiServiceImpl(client = client)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDatabaseRepo(@ApplicationContext context: Context): DatabaseRepo {
+        val dB = DatabaseObject.getInstance(context)
+        return DatabaseRepo(dB.tripsDao())
     }
 
 }
