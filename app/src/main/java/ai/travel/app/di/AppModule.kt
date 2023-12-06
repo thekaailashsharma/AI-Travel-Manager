@@ -1,6 +1,8 @@
 package ai.travel.app.di
 
 
+import ai.travel.app.database.DatabaseObject
+import ai.travel.app.database.DatabaseRepo
 import ai.travel.app.repository.ApiService
 import ai.travel.app.repository.ApiServiceImpl
 import android.content.Context
@@ -48,6 +50,13 @@ object AppModule {
     @Singleton
     fun provideApiService(client: HttpClient): ApiService {
         return ApiServiceImpl(client = client)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDatabaseRepo(@ApplicationContext context: Context): DatabaseRepo {
+        val dB = DatabaseObject.getInstance(context)
+        return DatabaseRepo(dB.tripsDao())
     }
 
 }
