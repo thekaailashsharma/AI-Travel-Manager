@@ -1,11 +1,12 @@
-import org.jetbrains.kotlin.kapt3.base.Kapt.kapt
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("dagger.hilt.android.plugin")
     kotlin("kapt")
-    id("com.google.devtools.ksp")
+    id("kotlinx-serialization")
 }
 
 android {
@@ -26,7 +27,15 @@ android {
     }
 
     buildTypes {
+        debug {
+            val localProperties = Properties()
+            localProperties.load(FileInputStream(rootProject.file("local.properties")))
+            buildConfigField("String", "API_KEY", "${localProperties["API_KEY"]}")
+        }
         release {
+            val localProperties = Properties()
+            localProperties.load(FileInputStream(rootProject.file("local.properties")))
+            buildConfigField("String", "API_KEY", "${localProperties["API_KEY"]}")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -43,6 +52,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
@@ -75,6 +85,11 @@ dependencies {
     implementation("io.ktor:ktor-client-core:2.3.5")
     implementation("io.ktor:ktor-client-cio:2.3.2")
     implementation("io.ktor:ktor-client-serialization:2.3.2")
+    implementation("io.ktor:ktor-client-cio-jvm:2.3.2")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.2")
+    implementation("io.ktor:ktor-serialization-gson:2.3.2")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.2")
+    implementation("com.google.code.gson:gson:2.8.9")
     implementation("io.ktor:ktor-client-logging:2.3.2")
     implementation("ch.qos.logback:logback-classic:1.2.11")
     implementation("io.ktor:ktor-client-android:1.6.4")
