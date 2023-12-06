@@ -2,6 +2,7 @@ package ai.travel.app.home.ui
 
 import ai.travel.app.home.ApiState
 import ai.travel.app.home.HomeViewModel
+import ai.travel.app.home.base64ToByteArray
 import ai.travel.app.ui.theme.appGradient
 import ai.travel.app.ui.theme.lightText
 import ai.travel.app.utils.ProfileImage
@@ -57,6 +58,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
         val state = viewModel.imageState.collectAsState()
         val data = viewModel.data.collectAsState()
         val geoData = viewModel.geoCodesData.collectAsState()
+        val trips = viewModel.allTrips.collectAsState(initial = emptyList())
         var location by remember { mutableStateOf("Mumbai") }
         var noOfDays by remember { mutableStateOf("3 days") }
         var budget by remember { mutableStateOf("1000Rs") }
@@ -154,30 +156,29 @@ fun HomeScreen(viewModel: HomeViewModel) {
             ApiState.ReceivedPhoto -> {
                 LazyColumn {
 
-                    items(geoData.value, key = {
-                        it.name
-                    }) { newData ->
-                        Row(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)) {
+                    items(trips.value) { newData ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+                        ) {
                             Text(
-                                text = "Place: ${newData.name}",
+                                text = "Place: ${newData?.name}",
                                 color = lightText,
                                 fontSize = 12.sp
                             )
                             Spacer(modifier = Modifier.width(10.dp))
 
-                            newData.photo?.let { it1 ->
-                                byteArrayToBitmap(it1)?.asImageBitmap()?.let {
-                                    Image(
-                                        bitmap = it,
-                                        contentDescription = "some useful description",
-                                        modifier = Modifier
-                                            .size(50.dp)
-                                            .clip(CircleShape),
-                                    )
-                                }
+                            newData?.photoBase64?.let {
+                                Image(
+                                    bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
+                                    contentDescription = "some useful description",
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                        .clip(CircleShape),
+                                )
                             }
+
 
                         }
                     }

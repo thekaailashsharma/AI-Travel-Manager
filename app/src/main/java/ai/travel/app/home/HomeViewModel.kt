@@ -1,15 +1,19 @@
 package ai.travel.app.home
 
+import ai.travel.app.database.DatabaseRepo
+import ai.travel.app.database.travel.TripsEntity
 import ai.travel.app.dto.ApiPrompt
 import ai.travel.app.dto.PalmApi
 import ai.travel.app.dto.Prompt
 import ai.travel.app.dto.getPlaceId.PlaceIdBody
 import ai.travel.app.repository.ApiService
 import android.app.Application
+import android.util.Base64
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,6 +24,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     application: Application,
     private val repository: ApiService,
+    private val dbRepository: DatabaseRepo,
 ) : AndroidViewModel(application) {
 
     private val _imageState = MutableStateFlow<ApiState>(ApiState.NotStarted)
@@ -34,7 +39,12 @@ class HomeViewModel @Inject constructor(
     val data: StateFlow<List<Map<String, String>>> = _data.asStateFlow()
 
     private val _geoCodesData = MutableStateFlow(emptyList<TourDetails>().toMutableList())
-    val geoCodesData: StateFlow<MutableList<TourDetails>> = _geoCodesData.asStateFlow()
+    val geoCodesData: StateFlow<List<TourDetails>> = _geoCodesData.asStateFlow()
+
+    fun getTrips(day: String, timeOfDay: String): Flow<List<TripsEntity?>> =
+        dbRepository.getTrips(day, timeOfDay)
+
+    val allTrips: Flow<List<TripsEntity?>> = dbRepository.allTrips
 
 
     fun getApiData() {
@@ -114,8 +124,34 @@ class HomeViewModel @Inject constructor(
                     )
                 _geoCodesData.value[index].photo = apiData
             }
+            _imageState.value = ApiState.ReceivedPhoto
+            addTripToDatabase()
         }
-        _imageState.value = ApiState.ReceivedPhoto
+
+    }
+
+    private fun addTripToDatabase() {
+        viewModelScope.launch {
+            _geoCodesData.value.forEachIndexed { _, location ->
+                dbRepository.insertTrip(
+                    TripsEntity(
+                        day = location.day,
+                        timeOfDay = location.timeOfDay,
+                        name = location.name,
+                        budget = location.budget,
+                        latitude = location.geoCode?.latitude?.toDouble(),
+                        longitude = location.geoCode?.longitude?.toDouble(),
+                        photoBase64 = byteArrayToBase64(location.photo ?: ByteArray(0))
+                    )
+                )
+            }
+
+        }
+
+    }
+
+    private fun byteArrayToBase64(byteArray: ByteArray): String {
+        return Base64.encodeToString(byteArray, Base64.DEFAULT)
     }
 
     private fun getPhotoId() {
@@ -278,4 +314,8 @@ data class TourDetails(
     override fun hashCode(): Int {
         return photo?.contentHashCode() ?: 0
     }
+}
+
+fun base64ToByteArray(base64String: String): ByteArray {
+    return Base64.decode(base64String, Base64.DEFAULT)
 }
