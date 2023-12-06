@@ -32,11 +32,14 @@ android {
             localProperties.load(FileInputStream(rootProject.file("local.properties")))
             buildConfigField("String", "API_KEY", "${localProperties["API_KEY"]}")
             buildConfigField("String", "Here_API_KEY", "${localProperties["Here_API_KEY"]}")
+            buildConfigField("String", "Places_API_KEY", "${localProperties["Places_API_KEY"]}")
         }
         release {
             val localProperties = Properties()
             localProperties.load(FileInputStream(rootProject.file("local.properties")))
             buildConfigField("String", "API_KEY", "${localProperties["API_KEY"]}")
+            buildConfigField("String", "Here_API_KEY", "${localProperties["Here_API_KEY"]}")
+            buildConfigField("String", "Places_API_KEY", "${localProperties["Places_API_KEY"]}")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -109,6 +112,9 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
+
+    // Coil
+    implementation("io.coil-kt:coil-compose:2.2.2")
 
 
 

@@ -3,6 +3,7 @@ package ai.travel.app.home
 import ai.travel.app.dto.ApiPrompt
 import ai.travel.app.dto.PalmApi
 import ai.travel.app.dto.Prompt
+import ai.travel.app.dto.getPlaceId.PlaceIdBody
 import ai.travel.app.repository.ApiService
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -33,9 +34,7 @@ class HomeViewModel @Inject constructor(
     val data: StateFlow<List<Map<String, String>>> = _data.asStateFlow()
 
     private val _geoCodesData = MutableStateFlow(emptyList<TourDetails>().toMutableList())
-    val geoCodesData: StateFlow<List<TourDetails>> = _geoCodesData.asStateFlow()
-
-
+    val geoCodesData: StateFlow<MutableList<TourDetails>> = _geoCodesData.asStateFlow()
 
 
     fun getApiData() {
@@ -66,10 +65,12 @@ class HomeViewModel @Inject constructor(
                     if (locationName != "") {
                         val apiData =
                             repository.getGeocodingData(
-                               query = "$locationName, ${_location.value}",
+                                query = "$locationName, ${_location.value}",
                             )
-                        geoCodes["latitude"] = apiData.items?.get(0)?.position?.lat?.toString() ?: ""
-                        geoCodes["longitude"] = apiData.items?.get(0)?.position?.lng?.toString() ?: ""
+                        geoCodes["latitude"] =
+                            apiData.items?.get(0)?.position?.lat?.toString() ?: ""
+                        geoCodes["longitude"] =
+                            apiData.items?.get(0)?.position?.lng?.toString() ?: ""
                         _geoCodesData.value[index].geoCode = GeoCode(
                             latitude = geoCodes["latitude"] ?: "",
                             longitude = geoCodes["longitude"] ?: ""
@@ -79,7 +80,61 @@ class HomeViewModel @Inject constructor(
 
             }
             _imageState.value = ApiState.ReceivedGeoCodes
+            getPlaceId()
         }
+    }
+
+    private fun getPlaceId() {
+        viewModelScope.launch {
+            delay(1000)
+            _geoCodesData.value.forEachIndexed { index, location ->
+                val apiData =
+                    repository.getPlaceIdData(
+                        PlaceIdBody(
+                            textQuery = location.name
+                        )
+                    )
+                _geoCodesData.value[index].placeId = apiData.places?.get(0)?.id ?: ""
+                println("placeIddddd: ${_geoCodesData.value[index].placeId}")
+            }
+            _imageState.value = ApiState.ReceivedPlaceId
+            getPhotoId()
+        }
+
+    }
+
+    private fun getPhoto() {
+        viewModelScope.launch {
+            delay(1000)
+            _geoCodesData.value.forEachIndexed { index, location ->
+                val apiData =
+                    repository.getPhoto(
+                        photoReference = _geoCodesData.value[index].photoID ?: "",
+                        maxWidth = 1200,
+                    )
+                _geoCodesData.value[index].photo = apiData
+            }
+        }
+        _imageState.value = ApiState.ReceivedPhoto
+    }
+
+    private fun getPhotoId() {
+        viewModelScope.launch {
+            delay(1000)
+            _geoCodesData.value.forEachIndexed { index, location ->
+                val apiData =
+                    repository.getPhotoId(
+                        photoId = _geoCodesData.value[index].placeId ?: ""
+                    )
+                _geoCodesData.value[index].photoID =
+                    apiData.result?.photos?.get(0)?.photo_reference ?: ""
+                println("photoIddddd: ${apiData.result}")
+                println("photoIddddd 111: ${_geoCodesData.value[index].placeId}")
+            }
+            _imageState.value = ApiState.ReceivedPhotoId
+            getPhoto()
+        }
+
     }
 
     fun updateMessage(message: String, location: String, noOfDays: String) {
@@ -185,11 +240,15 @@ sealed class ApiState {
 
     object NotStarted : ApiState()
     object ReceivedGeoCodes : ApiState()
+    object ReceivedPlaceId : ApiState()
+    object ReceivedPhotoId : ApiState()
+
+    object ReceivedPhoto : ApiState()
 }
 
 data class GeoCode(
     val latitude: String,
-    val longitude: String
+    val longitude: String,
 )
 
 data class TourDetails(
@@ -197,5 +256,26 @@ data class TourDetails(
     val timeOfDay: String,
     val name: String,
     val budget: String,
-    var geoCode: GeoCode? = null
-)
+    var geoCode: GeoCode? = null,
+    var placeId: String? = null,
+    var photoID: String? = null,
+    var photo: ByteArray? = null,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TourDetails
+
+        if (photo != null) {
+            if (other.photo == null) return false
+            if (!photo.contentEquals(other.photo)) return false
+        } else if (other.photo != null) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return photo?.contentHashCode() ?: 0
+    }
+}
