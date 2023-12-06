@@ -1,7 +1,7 @@
 package ai.travel.app.navigation
 
 import ai.travel.app.home.ui.HomeScreen
-import ai.travel.app.home.ui.HomeViewModel
+import ai.travel.app.home.HomeViewModel
 import ai.travel.app.home.ui.PfScreen
 import ai.travel.app.home.ui.RtScreen
 import androidx.compose.runtime.Composable
