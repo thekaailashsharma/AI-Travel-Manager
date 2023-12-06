@@ -4,15 +4,25 @@ import ai.travel.app.home.ApiState
 import ai.travel.app.home.HomeViewModel
 import ai.travel.app.ui.theme.appGradient
 import ai.travel.app.ui.theme.lightText
+import ai.travel.app.utils.ProfileImage
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -24,8 +34,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayInputStream
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
@@ -57,7 +75,11 @@ fun HomeScreen(viewModel: HomeViewModel) {
                     }
 
                     items(data.value.size) { index ->
-                        Text(text = data.value[index].toString(), color = lightText, fontSize = 12.sp)
+                        Text(
+                            text = data.value[index].toString(),
+                            color = lightText,
+                            fontSize = 12.sp
+                        )
                     }
                     item {
                         Text(
@@ -81,25 +103,26 @@ fun HomeScreen(viewModel: HomeViewModel) {
                     Text(text = "Home Screen", color = lightText)
                     Spacer(modifier = Modifier.height(20.dp))
                     Button(onClick = {
-                        viewModel.updateMessage("Generate a guided tour plan for a trip to " +
-                                "[LOCATION] for [NUMBER_OF_DAYS] days, considering various factors " +
-                                "such as [BUDGET_RANGE], preferred activities, accommodations, " +
-                                "transportation, and any specific preferences.1. Destination: " +
-                                "[$location] 2. Duration: [$noOfDays] days 3. Budget: [$budget] 4. " +
-                                "Activities: [TEMPLES, Sea] 5. Accommodations: [AC] 6. " +
-                                "Transportation: [Bus, Car] 7. Special Preferences: [None]." +
-                                "Provide a comprehensive guided tour plan that includes " +
-                                "recommended activities, places to visit, estimated costs, " +
-                                "suitable accommodations, transportation options, and any other " +
-                                "relevant information. Please consider the specified factors to " +
-                                "tailor the plan accordingly. GIVE OUTPUT IN THE FORMAT I ASKED ONLY. " +
-                                "DO NOT CHANGE THE output FORMAT. DO NOT. DO NOT change the FORMAT. " +
-                                "Format is Day1 Morning: 1. Location (Latitude, Longitude) 2. Name:" +
-                                " Name of Location 3. Budget, 4. Some additional notes. " +
-                                "Same for Afternoon Evening  ",
+                        viewModel.updateMessage(
+                            "Generate a guided tour plan for a trip to " +
+                                    "[LOCATION] for [NUMBER_OF_DAYS] days, considering various factors " +
+                                    "such as [BUDGET_RANGE], preferred activities, accommodations, " +
+                                    "transportation, and any specific preferences.1. Destination: " +
+                                    "[$location] 2. Duration: [$noOfDays] days 3. Budget: [$budget] 4. " +
+                                    "Activities: [TEMPLES, Sea] 5. Accommodations: [AC] 6. " +
+                                    "Transportation: [Bus, Car] 7. Special Preferences: [None]." +
+                                    "Provide a comprehensive guided tour plan that includes " +
+                                    "recommended activities, places to visit, estimated costs, " +
+                                    "suitable accommodations, transportation options, and any other " +
+                                    "relevant information. Please consider the specified factors to " +
+                                    "tailor the plan accordingly. GIVE OUTPUT IN THE FORMAT I ASKED ONLY. " +
+                                    "DO NOT CHANGE THE output FORMAT. DO NOT. DO NOT change the FORMAT. " +
+                                    "Format is Day1 Morning: 1. Location (Latitude, Longitude) 2. Name:" +
+                                    " Name of Location 3. Budget, 4. Some additional notes. " +
+                                    "Same for Afternoon Evening  ",
                             location = location,
                             noOfDays = noOfDays
-                            )
+                        )
                         viewModel.getApiData()
                     }) {
                         Text(text = "Fetch Data")
@@ -118,6 +141,48 @@ fun HomeScreen(viewModel: HomeViewModel) {
                         )
                     }
                 }
+            }
+
+            ApiState.ReceivedPhotoId -> {
+                Text(text = "Received Photo Id", color = lightText)
+            }
+
+            ApiState.ReceivedPlaceId -> {
+                Text(text = "Received Place Id", color = lightText)
+            }
+
+            ApiState.ReceivedPhoto -> {
+                LazyColumn {
+
+                    items(geoData.value, key = {
+                        it.name
+                    }) { newData ->
+                        Row(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)) {
+                            Text(
+                                text = "Place: ${newData.name}",
+                                color = lightText,
+                                fontSize = 12.sp
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+
+                            newData.photo?.let { it1 ->
+                                byteArrayToBitmap(it1)?.asImageBitmap()?.let {
+                                    Image(
+                                        bitmap = it,
+                                        contentDescription = "some useful description",
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .clip(CircleShape),
+                                    )
+                                }
+                            }
+
+                        }
+                    }
+                }
+
             }
         }
 
@@ -150,4 +215,8 @@ fun RtScreen() {
 
     }
 
+}
+
+fun convertImageByteArrayToBitmap(imageData: ByteArray): Bitmap {
+    return BitmapFactory.decodeByteArray(imageData, 0, imageData.size)
 }
