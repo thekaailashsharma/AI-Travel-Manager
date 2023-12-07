@@ -17,10 +17,10 @@ val appGradient: Brush
     @Composable
     get() = Brush.verticalGradient(
         0.0f to Color(0xFF231d47),
-        100.0f to Color(0xFF271c4d),
-        200.0f to Color(0xFF142742),
-        300.0f to Color(0xFF1b325d),
-        400.0f to Color(0xFF1b304d),
+//        150.0f to Color(0xFF271c4d),
+//        200.0f to Color(0xFF142742),
+//        300.0f to Color(0xFF1b325d),
+//        400.0f to Color(0xFF1b304d),
         500.0f to Color(0xFF1b304d),
     )
 
@@ -31,3 +31,4 @@ val lightText = Color(0xFF3f68a8)
 
 val bottomBarBackground = Color(0xFF172749)
 val bottomBarBorder = Color(0xFF3c69a8)
+val CardBackground = Color(0xFF122754)

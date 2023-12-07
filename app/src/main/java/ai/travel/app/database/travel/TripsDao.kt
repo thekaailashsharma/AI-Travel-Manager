@@ -13,10 +13,13 @@ interface TripsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTrip(tourDetails: TripsEntity)
 
-    @Query("SELECT * FROM trips where day = :day and timeOfDay = :timeOfDay")
-    fun getTrips(day: String, timeOfDay: String): Flow<List<TripsEntity?>>
+    @Query("SELECT * FROM trips where day = :day")
+    fun getTrips(day: String): Flow<List<TripsEntity?>>
 
     @Query("SELECT * FROM trips")
     fun getAllTrips(): Flow<List<TripsEntity?>>
+
+    @Query("SELECT Distinct day FROM trips")
+    fun getUniqueDays(): Flow<List<String?>>
 
 }
