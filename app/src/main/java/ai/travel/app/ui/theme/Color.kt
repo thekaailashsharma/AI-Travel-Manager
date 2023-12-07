@@ -31,3 +31,4 @@ val lightText = Color(0xFF3f68a8)
 
 val bottomBarBackground = Color(0xFF172749)
 val bottomBarBorder = Color(0xFF3c69a8)
+val CardBackground = Color(0xFF122754)
