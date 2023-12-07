@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.kapt3.base.Kapt.kapt
 import java.io.FileInputStream
 import java.util.Properties
 

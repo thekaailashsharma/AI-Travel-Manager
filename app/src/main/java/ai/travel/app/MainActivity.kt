@@ -1,6 +1,7 @@
 package ai.travel.app
 
 import ai.travel.app.bottomBar.BottomBar
+import ai.travel.app.home.ui.MemoryCollection
 import ai.travel.app.navigation.NavController
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -38,9 +39,10 @@ class MainActivity : ComponentActivity() {
 
 
                 ) {
-                    NavController(navHostController = navController)
+//                    NavController(navHostController = navController)
                     print(it)
 
+                    MemoryCollection()
                 }
             }
         }
