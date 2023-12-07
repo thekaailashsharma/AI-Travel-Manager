@@ -22,4 +22,7 @@ interface TripsDao {
     @Query("SELECT Distinct day FROM trips")
     fun getUniqueDays(): Flow<List<String?>>
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllTrips(trips: List<TripsEntity>)
+
 }

@@ -86,6 +86,9 @@ dependencies {
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.5")
 
+    //Lottie-compose
+    implementation("com.airbnb.android:lottie-compose:5.2.0")
+
     //Ktor-Client
     implementation("io.ktor:ktor-client-core:2.3.5")
     implementation("io.ktor:ktor-client-cio:2.3.2")

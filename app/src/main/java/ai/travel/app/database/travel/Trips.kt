@@ -12,7 +12,6 @@ data class TripsEntity(
     val name: String,
     val source: String,
     val destination: String,
-    val travelMode: ArrayList<String>,
     val travelActivity: String,
     val budget: String? = null,
     val latitude: Double?,

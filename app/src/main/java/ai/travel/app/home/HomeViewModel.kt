@@ -12,6 +12,7 @@ import android.app.Application
 import android.util.Base64
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -58,6 +59,8 @@ class HomeViewModel @Inject constructor(
     val travelMode = mutableStateListOf<String>()
     val source = mutableStateOf(TextFieldValue(""))
     val destination = mutableStateOf(TextFieldValue(""))
+    val isAnimationVisible = mutableStateOf(false)
+
 
 
     fun getApiData() {
@@ -137,31 +140,47 @@ class HomeViewModel @Inject constructor(
                     )
                 _geoCodesData.value[index].photo = apiData
             }
-            _imageState.value = ApiState.ReceivedPhoto
             addTripToDatabase()
+            _imageState.value = ApiState.ReceivedPhoto
+
         }
 
     }
 
     private fun addTripToDatabase() {
         viewModelScope.launch {
-            _geoCodesData.value.forEachIndexed { _, location ->
-                dbRepository.insertTrip(
-                    TripsEntity(
-                        day = location.day,
-                        timeOfDay = location.timeOfDay,
-                        name = location.name,
-                        budget = location.budget,
-                        latitude = location.geoCode?.latitude?.toDouble(),
-                        longitude = location.geoCode?.longitude?.toDouble(),
-                        photoBase64 = byteArrayToBase64(location.photo ?: ByteArray(0)),
-                        source = source.value.text,
-                        destination = destination.value.text,
-                        travelMode = ArrayList(travelMode.toList()),
-                        travelActivity = "",
-                    )
+            println("Adding to databasesssssssssss")
+            dbRepository.insertAllTrips(_geoCodesData.value.map {
+                TripsEntity(
+                    day = it.day,
+                    timeOfDay = it.timeOfDay,
+                    name = it.name,
+                    budget = it.budget,
+                    latitude = it.geoCode?.latitude?.toDouble(),
+                    longitude = it.geoCode?.longitude?.toDouble(),
+                    photoBase64 = byteArrayToBase64(it.photo ?: ByteArray(0)),
+                    source = source.value.text,
+                    destination = destination.value.text,
+                    travelActivity = "",
                 )
-            }
+            })
+
+//            _geoCodesData.value.forEachIndexed { _, location ->
+//                dbRepository.insertTrip(
+//                    TripsEntity(
+//                        day = location.day,
+//                        timeOfDay = location.timeOfDay,
+//                        name = location.name,
+//                        budget = location.budget,
+//                        latitude = location.geoCode?.latitude?.toDouble(),
+//                        longitude = location.geoCode?.longitude?.toDouble(),
+//                        photoBase64 = byteArrayToBase64(location.photo ?: ByteArray(0)),
+//                        source = source.value.text,
+//                        destination = destination.value.text,
+//                        travelActivity = "",
+//                    )
+//                )
+//            }
 
         }
 
