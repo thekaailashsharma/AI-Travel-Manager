@@ -17,10 +17,10 @@ val appGradient: Brush
     @Composable
     get() = Brush.verticalGradient(
         0.0f to Color(0xFF231d47),
-        100.0f to Color(0xFF271c4d),
-        200.0f to Color(0xFF142742),
-        300.0f to Color(0xFF1b325d),
-        400.0f to Color(0xFF1b304d),
+//        150.0f to Color(0xFF271c4d),
+//        200.0f to Color(0xFF142742),
+//        300.0f to Color(0xFF1b325d),
+//        400.0f to Color(0xFF1b304d),
         500.0f to Color(0xFF1b304d),
     )
 
