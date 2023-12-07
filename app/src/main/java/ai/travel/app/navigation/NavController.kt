@@ -20,7 +20,7 @@ fun NavController(navHostController: NavHostController, paddingValues: PaddingVa
 
     NavHost(navController = navHostController, startDestination = Screens.Home.route) {
         composable(Screens.Home.route) {
-            NewHomeScreen(viewModel = homeViewModel)
+            NewHomeScreen(viewModel = homeViewModel, bottomBarPadding = paddingValues)
 //            TripDetailsScreen(viewModel = homeViewModel, paddingValues = paddingValues)
         }
         composable(Screens.Profile.route) {

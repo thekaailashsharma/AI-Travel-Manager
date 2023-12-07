@@ -11,6 +11,7 @@ import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,6 +34,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -45,18 +48,30 @@ import androidx.navigation.compose.rememberNavController
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun NewHomeScreen(viewModel: HomeViewModel) {
+fun NewHomeScreen(viewModel: HomeViewModel, bottomBarPadding: PaddingValues) {
 
     val listState = rememberLazyListState()
-    val isCollapsed: Boolean by remember {
-        derivedStateOf { listState.firstVisibleItemIndex > 0 }
+    val collapseThreshold = remember {
+        mutableFloatStateOf(0.5f)
+    }
+
+    val isCollapsed =  remember(listState) {
+        derivedStateOf {
+            val firstVisibleItemOffset = listState.firstVisibleItemScrollOffset
+            val firstItemHeight = listState.layoutInfo.visibleItemsInfo.firstOrNull()?.size ?: 0
+            val totalOffset =
+                (firstVisibleItemOffset.toFloat() / firstItemHeight.toFloat())
+
+            totalOffset > collapseThreshold.floatValue
+        }
     }
     val trips = viewModel.allTrips.collectAsState(initial = emptyList())
+
     Scaffold(
         topBar = {
             CollapsedTopBarHomeScreen(
                 imageUrl = "https://lh3.googleusercontent.com/a/ACg8ocLRSg1ANIUVzU42MCsMSsHnHvu_MeSrh7lLkADF4zZptKg=s576-c-no",
-                isCollapsed = isCollapsed,
+                isCollapsed = isCollapsed.value,
                 scroll = listState,
             )
         },
@@ -66,11 +81,12 @@ fun NewHomeScreen(viewModel: HomeViewModel) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(appGradient),
+                    .background(appGradient)
+                    .padding(padding)
+                    .padding(bottomBarPadding),
             ) {
                 LazyColumn(
                     modifier = Modifier
-                        .padding(padding)
                         .fillMaxSize()
                         .background(appGradient),
                     state = listState
@@ -82,7 +98,6 @@ fun NewHomeScreen(viewModel: HomeViewModel) {
                     }
 
                     items(trips.value) { newData ->
-                        Spacer(modifier = Modifier.height(10.dp))
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
