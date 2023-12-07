@@ -2,6 +2,7 @@ package ai.travel.app.navigation
 
 import ai.travel.app.home.ui.HomeScreen
 import ai.travel.app.home.HomeViewModel
+import ai.travel.app.home.ui.NewHomeScreen
 import ai.travel.app.home.ui.PfScreen
 import ai.travel.app.home.ui.RtScreen
 import ai.travel.app.tripDetails.TripDetailsScreen
@@ -19,7 +20,8 @@ fun NavController(navHostController: NavHostController, paddingValues: PaddingVa
 
     NavHost(navController = navHostController, startDestination = Screens.Home.route) {
         composable(Screens.Home.route) {
-            TripDetailsScreen(viewModel = homeViewModel, paddingValues = paddingValues)
+            NewHomeScreen(viewModel = homeViewModel)
+//            TripDetailsScreen(viewModel = homeViewModel, paddingValues = paddingValues)
         }
         composable(Screens.Profile.route) {
             PfScreen()
