@@ -1,5 +1,6 @@
 package ai.travel.app.home
 
+import ai.travel.app.database.ArrayListConverter
 import ai.travel.app.database.DatabaseRepo
 import ai.travel.app.database.travel.TripsEntity
 import ai.travel.app.dto.ApiPrompt
@@ -9,6 +10,9 @@ import ai.travel.app.dto.getPlaceId.PlaceIdBody
 import ai.travel.app.repository.ApiService
 import android.app.Application
 import android.util.Base64
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,6 +50,14 @@ class HomeViewModel @Inject constructor(
 
     val allTrips: Flow<List<TripsEntity?>> = dbRepository.allTrips
     val uniqueDays: Flow<List<String?>> = dbRepository.distinctDays
+
+    val tripName = mutableStateOf(TextFieldValue(""))
+    val tripBudget = mutableStateOf(TextFieldValue(""))
+    val tripNoOfDays = mutableStateOf(TextFieldValue(""))
+    val tags = mutableStateListOf<String>()
+    val travelMode = mutableStateListOf<String>()
+    val source = mutableStateOf(TextFieldValue(""))
+    val destination = mutableStateOf(TextFieldValue(""))
 
 
     fun getApiData() {
@@ -142,7 +154,11 @@ class HomeViewModel @Inject constructor(
                         budget = location.budget,
                         latitude = location.geoCode?.latitude?.toDouble(),
                         longitude = location.geoCode?.longitude?.toDouble(),
-                        photoBase64 = byteArrayToBase64(location.photo ?: ByteArray(0))
+                        photoBase64 = byteArrayToBase64(location.photo ?: ByteArray(0)),
+                        source = source.value.text,
+                        destination = destination.value.text,
+                        travelMode = ArrayList(travelMode.toList()),
+                        travelActivity = "",
                     )
                 )
             }
