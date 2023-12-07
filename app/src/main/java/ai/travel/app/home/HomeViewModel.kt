@@ -41,10 +41,11 @@ class HomeViewModel @Inject constructor(
     private val _geoCodesData = MutableStateFlow(emptyList<TourDetails>().toMutableList())
     val geoCodesData: StateFlow<List<TourDetails>> = _geoCodesData.asStateFlow()
 
-    fun getTrips(day: String, timeOfDay: String): Flow<List<TripsEntity?>> =
-        dbRepository.getTrips(day, timeOfDay)
+    fun getTrips(day: String): Flow<List<TripsEntity?>> =
+        dbRepository.getTrips(day)
 
     val allTrips: Flow<List<TripsEntity?>> = dbRepository.allTrips
+    val uniqueDays: Flow<List<String?>> = dbRepository.distinctDays
 
 
     fun getApiData() {

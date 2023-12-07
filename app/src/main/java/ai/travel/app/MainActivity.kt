@@ -38,27 +38,11 @@ class MainActivity : ComponentActivity() {
 
 
                 ) {
-                    NavController(navHostController = navController)
+                    NavController(navHostController = navController, paddingValues = it)
                     print(it)
 
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AITravelManagerTheme {
-        Greeting("Android")
     }
 }

@@ -13,9 +13,12 @@ import ai.travel.app.utils.ProfileImage
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -25,16 +28,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Wallet
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -42,6 +50,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,10 +66,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
 @Composable
-fun TripDetailsScreen(viewModel: HomeViewModel) {
+fun TripDetailsScreen(viewModel: HomeViewModel, paddingValues: PaddingValues) {
     val cardData1 = listOf(
         GridCardData(
             topText = "Country",
@@ -83,13 +96,18 @@ fun TripDetailsScreen(viewModel: HomeViewModel) {
             icon = Icons.Filled.CalendarToday
         ),
     )
+    val coroutineScope = rememberCoroutineScope()
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(appGradient)
+            .padding(paddingValues)
     ) {
 
         val trips = viewModel.allTrips.collectAsState(initial = emptyList())
+        val days = viewModel.uniqueDays.collectAsState(initial = emptyList())
+        val currentDay = remember { mutableStateOf("1") }
+        var dayTrips = viewModel.getTrips(currentDay.value).collectAsState(initial = emptyList())
 
         if (trips.value.isEmpty()) {
             CircularProgressIndicator()
@@ -136,7 +154,10 @@ fun TripDetailsScreen(viewModel: HomeViewModel) {
                             modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 8.dp)
                         )
 
-                        LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            modifier = Modifier.height(200.dp)
+                        ) {
                             items(cardData1) {
                                 GridCard(
                                     topText = it.topText,
@@ -155,15 +176,154 @@ fun TripDetailsScreen(viewModel: HomeViewModel) {
 
                         }
 
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+                                .padding(
+                                    start = 12.dp,
+                                    top = 0.dp,
+                                    bottom = 0.dp,
+                                    end = 12.dp
+                                )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.LocationOn,
+                                contentDescription = "topText",
+                                tint = lightText,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(7.dp))
+                            Text(
+                                text = "Your Schedule",
+                                color = textColor,
+                                fontSize = 12.sp,
+                            )
+                        }
+
                         Spacer(modifier = Modifier.height(10.dp))
+
+                        LazyRow(contentPadding = PaddingValues(7.dp)) {
+                            items(days.value) { day ->
+                                Card(
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = bottomBarBackground,
+                                    ),
+                                    border = BorderStroke(1.dp, bottomBarBorder),
+                                    shape = RoundedCornerShape(20.dp),
+                                    elevation = CardDefaults.cardElevation(0.dp),
+                                    modifier = Modifier
+                                        .width(120.dp)
+                                        .padding(
+                                            start = 12.dp,
+                                            top = 0.dp,
+                                            bottom = 12.dp,
+                                            end = 12.dp
+                                        )
+                                        .clickable(
+                                            interactionSource = MutableInteractionSource(),
+                                            indication = null
+                                        ) {
+                                            coroutineScope.launch {
+                                                currentDay.value = day ?: "1"
+                                            }
+                                        }
+
+                                ) {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(
+                                                start = 0.dp,
+                                                top = 10.dp,
+                                                bottom = 10.dp
+                                            )
+                                    ) {
+                                        Text(
+                                            text = "Day $day",
+                                            color = textColor,
+                                            fontSize = 18.sp,
+                                            modifier = Modifier.padding(start = 2.dp)
+                                        )
+                                    }
+                                }
+
+
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        LazyColumn() {
+                            items(dayTrips.value) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(
+                                            start = 0.dp,
+                                            top = 0.dp,
+                                            bottom = 12.dp,
+                                            end = 12.dp
+                                        ),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Start
+                                ) {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(0.3f),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Top
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.WbSunny,
+                                            contentDescription = "topText",
+                                            tint = lightText,
+                                            modifier = Modifier.size(25.dp)
+                                        )
+                                        Spacer(modifier = Modifier.height(5.dp))
+                                        VerticalDashedDivider(
+                                            color = lightText,
+                                            height = 100,
+                                            dashWidth = 14f,
+                                            gapWidth = 10f
+                                        )
+                                    }
+
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .weight(1f),
+                                        horizontalAlignment = Alignment.Start,
+                                        verticalArrangement = Arrangement.Top
+                                    ) {
+                                        Text(
+                                            text = it?.timeOfDay ?: "",
+                                            color = textColor,
+                                            fontSize = 25.sp,
+                                            modifier = Modifier
+                                        )
+                                        Spacer(modifier = Modifier.height(10.dp))
+                                        Text(
+                                            text = it?.name ?: "",
+                                            color = textColor,
+                                            fontSize = 13.sp,
+                                            modifier = Modifier,
+                                            softWrap = true
+                                        )
+                                    }
+
+                                }
+
+                            }
+                        }
                     }
+
                 }
+
             }
         }
-
-
     }
 }
+
 
 data class GridCardData(
     val topText: String,
