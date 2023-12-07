@@ -8,10 +8,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class DatabaseRepo(private val tripsDao: TripsDao) {
-    fun getTrips(day: String, timeOfDay: String): Flow<List<TripsEntity?>> =
-        tripsDao.getTrips(day, timeOfDay)
+    fun getTrips(day: String): Flow<List<TripsEntity?>> =
+        tripsDao.getTrips(day)
 
     val allTrips: Flow<List<TripsEntity?>> = tripsDao.getAllTrips()
+
+    val distinctDays: Flow<List<String?>> = tripsDao.getUniqueDays()
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
