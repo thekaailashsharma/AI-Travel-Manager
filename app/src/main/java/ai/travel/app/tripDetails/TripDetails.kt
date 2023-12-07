@@ -124,25 +124,28 @@ fun TripDetailsScreen(viewModel: HomeViewModel, paddingValues: PaddingValues) {
                             containerColor = Color.Transparent
                         )
                     ) {
-                        Image(
-                            bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
-                            contentDescription = "some useful description",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight()
-                                .drawWithCache {
-                                    val gradient = Brush.verticalGradient(
-                                        colors = listOf(Color.Transparent, Color.Black.copy(0.8f)),
-                                        startY = size.height / 5.5f,
-                                        endY = size.height
-                                    )
-                                    onDrawWithContent {
-                                        drawContent()
-                                        drawRect(gradient, blendMode = BlendMode.Multiply)
-                                    }
-                                },
-                            contentScale = ContentScale.FillWidth
-                        )
+                        convertImageByteArrayToBitmap(base64ToByteArray(it))?.asImageBitmap()
+                            ?.let { it1 ->
+                                Image(
+                                    bitmap = it1,
+                                    contentDescription = "some useful description",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .fillMaxHeight()
+                                        .drawWithCache {
+                                            val gradient = Brush.verticalGradient(
+                                                colors = listOf(Color.Transparent, Color.Black.copy(0.8f)),
+                                                startY = size.height / 5.5f,
+                                                endY = size.height
+                                            )
+                                            onDrawWithContent {
+                                                drawContent()
+                                                drawRect(gradient, blendMode = BlendMode.Multiply)
+                                            }
+                                        },
+                                    contentScale = ContentScale.FillWidth
+                                )
+                            }
                     }
 
                     Column {

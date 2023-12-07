@@ -125,7 +125,7 @@ fun NewTripScreen(
 
             Icon(
                 imageVector = Icons.Filled.Done,
-                contentDescription = "Arrow Back",
+                contentDescription = "Arrow Done",
                 tint = textColor,
                 modifier = Modifier
                     .padding(end = 15.dp)
@@ -159,6 +159,7 @@ fun NewTripScreen(
                                 noOfDays = homeViewModel.tripNoOfDays.value.text
                             )
                             homeViewModel.getApiData()
+                            homeViewModel.isAnimationVisible.value = true
                         }
                     }
             )

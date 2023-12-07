@@ -66,6 +66,7 @@ fun PersonalRoutes(sheetState: BottomSheetScaffoldState, homeViewModel: HomeView
     LaunchedEffect(key1 = homeViewModel.allTrips) {
         homeViewModel.allTrips.collectLatest {
             if (it.isNotEmpty()) {
+                newItems.clear()
                 newItems.addAll(extractTripInfo(it))
             }
         }
@@ -169,10 +170,8 @@ fun NewRouteCard(sheetState: BottomSheetScaffoldState) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RouteCard(item: TripInfo?) {
-    val coroutineScope = rememberCoroutineScope()
     Card(
         modifier = Modifier
             .width(220.dp)
@@ -207,13 +206,16 @@ fun RouteCard(item: TripInfo?) {
                     verticalArrangement = Arrangement.Center
                 ) {
                     item?.photoBase64?.let {
-                        Image(
-                            bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
-                            contentDescription = "some useful description",
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            contentScale = ContentScale.FillBounds
-                        )
+                        convertImageByteArrayToBitmap(base64ToByteArray(it))?.asImageBitmap()
+                            ?.let { it1 ->
+                                Image(
+                                    bitmap = it1,
+                                    contentDescription = "some useful description",
+                                    modifier = Modifier
+                                        .fillMaxSize(),
+                                    contentScale = ContentScale.FillBounds
+                                )
+                            }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }

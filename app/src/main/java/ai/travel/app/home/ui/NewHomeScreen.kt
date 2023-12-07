@@ -1,5 +1,6 @@
 package ai.travel.app.home.ui
 
+import ai.travel.app.home.ApiState
 import ai.travel.app.home.HomeViewModel
 import ai.travel.app.home.base64ToByteArray
 import ai.travel.app.newTrip.NewTripScreen
@@ -7,10 +8,12 @@ import ai.travel.app.newTrip.NewTripViewModel
 import ai.travel.app.ui.theme.CardBackground
 import ai.travel.app.ui.theme.appGradient
 import ai.travel.app.ui.theme.lightText
+import ai.travel.app.ui.theme.textColor
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -42,14 +45,23 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -70,6 +82,12 @@ fun NewHomeScreen(
     val collapseThreshold = remember {
         mutableFloatStateOf(0.5f)
     }
+
+    val state = viewModel.imageState.collectAsState()
+
+    println("MyStateeeeee: ${state.value}")
+
+
 
 //    LaunchedEffect(modalSheetStates.bottomSheetState) {
 //        snapshotFlow { modalSheetStates.bottomSheetState.isVisible }.collect { isVisible ->
@@ -112,7 +130,6 @@ fun NewHomeScreen(
         },
     ) { padding ->
         println(padding)
-
             CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                 Column(
                     modifier = Modifier
@@ -121,164 +138,170 @@ fun NewHomeScreen(
                         .padding(padding)
                         .padding(bottomBarPadding),
                 ) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(appGradient),
-                        state = listState
-                    ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(appGradient)
+                                .then(
+                                    if (viewModel.isAnimationVisible.value)
+                                        Modifier.blur(10.dp)
+                                    else Modifier
+                                ),
+                            state = listState
+                        ) {
 
-                        item {
-                            ExpandedTopBarHomeScreen(
-                                imageUrl = "https://lh3.googleusercontent.com/a/ACg8ocLRSg1ANIUVzU42MCsMSsHnHvu_MeSrh7lLkADF4zZptKg=s576-c-no",
-                            )
-                        }
-
-                        item {
-                            PersonalRoutes(sheetState = modalSheetStates, homeViewModel = viewModel)
-
-                            Spacer(modifier = Modifier.height(10.dp))
-                        }
-
-                        items(trips.value) { newData ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp)
-                            ) {
-                                Text(
-                                    text = "Place: ${newData?.name}",
-                                    color = lightText,
-                                    fontSize = 12.sp
+                            item {
+                                ExpandedTopBarHomeScreen(
+                                    imageUrl = "https://lh3.googleusercontent.com/a/ACg8ocLRSg1ANIUVzU42MCsMSsHnHvu_MeSrh7lLkADF4zZptKg=s576-c-no",
                                 )
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                newData?.photoBase64?.let {
-                                    Image(
-                                        bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
-                                        contentDescription = "some useful description",
-                                        modifier = Modifier
-                                            .size(50.dp)
-                                            .clip(CircleShape),
-                                    )
-                                }
-
-
                             }
-                        }
 
-                        items(trips.value) { newData ->
-                            Spacer(modifier = Modifier.height(10.dp))
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp)
-                            ) {
-                                Text(
-                                    text = "Place: ${newData?.name}",
-                                    color = lightText,
-                                    fontSize = 12.sp
+                            item {
+                                PersonalRoutes(
+                                    sheetState = modalSheetStates,
+                                    homeViewModel = viewModel
                                 )
-                                Spacer(modifier = Modifier.width(10.dp))
 
-                                newData?.photoBase64?.let {
-                                    Image(
-                                        bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
-                                        contentDescription = "some useful description",
-                                        modifier = Modifier
-                                            .size(50.dp)
-                                            .clip(CircleShape),
-                                    )
-                                }
-
-
+                                Spacer(modifier = Modifier.height(10.dp))
                             }
-                        }
 
-                        items(trips.value) { newData ->
-                            Spacer(modifier = Modifier.height(10.dp))
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp)
-                            ) {
-                                Text(
-                                    text = "Place: ${newData?.name}",
-                                    color = lightText,
-                                    fontSize = 12.sp
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                newData?.photoBase64?.let {
-                                    Image(
-                                        bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
-                                        contentDescription = "some useful description",
-                                        modifier = Modifier
-                                            .size(50.dp)
-                                            .clip(CircleShape),
+                            items(trips.value) { newData ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(10.dp)
+                                ) {
+                                    Text(
+                                        text = "Place: ${newData?.name}",
+                                        color = lightText,
+                                        fontSize = 12.sp
                                     )
+                                    Spacer(modifier = Modifier.width(10.dp))
+
+                                    newData?.photoBase64?.let {
+                                        convertImageByteArrayToBitmap(
+                                            base64ToByteArray(
+                                                it
+                                            )
+                                        )?.asImageBitmap()?.let { it1 ->
+                                            Image(
+                                                bitmap = it1,
+                                                contentDescription = "some useful description",
+                                                modifier = Modifier
+                                                    .size(50.dp)
+                                                    .clip(CircleShape),
+                                            )
+                                        }
+                                    }
+
+
                                 }
-
-
                             }
+
                         }
-
-                        items(trips.value) { newData ->
-                            Spacer(modifier = Modifier.height(10.dp))
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp)
+                        if (viewModel.isAnimationVisible.value) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    text = "Place: ${newData?.name}",
-                                    color = lightText,
-                                    fontSize = 12.sp
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    when (state.value) {
+                                        is ApiState.Error -> {
 
-                                newData?.photoBase64?.let {
-                                    Image(
-                                        bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
-                                        contentDescription = "some useful description",
-                                        modifier = Modifier
-                                            .size(50.dp)
-                                            .clip(CircleShape),
-                                    )
+                                        }
+
+                                        is ApiState.Loaded -> {
+                                            val currenanim by rememberLottieComposition(
+                                                spec = LottieCompositionSpec.Asset("location.json")
+                                            )
+                                            LottieAnimation(
+                                                composition = currenanim,
+                                                iterations = Int.MAX_VALUE,
+                                                contentScale = ContentScale.Crop,
+                                                speed = 1f,
+                                                modifier = Modifier
+                                                    .size(250.dp)
+                                            )
+
+                                            Text(text = "Fetching your location", color = textColor, fontSize = 18.sp)
+                                        }
+
+                                        ApiState.Loading -> {
+                                            val currenanim by rememberLottieComposition(
+                                                spec = LottieCompositionSpec.Asset("location.json")
+                                            )
+                                            LottieAnimation(
+                                                composition = currenanim,
+                                                iterations = Int.MAX_VALUE,
+                                                contentScale = ContentScale.Crop,
+                                                speed = 1f,
+                                                modifier = Modifier
+                                                    .size(250.dp)
+                                            )
+
+                                            Text(text = "Fetching your location", color = textColor, fontSize = 18.sp)
+                                        }
+
+                                        ApiState.NotStarted -> {
+
+                                        }
+
+                                        ApiState.ReceivedGeoCodes -> {
+                                            val currenanim by rememberLottieComposition(
+                                                spec = LottieCompositionSpec.Asset("itineary.json")
+                                            )
+                                            LottieAnimation(
+                                                composition = currenanim,
+                                                iterations = Int.MAX_VALUE,
+                                                contentScale = ContentScale.Crop,
+                                                speed = 1f,
+                                                modifier = Modifier
+                                                    .size(250.dp)
+                                            )
+                                            Text(text = "Planning Itineary", color = textColor, fontSize = 18.sp)
+                                        }
+
+                                        ApiState.ReceivedPhoto -> {
+                                            viewModel.isAnimationVisible.value = false
+
+                                        }
+
+                                        ApiState.ReceivedPhotoId -> {
+                                            val currenanim by rememberLottieComposition(
+                                                spec = LottieCompositionSpec.Asset("getset.json")
+                                            )
+                                            LottieAnimation(
+                                                composition = currenanim,
+                                                iterations = Int.MAX_VALUE,
+                                                contentScale = ContentScale.Crop,
+                                                speed = 1f,
+                                                modifier = Modifier
+                                                    .size(250.dp)
+                                            )
+                                            Text(text = "Get Set Go", color = textColor, fontSize = 18.sp)
+                                        }
+
+                                        ApiState.ReceivedPlaceId -> {
+                                            val currenanim by rememberLottieComposition(
+                                                spec = LottieCompositionSpec.Asset("onyourmark.json")
+                                            )
+                                            LottieAnimation(
+                                                composition = currenanim,
+                                                iterations = Int.MAX_VALUE,
+                                                contentScale = ContentScale.Crop,
+                                                speed = 1f,
+                                                modifier = Modifier
+                                                    .size(250.dp)
+                                            )
+                                            Text(text = "ON your Mark", color = textColor, fontSize = 18.sp)
+                                        }
+                                    }
                                 }
-
-
-                            }
-                        }
-
-                        items(trips.value) { newData ->
-                            Spacer(modifier = Modifier.height(10.dp))
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp)
-                            ) {
-                                Text(
-                                    text = "Place: ${newData?.name}",
-                                    color = lightText,
-                                    fontSize = 12.sp
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                newData?.photoBase64?.let {
-                                    Image(
-                                        bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
-                                        contentDescription = "some useful description",
-                                        modifier = Modifier
-                                            .size(50.dp)
-                                            .clip(CircleShape),
-                                    )
-                                }
-
-
                             }
                         }
                     }
+
                 }
             }
         }

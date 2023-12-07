@@ -23,5 +23,11 @@ class DatabaseRepo(private val tripsDao: TripsDao) {
         }
     }
 
+    fun insertAllTrips(trips: List<TripsEntity>) {
+        coroutineScope.launch {
+            tripsDao.insertAllTrips(trips)
+        }
+    }
+
 
 }
