@@ -114,7 +114,7 @@ fun CollapsedTopBarHomeScreen(
                 ProfileImage(
                     imageUrl = imageUrl,
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(50.dp)
                         .border(
                             brush = appGradient, shape = CircleShape, width = 1.dp
                         )
