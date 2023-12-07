@@ -2,6 +2,9 @@ package ai.travel.app.home.ui
 
 import ai.travel.app.home.HomeViewModel
 import ai.travel.app.home.base64ToByteArray
+import ai.travel.app.newTrip.NewTripScreen
+import ai.travel.app.newTrip.NewTripViewModel
+import ai.travel.app.ui.theme.CardBackground
 import ai.travel.app.ui.theme.appGradient
 import ai.travel.app.ui.theme.lightText
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -22,15 +25,26 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
@@ -39,12 +53,30 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun NewHomeScreen(viewModel: HomeViewModel, bottomBarPadding: PaddingValues) {
+fun NewHomeScreen(
+    viewModel: HomeViewModel,
+    bottomBarPadding: PaddingValues,
+    newTripViewModel: NewTripViewModel,
+    isBottomBarVisible: MutableState<Boolean>
+) {
 
+    val modalSheetStates = rememberBottomSheetScaffoldState(
+        bottomSheetState = SheetState(
+            initialValue = SheetValue.Hidden,
+            skipPartiallyExpanded = false
+        )
+    )
     val listState = rememberLazyListState()
     val collapseThreshold = remember {
         mutableFloatStateOf(0.5f)
     }
+
+//    LaunchedEffect(modalSheetStates.bottomSheetState) {
+//        snapshotFlow { modalSheetStates.bottomSheetState.isVisible }.collect { isVisible ->
+//            isBottomBarVisible.value = !isVisible
+//        }
+//    }
+
 
     val isCollapsed =  remember(listState) {
         derivedStateOf {
@@ -57,7 +89,19 @@ fun NewHomeScreen(viewModel: HomeViewModel, bottomBarPadding: PaddingValues) {
         }
     }
     val trips = viewModel.allTrips.collectAsState(initial = emptyList())
-
+    BottomSheetScaffold(
+        sheetContent = {
+            NewTripScreen(
+                viewModel = newTripViewModel,
+                sheetScaffoldState = modalSheetStates,
+                homeViewModel = viewModel
+            )
+        },
+        sheetContainerColor = CardBackground,
+        scaffoldState = modalSheetStates,
+        sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+        sheetPeekHeight = 0.dp,
+    ) {
     Scaffold(
         topBar = {
             CollapsedTopBarHomeScreen(
@@ -68,169 +112,171 @@ fun NewHomeScreen(viewModel: HomeViewModel, bottomBarPadding: PaddingValues) {
         },
     ) { padding ->
         println(padding)
-        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(appGradient)
-                    .padding(padding)
-                    .padding(bottomBarPadding),
-            ) {
-                LazyColumn(
+
+            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(appGradient),
-                    state = listState
+                        .background(appGradient)
+                        .padding(padding)
+                        .padding(bottomBarPadding),
                 ) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(appGradient),
+                        state = listState
+                    ) {
 
-                    item {
-                        ExpandedTopBarHomeScreen(
-                            imageUrl = "https://lh3.googleusercontent.com/a/ACg8ocLRSg1ANIUVzU42MCsMSsHnHvu_MeSrh7lLkADF4zZptKg=s576-c-no",
-                        )
-                    }
-
-                    item {
-                        PersonalRoutes()
-
-                        Spacer(modifier = Modifier.height(10.dp))
-                    }
-
-                    items(trips.value) { newData ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp)
-                        ) {
-                            Text(
-                                text = "Place: ${newData?.name}",
-                                color = lightText,
-                                fontSize = 12.sp
+                        item {
+                            ExpandedTopBarHomeScreen(
+                                imageUrl = "https://lh3.googleusercontent.com/a/ACg8ocLRSg1ANIUVzU42MCsMSsHnHvu_MeSrh7lLkADF4zZptKg=s576-c-no",
                             )
-                            Spacer(modifier = Modifier.width(10.dp))
-
-                            newData?.photoBase64?.let {
-                                Image(
-                                    bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
-                                    contentDescription = "some useful description",
-                                    modifier = Modifier
-                                        .size(50.dp)
-                                        .clip(CircleShape),
-                                )
-                            }
-
-
                         }
-                    }
 
-                    items(trips.value) { newData ->
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp)
-                        ) {
-                            Text(
-                                text = "Place: ${newData?.name}",
-                                color = lightText,
-                                fontSize = 12.sp
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
+                        item {
+                            PersonalRoutes(sheetState = modalSheetStates, homeViewModel = viewModel)
 
-                            newData?.photoBase64?.let {
-                                Image(
-                                    bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
-                                    contentDescription = "some useful description",
-                                    modifier = Modifier
-                                        .size(50.dp)
-                                        .clip(CircleShape),
-                                )
-                            }
-
-
+                            Spacer(modifier = Modifier.height(10.dp))
                         }
-                    }
 
-                    items(trips.value) { newData ->
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp)
-                        ) {
-                            Text(
-                                text = "Place: ${newData?.name}",
-                                color = lightText,
-                                fontSize = 12.sp
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-
-                            newData?.photoBase64?.let {
-                                Image(
-                                    bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
-                                    contentDescription = "some useful description",
-                                    modifier = Modifier
-                                        .size(50.dp)
-                                        .clip(CircleShape),
+                        items(trips.value) { newData ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                            ) {
+                                Text(
+                                    text = "Place: ${newData?.name}",
+                                    color = lightText,
+                                    fontSize = 12.sp
                                 )
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                newData?.photoBase64?.let {
+                                    Image(
+                                        bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
+                                        contentDescription = "some useful description",
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .clip(CircleShape),
+                                    )
+                                }
+
+
                             }
-
-
                         }
-                    }
 
-                    items(trips.value) { newData ->
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp)
-                        ) {
-                            Text(
-                                text = "Place: ${newData?.name}",
-                                color = lightText,
-                                fontSize = 12.sp
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-
-                            newData?.photoBase64?.let {
-                                Image(
-                                    bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
-                                    contentDescription = "some useful description",
-                                    modifier = Modifier
-                                        .size(50.dp)
-                                        .clip(CircleShape),
+                        items(trips.value) { newData ->
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                            ) {
+                                Text(
+                                    text = "Place: ${newData?.name}",
+                                    color = lightText,
+                                    fontSize = 12.sp
                                 )
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                newData?.photoBase64?.let {
+                                    Image(
+                                        bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
+                                        contentDescription = "some useful description",
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .clip(CircleShape),
+                                    )
+                                }
+
+
                             }
-
-
                         }
-                    }
 
-                    items(trips.value) { newData ->
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp)
-                        ) {
-                            Text(
-                                text = "Place: ${newData?.name}",
-                                color = lightText,
-                                fontSize = 12.sp
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-
-                            newData?.photoBase64?.let {
-                                Image(
-                                    bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
-                                    contentDescription = "some useful description",
-                                    modifier = Modifier
-                                        .size(50.dp)
-                                        .clip(CircleShape),
+                        items(trips.value) { newData ->
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                            ) {
+                                Text(
+                                    text = "Place: ${newData?.name}",
+                                    color = lightText,
+                                    fontSize = 12.sp
                                 )
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                newData?.photoBase64?.let {
+                                    Image(
+                                        bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
+                                        contentDescription = "some useful description",
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .clip(CircleShape),
+                                    )
+                                }
+
+
                             }
+                        }
+
+                        items(trips.value) { newData ->
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                            ) {
+                                Text(
+                                    text = "Place: ${newData?.name}",
+                                    color = lightText,
+                                    fontSize = 12.sp
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                newData?.photoBase64?.let {
+                                    Image(
+                                        bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
+                                        contentDescription = "some useful description",
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .clip(CircleShape),
+                                    )
+                                }
 
 
+                            }
+                        }
+
+                        items(trips.value) { newData ->
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                            ) {
+                                Text(
+                                    text = "Place: ${newData?.name}",
+                                    color = lightText,
+                                    fontSize = 12.sp
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                newData?.photoBase64?.let {
+                                    Image(
+                                        bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
+                                        contentDescription = "some useful description",
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .clip(CircleShape),
+                                    )
+                                }
+
+
+                            }
                         }
                     }
                 }
