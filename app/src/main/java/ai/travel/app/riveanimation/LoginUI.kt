@@ -94,6 +94,7 @@ fun LoginUI() {
                     .fillMaxSize(0.8f)
                     .align(Alignment.Center)
             ) {
+
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
