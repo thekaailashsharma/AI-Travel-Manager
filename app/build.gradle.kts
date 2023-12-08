@@ -7,6 +7,7 @@ plugins {
     id("dagger.hilt.android.plugin")
     kotlin("kapt")
     id("kotlinx-serialization")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -109,6 +110,8 @@ dependencies {
 
     //Dagger Hilt
     implementation("com.google.dagger:hilt-android:2.48")
+    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     kapt("com.google.dagger:hilt-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
@@ -131,12 +134,22 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
 
-// Rive
+    // Rive
     implementation("app.rive:rive-android:5.0.1")
     implementation("androidx.startup:startup-runtime:1.1.1")
 
     // Material Icons Extended
     implementation("androidx.compose.material:material-icons-extended:1.5.0")
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:32.6.0"))
+    implementation("com.google.firebase:firebase-storage:20.3.0")
+    implementation("com.google.firebase:firebase-auth-ktx:22.3.0")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.9.1")
+    implementation("com.github.raipankaj:JetFirestore:1.0.2")
+
+    // DataStore
+    implementation("androidx.datastore:datastore-core:1.0.0")
 
     // SystemUIController
     val accompanistVersion = "0.30.1"

@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -69,6 +70,38 @@ class HomeViewModel @Inject constructor(
     val currentNewDestination = mutableStateOf("")
     val currentDay = mutableStateOf("")
     val currentTimeOfDay = mutableStateOf("")
+
+    private val _result = MutableStateFlow("")
+    val result: StateFlow<String> = _result.asStateFlow()
+
+    private val _userName = MutableStateFlow("")
+    val userName: StateFlow<String> = _userName.asStateFlow()
+
+    private val _gender = MutableStateFlow("")
+    val gender: StateFlow<String> = _gender.asStateFlow()
+
+    private val _userPhoneNumber = MutableStateFlow("")
+    val userPhoneNumber: StateFlow<String> = _userPhoneNumber.asStateFlow()
+
+    private val _loginStatus = MutableStateFlow(false)
+    val loginStatus: StateFlow<Boolean> = _loginStatus.asStateFlow()
+
+    fun updateUserDetails(
+        userName: String,
+        gender: String,
+        userPhoneNumber: String,
+        loginStatus: Boolean
+    ) {
+        _userName.value = userName
+        _userPhoneNumber.value = userPhoneNumber
+        _gender.value = gender
+        _loginStatus.value = loginStatus
+    }
+
+
+    fun updateResult(result: String) {
+        _result.value = result
+    }
 
 
 

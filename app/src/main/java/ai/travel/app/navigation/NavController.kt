@@ -13,6 +13,7 @@ import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -28,8 +29,9 @@ fun NavController(
 
     val homeViewModel: HomeViewModel = hiltViewModel()
     val newTripViewModel: NewTripViewModel = hiltViewModel()
+    val loginStatus = homeViewModel.loginStatus.collectAsState()
 
-    NavHost(navController = navHostController, startDestination = Screens.Login.route) {
+    NavHost(navController = navHostController, startDestination = if (loginStatus.value) Screens.Home.route else Screens.Login.route) {
         composable(Screens.Home.route) {
             NewHomeScreen(
                 viewModel = homeViewModel,
@@ -52,7 +54,7 @@ fun NavController(
         }
 
         composable(Screens.Login.route) {
-            LoginUI(paddingValues = paddingValues)
+            LoginUI(paddingValues = paddingValues, viewModel = homeViewModel, navController = navHostController)
         }
     }
 

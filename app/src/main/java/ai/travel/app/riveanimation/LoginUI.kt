@@ -1,14 +1,20 @@
 package ai.travel.app.riveanimation
 
 import ai.travel.app.R
-import ai.travel.app.newTrip.TextFieldWithIcons
+import ai.travel.app.datastore.UserDatastore
+import ai.travel.app.firestore.updateInfoToFirebase
+import ai.travel.app.home.HomeViewModel
+import ai.travel.app.navigation.Screens
 import ai.travel.app.ui.theme.CardBackground
-import ai.travel.app.ui.theme.P2PBackground
-import ai.travel.app.ui.theme.TextColor
 import ai.travel.app.ui.theme.appGradient
 import ai.travel.app.ui.theme.lightText
 import ai.travel.app.ui.theme.monteSB
 import ai.travel.app.ui.theme.textColor
+import android.app.Activity
+import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,9 +32,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.FlightLand
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Male
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.TravelExplore
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -43,16 +50,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -64,25 +75,75 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.google.firebase.FirebaseException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @Composable
-fun LoginUI(paddingValues: PaddingValues) {
+fun LoginUI(
+    paddingValues: PaddingValues,
+    viewModel: HomeViewModel,
+    navController: NavController
+) {
     var password by remember {
         mutableStateOf(TextFieldValue(""))
     }
-    var email by remember {
+    var phoneNumber by remember {
         mutableStateOf(TextFieldValue(""))
     }
-    val passwordVisible = rememberSaveable { mutableStateOf(false) }
+
+    var name by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
+
+    var gender by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
+
+    var passwordVisible = rememberSaveable { mutableStateOf(false) }
     var isChecking by remember { mutableStateOf(false) }
     var isCheckingJob: Job? = null // Initialize isCheckingJob
+    var passVisibleJob: Job? = null // Initialize isCheckingJob
     var trigSuccess by remember { mutableStateOf(false) }
     var trigFail by remember { mutableStateOf(false) }
+    val auth = FirebaseAuth.getInstance()
+    val context = LocalContext.current
+    val currentActivity = context as? Activity
+
+    val dataStore = UserDatastore(context = context)
+    val coroutineScope = rememberCoroutineScope()
+
+    var isOtpSent by remember {
+        mutableStateOf(false)
+    }
+
+    var isVerified by remember {
+        mutableStateOf(false)
+    }
+
+    var vfId by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
+
+    LaunchedEffect(key1 = viewModel.result) {
+        isOtpSent = false
+        viewModel.result.collectLatest {
+            if (it != "") {
+                password = TextFieldValue(it)
+            }
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -143,141 +204,362 @@ fun LoginUI(paddingValues: PaddingValues) {
                 shape = RoundedCornerShape(15.dp),
                 elevation = CardDefaults.cardElevation(0.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 35.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                AnimatedVisibility(
+                    visible = !isVerified,
+                    enter = slideInHorizontally(initialOffsetX = {
+                        it
+                    }),
+                    exit = slideOutHorizontally(
+                        targetOffsetX = {
+                            it
+                        }
+                    )
                 ) {
-                    Text(text = buildAnnotatedString {
-                        withStyle(
-                            style = SpanStyle(
-                                color = Color(0xFF4885ED),
-                                fontFamily = monteSB ,
-                            )
-                        ) {
-                            append("Welcome")
-                        }
-                        append(" ")
-                        withStyle(
-                            SpanStyle(
-                                color = Color(0xFFF4C20D).copy(0.89f),
-                                fontFamily = monteSB
-                            )
-                        ) {
-                            append("to")
-                        }
-                    }, fontSize = 25.sp)
-                    Text(text = buildAnnotatedString {
-                        withStyle(
-                            style = SpanStyle(
-                                color = Color(0xFF1DE9B6),
-                                fontFamily = monteSB,
-                            )
-                        ) {
-                            append("Rive")
-                        }
-                        append(" ")
-                    }, fontSize = 25.sp)
-                    Spacer(modifier = Modifier.height(10.dp))
-                    TextFieldWithIconsLogin(
-                        textValue = "Phone Number",
-                        placeholder = "Enter Your Phone Number",
-                        icon = Icons.Filled.Email,
-                        mutableText = email,
-                        onValueChanged = {
-                            email = it
-                        },
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next,
-                    )
-                    Spacer(modifier = Modifier.height(30.dp))
-                    TextFieldWithIconsLogin(
-                        textValue = "Password",
-                        placeholder = "Enter Your Password",
-                        icon = Icons.Filled.Lock,
-                        mutableText = password,
-                        onValueChanged = {
-                            password = it
-                            if (isCheckingJob?.isActive == true) {
-                                isCheckingJob?.cancel()
-                            }
-                            isCheckingJob = CoroutineScope(Dispatchers.Main).launch {
-                                delay(1000) // Adjust the delay time as needed
-                                isChecking = false
-                            }
-                            isChecking = true
-                        },
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Next,
-                        passwordVisible = passwordVisible
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Button(
-                        onClick = {
-                            if (password.text == "123456" && email.text == "abc@gmail.com") {
-                                trigSuccess = true
-                                trigFail = false
-                            } else {
-                                trigSuccess = false
-                                trigFail = true
-                            }
-
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = lightText,
-                            contentColor = textColor
-                        )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 35.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(
-                            text = "Login",
-                            color = Color.White,
-                            fontSize = 20.sp,
+                        Text(text = buildAnnotatedString {
+                            withStyle(
+                                style = SpanStyle(
+                                    color = Color(0xFF4885ED),
+                                    fontFamily = monteSB,
+                                )
+                            ) {
+                                append("Welcome")
+                            }
+                            append(" ")
+                            withStyle(
+                                SpanStyle(
+                                    color = Color(0xFFF4C20D).copy(0.89f),
+                                    fontFamily = monteSB
+                                )
+                            ) {
+                                append("to")
+                            }
+                        }, fontSize = 25.sp)
+                        Text(text = buildAnnotatedString {
+                            withStyle(
+                                style = SpanStyle(
+                                    color = Color(0xFF1DE9B6),
+                                    fontFamily = monteSB,
+                                )
+                            ) {
+                                append("Rive")
+                            }
+                            append(" ")
+                        }, fontSize = 25.sp)
+                        Spacer(modifier = Modifier.height(10.dp))
+                        TextFieldWithIconsLogin(
+                            textValue = "Phone Number",
+                            placeholder = "Enter Your Phone Number",
+                            icon = Icons.Filled.Email,
+                            mutableText = phoneNumber,
+                            onValueChanged = {
+                                phoneNumber = it
+                                if (passVisibleJob?.isActive == true) {
+                                    passVisibleJob?.cancel()
+                                }
+                                passVisibleJob = CoroutineScope(Dispatchers.Main).launch {
+                                    delay(1000) // Adjust the delay time as needed
+                                    passwordVisible.value = false
+                                }
+                                passwordVisible.value = true
+                            },
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next,
+                            enabled = !isOtpSent
                         )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        AnimatedVisibility(
+                            visible = isOtpSent,
+                            enter = slideInHorizontally(),
+                            exit = slideOutHorizontally()
+                        ) {
+                            TextFieldWithIconsLogin(
+                                textValue = "Password",
+                                placeholder = "Enter Your Password",
+                                icon = Icons.Filled.Lock,
+                                mutableText = password,
+                                onValueChanged = {
+                                    password = it
+                                    if (isCheckingJob?.isActive == true) {
+                                        isCheckingJob?.cancel()
+                                    }
+                                    isCheckingJob = CoroutineScope(Dispatchers.Main).launch {
+                                        delay(1000) // Adjust the delay time as needed
+                                        isChecking = false
+                                    }
+                                    isChecking = true
+                                },
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Next,
+                                passwordVisible = passwordVisible
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Button(
+                            onClick = {
+                                if (!isOtpSent) {
+                                    currentActivity?.let {
+                                        val callbacks =
+                                            object :
+                                                PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+
+                                                override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+                                                    // Verification successful, automatically sign in the user
+                                                    signInWithPhoneAuthCredential(
+                                                        credential,
+                                                        auth
+                                                    )
+                                                }
+
+                                                override fun onVerificationFailed(exception: FirebaseException) {
+                                                    // Verification failed, show error message to the user
+                                                    Toast.makeText(
+                                                        context,
+                                                        "exception: ${exception.message}",
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
+                                                }
+
+                                                override fun onCodeSent(
+                                                    verificationId: String,
+                                                    token: PhoneAuthProvider.ForceResendingToken,
+                                                ) {
+                                                    vfId = vfId.copy(verificationId)
+                                                }
+                                            }
+
+
+                                        val options = PhoneAuthOptions.newBuilder(auth)
+                                            .setPhoneNumber("+91${phoneNumber.text}") // Phone number to verify
+                                            .setTimeout(
+                                                0L,
+                                                java.util.concurrent.TimeUnit.SECONDS
+                                            ) // Timeout and unit
+                                            .setCallbacks(callbacks)
+                                            .setActivity(currentActivity)// OnVerificationStateChangedCallbacks
+                                            .build()
+                                        PhoneAuthProvider.verifyPhoneNumber(options)
+                                    }
+                                    isOtpSent = true
+                                    Toast.makeText(context, "Please Wait..", Toast.LENGTH_LONG)
+                                        .show()
+                                } else {
+                                    try {
+                                        val credential =
+                                            PhoneAuthProvider.getCredential(
+                                                vfId.text,
+                                                password.text
+                                            )
+                                        FirebaseAuth.getInstance()
+                                            .signInWithCredential(credential)
+                                            .addOnCompleteListener { task ->
+                                                if (task.isSuccessful) {
+                                                    // Sign in success
+                                                    val users = task.result?.user
+                                                    trigSuccess = true
+                                                    trigFail = false
+                                                    isVerified = true
+                                                    println("Success")
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Success",
+                                                        Toast.LENGTH_SHORT
+                                                    )
+                                                        .show()
+                                                    // Do something with user
+                                                } else {
+                                                    trigSuccess = false
+                                                    trigFail = true
+                                                    isVerified = false
+                                                    // Sign in failed
+                                                    val message = task.exception?.message
+                                                    // Handle error
+                                                }
+                                            }
+                                    } catch (e: Exception) {
+                                        println("Exception ${e.message}")
+                                    }
+
+//                                if (password.text == "123456" && phoneNumber.text == "abc@gmail.com") {
+//                                    trigSuccess = true
+//                                    trigFail = false
+//                                } else {
+//                                    trigSuccess = false
+//                                    trigFail = true
+//                                }
+                                }
+
+
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = lightText,
+                                contentColor = textColor
+                            )
+                        ) {
+                            Text(
+                                text = if (!isOtpSent) "Verify OTP" else "Login",
+                                color = Color.White,
+                                fontSize = 20.sp,
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(30.dp))
                     }
-                    Spacer(modifier = Modifier.height(30.dp))
+                }
+                AnimatedVisibility(
+                    visible = isVerified,
+                    enter = slideInHorizontally(initialOffsetX = {
+                        -it
+                    }),
+                    exit = slideOutHorizontally(targetOffsetX = {
+                        -it
+                    })
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 35.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = buildAnnotatedString {
+                            withStyle(
+                                style = SpanStyle(
+                                    color = Color(0xFF4885ED),
+                                    fontFamily = monteSB,
+                                )
+                            ) {
+                                append("Some")
+                            }
+                            append(" ")
+                            withStyle(
+                                SpanStyle(
+                                    color = Color(0xFFF4C20D).copy(0.89f),
+                                    fontFamily = monteSB
+                                )
+                            ) {
+                                append("Basic")
+                            }
+                        }, fontSize = 25.sp)
+                        Text(text = buildAnnotatedString {
+                            withStyle(
+                                style = SpanStyle(
+                                    color = Color(0xFF1DE9B6),
+                                    fontFamily = monteSB,
+                                )
+                            ) {
+                                append("Details")
+                            }
+                            append(" ")
+                        }, fontSize = 25.sp)
+                        Spacer(modifier = Modifier.height(10.dp))
+                        TextFieldWithIconsLogin(
+                            textValue = "NickName",
+                            placeholder = "Enter Your Nickname",
+                            icon = Icons.Filled.Person,
+                            mutableText = name,
+                            onValueChanged = {
+                                name = it
+                            },
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next,
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        TextFieldWithIconsLogin(
+                            textValue = "Gender",
+                            placeholder = "Enter Your Gender",
+                            icon = Icons.Filled.Male,
+                            mutableText = gender,
+                            onValueChanged = {
+                                gender = it
+                            },
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next,
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Button(
+                            onClick = {
+                                coroutineScope.launch {
+                                    updateInfoToFirebase(
+                                        name = name.text,
+                                        phoneNumber = phoneNumber.text,
+                                        gender = gender.text,
+                                        context = context
+                                    )
+                                    dataStore.saveGender(gender.text)
+                                    dataStore.saveName(name.text)
+                                    dataStore.saveNumber(phoneNumber.text)
+                                    dataStore.saveLoginStatus(true)
+                                    navController.navigate(
+                                        Screens.Home.route
+                                    )
+                                }
+
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = lightText,
+                                contentColor = textColor
+                            )
+                        ) {
+                            Text(
+                                text = "Take Me In",
+                                color = Color.White,
+                                fontSize = 20.sp,
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(30.dp))
+                    }
+
+
                 }
 
             }
-
         }
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.TopCenter
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 40.dp, vertical = 30.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    Icons.Filled.TravelExplore,
-                    tint = Color(0xFF6297F1),
-                    contentDescription = "Icon",
-                    modifier = Modifier.size(50.dp)
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Icon(
-                    Icons.Filled.MoreHoriz,
-                    tint = Color(0xFF6297F1),
-                    contentDescription = "Icon",
-                    modifier = Modifier.size(40.dp)
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Icon(
-                    painter = painterResource(id = R.drawable.compose),
-                    tint = Color.Unspecified,
-                    contentDescription = "Icon",
-                    modifier = Modifier.size(60.dp)
-                )
 
-            }
+
+    }
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 40.dp, vertical = 30.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                Icons.Filled.TravelExplore,
+                tint = Color(0xFF6297F1),
+                contentDescription = "Icon",
+                modifier = Modifier.size(50.dp)
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Icon(
+                Icons.Filled.MoreHoriz,
+                tint = Color(0xFF6297F1),
+                contentDescription = "Icon",
+                modifier = Modifier.size(40.dp)
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Icon(
+                painter = painterResource(id = R.drawable.compose),
+                tint = Color.Unspecified,
+                contentDescription = "Icon",
+                modifier = Modifier.size(60.dp)
+            )
+
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -290,6 +572,7 @@ fun TextFieldWithIconsLogin(
     imeAction: ImeAction,
     passwordVisible: MutableState<Boolean> = mutableStateOf(false),
     onValueChanged: (TextFieldValue) -> Unit,
+    enabled: Boolean = true,
 ) {
     if (keyboardType == KeyboardType.Password) {
         TextField(
@@ -331,7 +614,8 @@ fun TextFieldWithIconsLogin(
                 focusedContainerColor = CardBackground,
                 unfocusedContainerColor = CardBackground,
                 disabledContainerColor = CardBackground,
-            )
+            ),
+            enabled = enabled
         )
     } else {
         TextField(
@@ -361,7 +645,19 @@ fun TextFieldWithIconsLogin(
                 unfocusedContainerColor = CardBackground,
                 disabledContainerColor = CardBackground,
             ),
+            enabled = enabled
 
-            )
+        )
     }
+}
+
+fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential, auth: FirebaseAuth) {
+    auth.signInWithCredential(credential)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                println("Successful")
+            } else {
+                println("Failed")
+            }
+        }
 }

@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">AI Travel Manager</string>
+    <string name="app_name">Tripify</string>
+    <string name="title_activity_base">BaseActivity</string>
 </resources>
