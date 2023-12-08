@@ -63,6 +63,7 @@ import java.io.ByteArrayInputStream
 @Composable
 fun ExpandedTopBarHomeScreen(
     imageUrl: String,
+
 ) {
     Column(
         modifier = Modifier
