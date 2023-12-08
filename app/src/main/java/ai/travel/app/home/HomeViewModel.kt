@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -69,6 +70,14 @@ class HomeViewModel @Inject constructor(
     val currentNewDestination = mutableStateOf("")
     val currentDay = mutableStateOf("")
     val currentTimeOfDay = mutableStateOf("")
+
+    private val _result = MutableStateFlow("")
+    val result: StateFlow<String> = _result.asStateFlow()
+
+
+    fun updateResult(result: String) {
+        _result.value = result
+    }
 
 
 

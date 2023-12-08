@@ -1,14 +1,17 @@
 package ai.travel.app.riveanimation
 
 import ai.travel.app.R
-import ai.travel.app.newTrip.TextFieldWithIcons
+import ai.travel.app.home.HomeViewModel
 import ai.travel.app.ui.theme.CardBackground
-import ai.travel.app.ui.theme.P2PBackground
-import ai.travel.app.ui.theme.TextColor
 import ai.travel.app.ui.theme.appGradient
 import ai.travel.app.ui.theme.lightText
 import ai.travel.app.ui.theme.monteSB
 import ai.travel.app.ui.theme.textColor
+import android.app.Activity
+import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +29,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.FlightLand
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.TravelExplore
@@ -43,7 +45,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -64,25 +69,60 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.FirebaseException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginUI(paddingValues: PaddingValues) {
+fun LoginUI(
+    paddingValues: PaddingValues,
+    viewModel: HomeViewModel,
+) {
     var password by remember {
         mutableStateOf(TextFieldValue(""))
     }
-    var email by remember {
+    var phoneNumber by remember {
         mutableStateOf(TextFieldValue(""))
     }
-    val passwordVisible = rememberSaveable { mutableStateOf(false) }
+    var passwordVisible = rememberSaveable { mutableStateOf(false) }
     var isChecking by remember { mutableStateOf(false) }
     var isCheckingJob: Job? = null // Initialize isCheckingJob
+    var passVisibleJob: Job? = null // Initialize isCheckingJob
     var trigSuccess by remember { mutableStateOf(false) }
     var trigFail by remember { mutableStateOf(false) }
+    val auth = FirebaseAuth.getInstance()
+    val context = LocalContext.current
+    val currentActivity = context as? Activity
+
+    var isOtpSent by remember {
+        mutableStateOf(false)
+    }
+
+    var isVerified by remember {
+        mutableStateOf(false)
+    }
+
+    var vfId by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
+
+    LaunchedEffect(key1 = viewModel.result) {
+        isOtpSent = false
+        viewModel.result.collectLatest {
+            if (it != "") {
+                password = TextFieldValue(it)
+            }
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -154,7 +194,7 @@ fun LoginUI(paddingValues: PaddingValues) {
                         withStyle(
                             style = SpanStyle(
                                 color = Color(0xFF4885ED),
-                                fontFamily = monteSB ,
+                                fontFamily = monteSB,
                             )
                         ) {
                             append("Welcome")
@@ -185,44 +225,134 @@ fun LoginUI(paddingValues: PaddingValues) {
                         textValue = "Phone Number",
                         placeholder = "Enter Your Phone Number",
                         icon = Icons.Filled.Email,
-                        mutableText = email,
+                        mutableText = phoneNumber,
                         onValueChanged = {
-                            email = it
-                        },
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next,
-                    )
-                    Spacer(modifier = Modifier.height(30.dp))
-                    TextFieldWithIconsLogin(
-                        textValue = "Password",
-                        placeholder = "Enter Your Password",
-                        icon = Icons.Filled.Lock,
-                        mutableText = password,
-                        onValueChanged = {
-                            password = it
-                            if (isCheckingJob?.isActive == true) {
-                                isCheckingJob?.cancel()
+                            phoneNumber = it
+                            if (passVisibleJob?.isActive == true) {
+                                passVisibleJob?.cancel()
                             }
-                            isCheckingJob = CoroutineScope(Dispatchers.Main).launch {
+                            passVisibleJob = CoroutineScope(Dispatchers.Main).launch {
                                 delay(1000) // Adjust the delay time as needed
-                                isChecking = false
+                                passwordVisible.value = false
                             }
-                            isChecking = true
+                            passwordVisible.value = true
                         },
-                        keyboardType = KeyboardType.Password,
+                        keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next,
-                        passwordVisible = passwordVisible
+                        enabled = !isOtpSent
                     )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    AnimatedVisibility(
+                        visible = isOtpSent,
+                        enter = slideInHorizontally(),
+                        exit = slideOutHorizontally()
+                    ) {
+                        TextFieldWithIconsLogin(
+                            textValue = "Password",
+                            placeholder = "Enter Your Password",
+                            icon = Icons.Filled.Lock,
+                            mutableText = password,
+                            onValueChanged = {
+                                password = it
+                                if (isCheckingJob?.isActive == true) {
+                                    isCheckingJob?.cancel()
+                                }
+                                isCheckingJob = CoroutineScope(Dispatchers.Main).launch {
+                                    delay(1000) // Adjust the delay time as needed
+                                    isChecking = false
+                                }
+                                isChecking = true
+                            },
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next,
+                            passwordVisible = passwordVisible
+                        )
+                    }
                     Spacer(modifier = Modifier.height(10.dp))
                     Button(
                         onClick = {
-                            if (password.text == "123456" && email.text == "abc@gmail.com") {
-                                trigSuccess = true
-                                trigFail = false
+                            if (!isOtpSent) {
+                                currentActivity?.let {
+                                    val callbacks =
+                                        object :
+                                            PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+
+                                            override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+                                                // Verification successful, automatically sign in the user
+                                                signInWithPhoneAuthCredential(credential, auth)
+                                            }
+
+                                            override fun onVerificationFailed(exception: FirebaseException) {
+                                                // Verification failed, show error message to the user
+                                                Toast.makeText(
+                                                    context,
+                                                    "exception: ${exception.message}",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+
+                                            override fun onCodeSent(
+                                                verificationId: String,
+                                                token: PhoneAuthProvider.ForceResendingToken,
+                                            ) {
+                                                vfId = vfId.copy(verificationId)
+                                            }
+                                        }
+
+
+                                    val options = PhoneAuthOptions.newBuilder(auth)
+                                        .setPhoneNumber("+91${phoneNumber.text}") // Phone number to verify
+                                        .setTimeout(
+                                            0L,
+                                            java.util.concurrent.TimeUnit.SECONDS
+                                        ) // Timeout and unit
+                                        .setCallbacks(callbacks)
+                                        .setActivity(currentActivity)// OnVerificationStateChangedCallbacks
+                                        .build()
+                                    PhoneAuthProvider.verifyPhoneNumber(options)
+                                }
+                                isOtpSent = true
+                                Toast.makeText(context, "Please Wait..", Toast.LENGTH_LONG).show()
                             } else {
-                                trigSuccess = false
-                                trigFail = true
+                                try {
+                                    val credential =
+                                        PhoneAuthProvider.getCredential(vfId.text, password.text)
+                                    FirebaseAuth.getInstance().signInWithCredential(credential)
+                                        .addOnCompleteListener { task ->
+                                            if (task.isSuccessful) {
+                                                // Sign in success
+                                                val users = task.result?.user
+                                                trigSuccess = true
+                                                trigFail = false
+                                                println("Success")
+                                                Toast.makeText(
+                                                    context,
+                                                    "Success",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                    .show()
+                                                // Do something with user
+                                            } else {
+                                                trigSuccess = false
+                                                trigFail = true
+                                                // Sign in failed
+                                                val message = task.exception?.message
+                                                // Handle error
+                                            }
+                                        }
+                                } catch (e: Exception) {
+                                    println("Exception ${e.message}")
+                                }
+
+//                                if (password.text == "123456" && phoneNumber.text == "abc@gmail.com") {
+//                                    trigSuccess = true
+//                                    trigFail = false
+//                                } else {
+//                                    trigSuccess = false
+//                                    trigFail = true
+//                                }
                             }
+
 
                         },
                         colors = ButtonDefaults.buttonColors(
@@ -231,7 +361,7 @@ fun LoginUI(paddingValues: PaddingValues) {
                         )
                     ) {
                         Text(
-                            text = "Login",
+                            text = if (!isOtpSent) "Verify OTP" else "Login",
                             color = Color.White,
                             fontSize = 20.sp,
                         )
@@ -290,6 +420,7 @@ fun TextFieldWithIconsLogin(
     imeAction: ImeAction,
     passwordVisible: MutableState<Boolean> = mutableStateOf(false),
     onValueChanged: (TextFieldValue) -> Unit,
+    enabled: Boolean = true,
 ) {
     if (keyboardType == KeyboardType.Password) {
         TextField(
@@ -331,7 +462,8 @@ fun TextFieldWithIconsLogin(
                 focusedContainerColor = CardBackground,
                 unfocusedContainerColor = CardBackground,
                 disabledContainerColor = CardBackground,
-            )
+            ),
+            enabled = enabled
         )
     } else {
         TextField(
@@ -361,7 +493,19 @@ fun TextFieldWithIconsLogin(
                 unfocusedContainerColor = CardBackground,
                 disabledContainerColor = CardBackground,
             ),
+            enabled = enabled
 
-            )
+        )
     }
+}
+
+fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential, auth: FirebaseAuth) {
+    auth.signInWithCredential(credential)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                println("Successful")
+            } else {
+                println("Failed")
+            }
+        }
 }
