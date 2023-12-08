@@ -170,13 +170,16 @@ fun HomeScreen(viewModel: HomeViewModel) {
                             Spacer(modifier = Modifier.width(10.dp))
 
                             newData?.photoBase64?.let {
-                                Image(
-                                    bitmap = convertImageByteArrayToBitmap(base64ToByteArray(it)).asImageBitmap(),
-                                    contentDescription = "some useful description",
-                                    modifier = Modifier
-                                        .size(50.dp)
-                                        .clip(CircleShape),
-                                )
+                                convertImageByteArrayToBitmap(base64ToByteArray(it))?.asImageBitmap()
+                                    ?.let { it1 ->
+                                        Image(
+                                            bitmap = it1,
+                                            contentDescription = "some useful description",
+                                            modifier = Modifier
+                                                .size(50.dp)
+                                                .clip(CircleShape),
+                                        )
+                                    }
                             }
 
 
@@ -218,6 +221,6 @@ fun RtScreen() {
 
 }
 
-fun convertImageByteArrayToBitmap(imageData: ByteArray): Bitmap {
-    return BitmapFactory.decodeByteArray(imageData, 0, imageData.size)
+fun convertImageByteArrayToBitmap(imageData: ByteArray?): Bitmap? {
+    return imageData?.size?.let { BitmapFactory.decodeByteArray(imageData, 0, it) }
 }
