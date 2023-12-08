@@ -1,5 +1,6 @@
 package ai.travel.app.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -32,3 +33,15 @@ val lightText = Color(0xFF3f68a8)
 val bottomBarBackground = Color(0xFF172749)
 val bottomBarBorder = Color(0xFF3c69a8)
 val CardBackground = Color(0xFF122754)
+
+val isDarkThemeEnabled : Boolean
+    @Composable
+    get() = isSystemInDarkTheme()
+
+val P2PBackground: Color
+    @Composable
+    get() = if (isDarkThemeEnabled) Color(0xFFd7e1e8) else Color(0xFFd7e1e8)
+
+val TextColor: Color
+    @Composable
+    get() = if (isDarkThemeEnabled) Color.Black else Color.Black
