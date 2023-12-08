@@ -1,9 +1,11 @@
 package ai.travel.app.riveanimation
 
 import ai.travel.app.R
+import ai.travel.app.ui.theme.CardBackground
 import ai.travel.app.ui.theme.P2PBackground
 import ai.travel.app.ui.theme.TextColor
 import ai.travel.app.ui.theme.monteSB
+import ai.travel.app.ui.theme.textColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -311,9 +313,12 @@ fun TextFieldWithIcons(
             modifier = Modifier
                 .padding(start = 15.dp, top = 5.dp, bottom = 5.dp, end = 15.dp)
                 .fillMaxWidth(),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = P2PBackground,
-                textColor = TextColor
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = TextColor,
+                disabledTextColor = TextColor,
+                focusedContainerColor = P2PBackground,
+                unfocusedContainerColor = P2PBackground,
+                disabledContainerColor = P2PBackground,
             )
         )
     } else {
@@ -337,9 +342,12 @@ fun TextFieldWithIcons(
             modifier = Modifier
                 .padding(start = 15.dp, top = 5.dp, bottom = 5.dp, end = 15.dp)
                 .fillMaxWidth(),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = P2PBackground,
-                textColor = TextColor
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = TextColor,
+                disabledTextColor = TextColor,
+                focusedContainerColor = P2PBackground,
+                unfocusedContainerColor = P2PBackground,
+                disabledContainerColor = P2PBackground,
             ),
 
             )
