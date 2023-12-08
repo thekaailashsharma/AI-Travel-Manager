@@ -52,7 +52,7 @@ fun NavController(
         }
 
         composable(Screens.Login.route) {
-            LoginUI(paddingValues = paddingValues)
+            LoginUI(paddingValues = paddingValues, viewModel = homeViewModel)
         }
     }
 
