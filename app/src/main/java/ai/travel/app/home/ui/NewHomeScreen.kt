@@ -169,38 +169,6 @@ fun NewHomeScreen(
                                 Spacer(modifier = Modifier.height(10.dp))
                             }
 
-                            items(trips.value) { newData ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(10.dp)
-                                ) {
-                                    Text(
-                                        text = "Place: ${newData?.name}",
-                                        color = lightText,
-                                        fontSize = 12.sp
-                                    )
-                                    Spacer(modifier = Modifier.width(10.dp))
-
-                                    newData?.photoBase64?.let {
-                                        convertImageByteArrayToBitmap(
-                                            base64ToByteArray(
-                                                it
-                                            )
-                                        )?.asImageBitmap()?.let { it1 ->
-                                            Image(
-                                                bitmap = it1,
-                                                contentDescription = "some useful description",
-                                                modifier = Modifier
-                                                    .size(50.dp)
-                                                    .clip(CircleShape),
-                                            )
-                                        }
-                                    }
-
-
-                                }
-                            }
 
                         }
                         if (viewModel.isAnimationVisible.value) {
