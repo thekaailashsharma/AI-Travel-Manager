@@ -34,7 +34,8 @@ fun NavController(
                 viewModel = homeViewModel,
                 bottomBarPadding = paddingValues,
                 newTripViewModel = newTripViewModel,
-                isBottomBarVisible = isBottomBarVisible
+                isBottomBarVisible = isBottomBarVisible,
+                navController = navHostController
             )
 //            TripDetailsScreen(viewModel = homeViewModel, paddingValues = paddingValues)
         }
@@ -43,6 +44,10 @@ fun NavController(
         }
         composable(Screens.Routes.route) {
             RtScreen()
+        }
+
+        composable(Screens.TripDetails.route) {
+            TripDetailsScreen(viewModel = homeViewModel, paddingValues = paddingValues, navController = navHostController)
         }
     }
 

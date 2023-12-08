@@ -11,6 +11,9 @@ class DatabaseRepo(private val tripsDao: TripsDao) {
     fun getTrips(day: String): Flow<List<TripsEntity?>> =
         tripsDao.getTrips(day)
 
+    fun getMoreInfo( destination: String): Flow<List<TripsEntity?>> =
+        tripsDao.getMoreInfo(destination)
+
     val allTrips: Flow<List<TripsEntity?>> = tripsDao.getAllTrips()
 
     val distinctDays: Flow<List<String?>> = tripsDao.getUniqueDays()

@@ -4,6 +4,7 @@ import ai.travel.app.R
 import ai.travel.app.database.travel.TripsEntity
 import ai.travel.app.home.HomeViewModel
 import ai.travel.app.home.base64ToByteArray
+import ai.travel.app.navigation.Screens
 import ai.travel.app.ui.theme.CardBackground
 import ai.travel.app.ui.theme.lightText
 import ai.travel.app.ui.theme.textColor
@@ -52,12 +53,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PersonalRoutes(sheetState: BottomSheetScaffoldState, homeViewModel: HomeViewModel) {
+fun PersonalRoutes(
+    sheetState: BottomSheetScaffoldState,
+    homeViewModel: HomeViewModel,
+    navController: NavController
+) {
 
     val items = homeViewModel.allTrips.collectAsState(initial = emptyList())
     val newItems = remember {
@@ -101,7 +107,7 @@ fun PersonalRoutes(sheetState: BottomSheetScaffoldState, homeViewModel: HomeView
                 NewRouteCard(sheetState)
             }
             items(newItems) { item ->
-                RouteCard(item)
+                RouteCard(item, navController, homeViewModel)
             }
 
         }
@@ -171,7 +177,11 @@ fun NewRouteCard(sheetState: BottomSheetScaffoldState) {
 }
 
 @Composable
-fun RouteCard(item: TripInfo?) {
+fun RouteCard(
+    item: TripInfo?,
+    navController: NavController,
+    homeViewModel: HomeViewModel
+) {
     Card(
         modifier = Modifier
             .width(220.dp)
@@ -179,7 +189,8 @@ fun RouteCard(item: TripInfo?) {
             .padding(16.dp)
             .clickable(interactionSource = MutableInteractionSource(), indication = null,
                 onClick = {
-
+                    homeViewModel.currentDestination.value = item?.name ?: ""
+                    navController.navigate(Screens.TripDetails.route)
                 }),
         colors = CardDefaults.cardColors(
             containerColor = CardBackground

@@ -58,6 +58,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
@@ -69,7 +70,8 @@ fun NewHomeScreen(
     viewModel: HomeViewModel,
     bottomBarPadding: PaddingValues,
     newTripViewModel: NewTripViewModel,
-    isBottomBarVisible: MutableState<Boolean>
+    isBottomBarVisible: MutableState<Boolean>,
+    navController: NavController
 ) {
 
     val modalSheetStates = rememberBottomSheetScaffoldState(
@@ -160,7 +162,8 @@ fun NewHomeScreen(
                             item {
                                 PersonalRoutes(
                                     sheetState = modalSheetStates,
-                                    homeViewModel = viewModel
+                                    homeViewModel = viewModel,
+                                    navController = navController
                                 )
 
                                 Spacer(modifier = Modifier.height(10.dp))
