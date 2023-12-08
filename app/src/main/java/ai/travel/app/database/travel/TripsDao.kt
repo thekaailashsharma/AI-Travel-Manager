@@ -25,4 +25,7 @@ interface TripsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllTrips(trips: List<TripsEntity>)
 
+    @Query("SELECT * FROM trips where name = :destination")
+    fun getMoreInfo(destination: String): Flow<List<TripsEntity?>>
+
 }

@@ -49,6 +49,9 @@ class HomeViewModel @Inject constructor(
     fun getTrips(day: String): Flow<List<TripsEntity?>> =
         dbRepository.getTrips(day)
 
+    fun getMoreInfo(destination: String): Flow<List<TripsEntity?>> =
+        dbRepository.getMoreInfo(destination)
+
     val allTrips: Flow<List<TripsEntity?>> = dbRepository.allTrips
     val uniqueDays: Flow<List<String?>> = dbRepository.distinctDays
 
@@ -60,6 +63,11 @@ class HomeViewModel @Inject constructor(
     val source = mutableStateOf(TextFieldValue(""))
     val destination = mutableStateOf(TextFieldValue(""))
     val isAnimationVisible = mutableStateOf(false)
+
+    val currentDestination = mutableStateOf("")
+    val currentNewDestination = mutableStateOf("")
+    val currentDay = mutableStateOf("")
+    val currentTimeOfDay = mutableStateOf("")
 
 
 
