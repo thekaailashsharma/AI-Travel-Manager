@@ -17,6 +17,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -154,11 +155,10 @@ fun HomeScreenMain(
                                 ) {
 
                                     ProfileImage(
-                                        modifier = Modifier
-                                            .clip(CircleShape)
-                                            .background(CardBackground)
-                                            .size(150.dp),
                                         imageUrl = R.drawable.app_icon,
+                                        modifier = Modifier
+                                            .size(150.dp)
+                                            .clip(CircleShape),
                                     )
                                     Spacer(modifier = Modifier.height(10.dp))
                                     Text(text = "Welcome to", fontSize = 20.sp, color = textColor)
