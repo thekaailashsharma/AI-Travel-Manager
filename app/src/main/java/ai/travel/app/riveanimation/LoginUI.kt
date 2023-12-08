@@ -1,8 +1,10 @@
 package ai.travel.app.riveanimation
 
 import ai.travel.app.R
+import ai.travel.app.datastore.UserDatastore
 import ai.travel.app.firestore.updateInfoToFirebase
 import ai.travel.app.home.HomeViewModel
+import ai.travel.app.navigation.Screens
 import ai.travel.app.ui.theme.CardBackground
 import ai.travel.app.ui.theme.appGradient
 import ai.travel.app.ui.theme.lightText
@@ -54,6 +56,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -72,6 +75,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
@@ -89,6 +93,7 @@ import kotlinx.coroutines.runBlocking
 fun LoginUI(
     paddingValues: PaddingValues,
     viewModel: HomeViewModel,
+    navController: NavController
 ) {
     var password by remember {
         mutableStateOf(TextFieldValue(""))
@@ -114,6 +119,9 @@ fun LoginUI(
     val auth = FirebaseAuth.getInstance()
     val context = LocalContext.current
     val currentActivity = context as? Activity
+
+    val dataStore = UserDatastore(context = context)
+    val coroutineScope = rememberCoroutineScope()
 
     var isOtpSent by remember {
         mutableStateOf(false)
@@ -405,8 +413,12 @@ fun LoginUI(
                 }
                 AnimatedVisibility(
                     visible = isVerified,
-                    enter = slideInHorizontally(),
-                    exit = slideOutHorizontally()
+                    enter = slideInHorizontally(initialOffsetX = {
+                        -it
+                    }),
+                    exit = slideOutHorizontally(targetOffsetX = {
+                        -it
+                    })
                 ) {
                     Column(
                         modifier = Modifier
@@ -473,12 +485,21 @@ fun LoginUI(
                         Spacer(modifier = Modifier.height(10.dp))
                         Button(
                             onClick = {
-                                updateInfoToFirebase(
-                                    name = name.text,
-                                    phoneNumber = phoneNumber.text,
-                                    gender = gender.text,
-                                    context = context
-                                )
+                                coroutineScope.launch {
+                                    updateInfoToFirebase(
+                                        name = name.text,
+                                        phoneNumber = phoneNumber.text,
+                                        gender = gender.text,
+                                        context = context
+                                    )
+                                    dataStore.saveGender(gender.text)
+                                    dataStore.saveName(name.text)
+                                    dataStore.saveNumber(phoneNumber.text)
+                                    dataStore.saveLoginStatus(true)
+                                    navController.navigate(
+                                        Screens.Home.route
+                                    )
+                                }
 
                             },
                             colors = ButtonDefaults.buttonColors(
