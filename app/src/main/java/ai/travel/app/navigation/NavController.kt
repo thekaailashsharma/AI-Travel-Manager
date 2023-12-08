@@ -6,6 +6,7 @@ import ai.travel.app.home.ui.NewHomeScreen
 import ai.travel.app.home.ui.PfScreen
 import ai.travel.app.home.ui.RtScreen
 import ai.travel.app.newTrip.NewTripViewModel
+import ai.travel.app.riveanimation.LoginUI
 import ai.travel.app.tripDetails.TripDetailsScreen
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.BottomSheetScaffoldState
@@ -28,7 +29,7 @@ fun NavController(
     val homeViewModel: HomeViewModel = hiltViewModel()
     val newTripViewModel: NewTripViewModel = hiltViewModel()
 
-    NavHost(navController = navHostController, startDestination = Screens.Home.route) {
+    NavHost(navController = navHostController, startDestination = Screens.Login.route) {
         composable(Screens.Home.route) {
             NewHomeScreen(
                 viewModel = homeViewModel,
@@ -48,6 +49,10 @@ fun NavController(
 
         composable(Screens.TripDetails.route) {
             TripDetailsScreen(viewModel = homeViewModel, paddingValues = paddingValues, navController = navHostController)
+        }
+
+        composable(Screens.Login.route) {
+            LoginUI(paddingValues = paddingValues)
         }
     }
 
