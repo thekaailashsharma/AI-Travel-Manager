@@ -2,6 +2,7 @@ package ai.travel.app
 
 import ai.travel.app.bottomBar.BottomBar
 import ai.travel.app.home.HomeViewModel
+import ai.travel.app.home.ui.HomeScreenMain
 import ai.travel.app.navigation.NavController
 import ai.travel.app.riveanimation.SmsBroadcastReceiver
 import android.os.Bundle
@@ -60,13 +61,13 @@ class MainActivity : ComponentActivity() {
 
 
                     ) {
+//                    HomeScreenMain()
                     NavController(
                         navHostController = navController,
                         paddingValues = it,
                         isBottomBarVisible = isBottomBarVisible
                     )
                     print(it)
-
                 }
             }
         }
