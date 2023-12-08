@@ -24,9 +24,9 @@ jobs:
       run: chmod +x gradlew
     - name: Create local.properties
       run: |
-        echo "API_KEY=${{ secrets.API_KEY }}" > local.properties
-        echo "Here_API_KEY=${{ secrets.HERE_API_KEY }}" >> local.properties
-        echo "Places_API_KEY=${{ secrets.PLACES_API_KEY }}" >> local.properties
+        echo "API_KEY="${{ secrets.API_KEY }}" " > local.properties
+        echo "Here_API_KEY="${{ secrets.HERE_API_KEY }}" " >> local.properties
+        echo "Places_API_KEY=" ${{ secrets.PLACES_API_KEY }}" " >> local.properties
 
       # Optionally, you might want to display the content of local.properties for debugging
     - name: Display local.properties
