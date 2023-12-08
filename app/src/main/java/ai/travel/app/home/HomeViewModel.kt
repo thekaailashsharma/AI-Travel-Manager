@@ -74,6 +74,30 @@ class HomeViewModel @Inject constructor(
     private val _result = MutableStateFlow("")
     val result: StateFlow<String> = _result.asStateFlow()
 
+    private val _userName = MutableStateFlow("")
+    val userName: StateFlow<String> = _userName.asStateFlow()
+
+    private val _gender = MutableStateFlow("")
+    val gender: StateFlow<String> = _gender.asStateFlow()
+
+    private val _userPhoneNumber = MutableStateFlow("")
+    val userPhoneNumber: StateFlow<String> = _userPhoneNumber.asStateFlow()
+
+    private val _loginStatus = MutableStateFlow(false)
+    val loginStatus: StateFlow<Boolean> = _loginStatus.asStateFlow()
+
+    fun updateUserDetails(
+        userName: String,
+        gender: String,
+        userPhoneNumber: String,
+        loginStatus: Boolean
+    ) {
+        _userName.value = userName
+        _userPhoneNumber.value = userPhoneNumber
+        _gender.value = gender
+        _loginStatus.value = loginStatus
+    }
+
 
     fun updateResult(result: String) {
         _result.value = result

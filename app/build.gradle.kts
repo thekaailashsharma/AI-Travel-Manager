@@ -110,6 +110,8 @@ dependencies {
 
     //Dagger Hilt
     implementation("com.google.dagger:hilt-android:2.48")
+    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     kapt("com.google.dagger:hilt-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
@@ -145,6 +147,9 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx:22.3.0")
     implementation("com.google.firebase:firebase-firestore-ktx:24.9.1")
     implementation("com.github.raipankaj:JetFirestore:1.0.2")
+
+    // DataStore
+    implementation("androidx.datastore:datastore-core:1.0.0")
 
     // SystemUIController
     val accompanistVersion = "0.30.1"
