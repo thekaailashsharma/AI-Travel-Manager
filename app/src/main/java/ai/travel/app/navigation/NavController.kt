@@ -2,6 +2,7 @@ package ai.travel.app.navigation
 
 import ai.travel.app.home.ui.HomeScreen
 import ai.travel.app.home.HomeViewModel
+import ai.travel.app.home.ui.HomeScreenMain
 import ai.travel.app.home.ui.NewHomeScreen
 import ai.travel.app.home.ui.PfScreen
 import ai.travel.app.home.ui.RtScreen
@@ -31,9 +32,9 @@ fun NavController(
     val newTripViewModel: NewTripViewModel = hiltViewModel()
     val loginStatus = homeViewModel.loginStatus.collectAsState()
 
-    NavHost(navController = navHostController, startDestination = if (loginStatus.value) Screens.Home.route else Screens.Login.route) {
+    NavHost(navController = navHostController, startDestination = if (!loginStatus.value) Screens.Home.route else Screens.Login.route) {
         composable(Screens.Home.route) {
-            NewHomeScreen(
+            HomeScreenMain(
                 viewModel = homeViewModel,
                 bottomBarPadding = paddingValues,
                 newTripViewModel = newTripViewModel,

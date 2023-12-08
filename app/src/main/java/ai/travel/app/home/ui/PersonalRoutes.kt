@@ -80,28 +80,6 @@ fun PersonalRoutes(
 
 
     Column {
-        Row(
-            verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                .padding(
-                    start = 12.dp,
-                    top = 12.dp,
-                    bottom = 0.dp,
-                    end = 12.dp
-                )
-        ) {
-            Icon(
-                imageVector = Icons.Filled.LocationOn,
-                contentDescription = "topText",
-                tint = lightText,
-                modifier = Modifier.size(22.dp)
-            )
-            Spacer(modifier = Modifier.width(7.dp))
-            Text(
-                text = "Personal Routes",
-                color = textColor,
-                fontSize = 16.sp,
-            )
-        }
         LazyRow() {
             item {
                 NewRouteCard(sheetState)

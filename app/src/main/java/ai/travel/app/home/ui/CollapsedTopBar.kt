@@ -67,7 +67,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun CollapsedTopBarHomeScreen(
-    imageUrl: String,
+    imageUrl: Int,
     isCollapsed: Boolean,
     scroll: LazyListState
 ) {
@@ -98,22 +98,22 @@ fun CollapsedTopBarHomeScreen(
                             fontWeight = FontWeight.Black
                         )
                     ) {
-                        append("AI ")
+                        append("Tripify ")
                     }
                     withStyle(
                         SpanStyle(
                             color = textColor,
-                            fontSize = 13.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Normal
                         )
                     ) {
-                        append("Travel Manager")
+                        append("Making travel easier")
                     }
                 }, modifier = Modifier.padding(end = 10.dp))
                 ProfileImage(
                     imageUrl = imageUrl,
                     modifier = Modifier
-                        .size(50.dp)
+                        .size(80.dp)
                         .border(
                             brush = appGradient, shape = CircleShape, width = 1.dp
                         )
