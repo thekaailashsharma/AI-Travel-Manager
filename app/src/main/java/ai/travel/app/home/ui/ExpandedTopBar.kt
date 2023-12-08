@@ -5,8 +5,6 @@ import ai.travel.app.home.ApiState
 import ai.travel.app.home.HomeViewModel
 import ai.travel.app.home.base64ToByteArray
 import ai.travel.app.navigation.Screens
-import ai.travel.app.ui.theme.COLLAPSED_TOP_BAR_HEIGHT
-import ai.travel.app.ui.theme.EXPANDED_TOP_BAR_HEIGHT
 import ai.travel.app.ui.theme.appGradient
 import ai.travel.app.ui.theme.lightText
 import ai.travel.app.ui.theme.textColor
@@ -70,7 +68,7 @@ fun ExpandedTopBarHomeScreen(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 30.dp)
-            .height(EXPANDED_TOP_BAR_HEIGHT)
+//            .height(EXPANDED_TOP_BAR_HEIGHT)
             .background(appGradient)
     ) {
         Row(

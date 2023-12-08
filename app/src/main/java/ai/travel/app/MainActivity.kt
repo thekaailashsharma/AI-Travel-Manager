@@ -2,6 +2,7 @@ package ai.travel.app
 
 import ai.travel.app.bottomBar.BottomBar
 import ai.travel.app.navigation.NavController
+import ai.travel.app.riveanimation.LoginUI
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -38,8 +39,9 @@ class MainActivity : ComponentActivity() {
 
 
                 ) {
-                    NavController(navHostController = navController, paddingValues = it)
+//                    NavController(navHostController = navController, paddingValues = it)
                     print(it)
+                    LoginUI()
 
                 }
             }

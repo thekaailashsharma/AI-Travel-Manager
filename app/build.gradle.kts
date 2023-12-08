@@ -125,4 +125,16 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+
+// Rive
+    implementation("app.rive:rive-android:5.0.1")
+    implementation("androidx.startup:startup-runtime:1.1.1")
+
+    // Material Icons Extended
+    implementation("androidx.compose.material:material-icons-extended:1.5.0")
+
+    // SystemUIController
+    val accompanistVersion = "0.30.1"
+    implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
 }
