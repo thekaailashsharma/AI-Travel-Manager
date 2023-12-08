@@ -131,17 +131,17 @@ fun TripDetailsScreen(
                 .padding(paddingValues)
         ) {
 
-            val trips = viewModel.allTrips.collectAsState(initial = emptyList())
-            val days = viewModel.uniqueDays.collectAsState(initial = emptyList())
+            val trips = viewModel.getCurrentTrip(viewModel.currentDestination.value).collectAsState(initial = emptyList())
+            val days = viewModel.uniqueDays(viewModel.currentDestination.value).collectAsState(initial = emptyList())
             val currentDay = remember { mutableStateOf("1") }
             var dayTrips =
-                viewModel.getTrips(currentDay.value).collectAsState(initial = emptyList())
+                viewModel.getTrips(currentDay.value, viewModel.currentDestination.value).collectAsState(initial = emptyList())
 
             val newItems = remember {
                 mutableStateListOf<TripsEntity?>()
             }
-            LaunchedEffect(key1 = viewModel.allTrips) {
-                viewModel.allTrips.collectLatest {
+            LaunchedEffect(key1 = viewModel.getCurrentTrip(viewModel.currentDestination.value)) {
+                viewModel.getCurrentTrip(viewModel.currentDestination.value).collectLatest {
                     if (it.isNotEmpty() && viewModel.currentDestination.value != "") {
                         newItems.clear()
                         newItems.addAll(

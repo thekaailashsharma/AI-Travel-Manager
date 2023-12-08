@@ -87,10 +87,6 @@ fun MoreInfoTrips(viewModel: HomeViewModel, paddingValues: PaddingValues) {
             .padding(paddingValues)
     ) {
 
-        val trips = viewModel.allTrips.collectAsState(initial = emptyList())
-        val days = viewModel.uniqueDays.collectAsState(initial = emptyList())
-        val currentDay = remember { mutableStateOf("1") }
-
         println("MoreInfoTripssss: trips.value = ${viewModel.currentNewDestination.value}")
 
         var dayTrips =

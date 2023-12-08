@@ -46,14 +46,15 @@ class HomeViewModel @Inject constructor(
     private val _geoCodesData = MutableStateFlow(emptyList<TourDetails>().toMutableList())
     val geoCodesData: StateFlow<List<TourDetails>> = _geoCodesData.asStateFlow()
 
-    fun getTrips(day: String): Flow<List<TripsEntity?>> =
-        dbRepository.getTrips(day)
+    fun getTrips(day: String, destination: String): Flow<List<TripsEntity?>> =
+        dbRepository.getTrips(day, destination)
 
     fun getMoreInfo(destination: String): Flow<List<TripsEntity?>> =
         dbRepository.getMoreInfo(destination)
 
     val allTrips: Flow<List<TripsEntity?>> = dbRepository.allTrips
-    val uniqueDays: Flow<List<String?>> = dbRepository.distinctDays
+    fun getCurrentTrip(destination: String): Flow<List<TripsEntity?>> = dbRepository.getCurrentTrip(destination)
+    fun uniqueDays(destination: String): Flow<List<String?>> = dbRepository.distinctDays(destination)
 
     val tripName = mutableStateOf(TextFieldValue(""))
     val tripBudget = mutableStateOf(TextFieldValue(""))
