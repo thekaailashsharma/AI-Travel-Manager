@@ -19,6 +19,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -56,8 +59,11 @@ class HomeViewModel @Inject constructor(
         dbRepository.getMoreInfo(destination)
 
     val allTrips: Flow<List<TripsEntity?>> = dbRepository.allTrips
-    fun getCurrentTrip(destination: String): Flow<List<TripsEntity?>> = dbRepository.getCurrentTrip(destination)
-    fun uniqueDays(destination: String): Flow<List<String?>> = dbRepository.distinctDays(destination)
+    fun getCurrentTrip(destination: String): Flow<List<TripsEntity?>> =
+        dbRepository.getCurrentTrip(destination)
+
+    fun uniqueDays(destination: String): Flow<List<String?>> =
+        dbRepository.distinctDays(destination)
 
     val tripName = mutableStateOf(TextFieldValue(""))
     val tripBudget = mutableStateOf(TextFieldValue(""))
@@ -101,7 +107,7 @@ class HomeViewModel @Inject constructor(
         userName: String,
         gender: String,
         userPhoneNumber: String,
-        loginStatus: Boolean
+        loginStatus: Boolean,
     ) {
         _userName.value = userName
         _userPhoneNumber.value = userPhoneNumber
@@ -115,108 +121,158 @@ class HomeViewModel @Inject constructor(
     }
 
 
-
     fun getApiData() {
         viewModelScope.launch {
-            delay(1000)
-            val apiData =
-                repository.getApiData(
-                    ApiPrompt(
-                        prompt = Prompt(
-                            text = _message.value
-                        )
-                    )
-                )
-            _imageState.value = ApiState.Loaded(apiData)
-            extractTourDetails(apiData.candidates?.get(0)?.output ?: "")
-            getGeoCodes()
-        }
-    }
-
-    private fun getGeoCodes() {
-        viewModelScope.launch {
-            delay(1000)
-            _data.value.forEachIndexed { index, location ->
-                val geoCodes = mutableMapOf<String, String>()
-                val day = location.getOrDefault("Day", "-2")
-                if (day != "-2") {
-                    val locationName = location.getOrDefault("Name", "")
-                    if (locationName != "") {
-                        val apiData =
-                            repository.getGeocodingData(
-                                query = "$locationName, ${_location.value}",
+            withContext(Dispatchers.IO) {
+                val apiData =
+                    repository.getApiData(
+                        ApiPrompt(
+                            prompt = Prompt(
+                                text = _message.value
                             )
-                        geoCodes["latitude"] =
-                            apiData.items?.get(0)?.position?.lat?.toString() ?: ""
-                        geoCodes["longitude"] =
-                            apiData.items?.get(0)?.position?.lng?.toString() ?: ""
-                        _geoCodesData.value[index].geoCode = GeoCode(
-                            latitude = geoCodes["latitude"] ?: "",
-                            longitude = geoCodes["longitude"] ?: ""
                         )
+                    )
+                _imageState.value = ApiState.Loaded(apiData)
+                extractTourDetails(apiData.candidates?.get(0)?.output ?: "")
+                _data.value.forEachIndexed { index, location ->
+                    val geoCodes = mutableMapOf<String, String>()
+                    val day = location.getOrDefault("Day", "-2")
+                    if (day != "-2") {
+                        val locationName = location.getOrDefault("Name", "")
+                        if (locationName != "") {
+                            val apiData =
+                                repository.getGeocodingData(
+                                    query = "$locationName, ${_location.value}",
+                                )
+                            geoCodes["latitude"] =
+                                apiData.items?.get(0)?.position?.lat?.toString() ?: ""
+                            geoCodes["longitude"] =
+                                apiData.items?.get(0)?.position?.lng?.toString() ?: ""
+                            _geoCodesData.value[index].geoCode = GeoCode(
+                                latitude = geoCodes["latitude"] ?: "",
+                                longitude = geoCodes["longitude"] ?: ""
+                            )
+                        }
                     }
+
                 }
-
-            }
-            _imageState.value = ApiState.ReceivedGeoCodes
-            getPlaceId()
-        }
-    }
-
-    private fun getPlaceId() {
-        viewModelScope.launch {
-            delay(1000)
-            _geoCodesData.value.forEachIndexed { index, location ->
-                val apiData =
-                    repository.getPlaceIdData(
-                        PlaceIdBody(
-                            textQuery = location.name
+                _imageState.value = ApiState.ReceivedGeoCodes
+                _geoCodesData.value.forEachIndexed { index, location ->
+                    val apiData =
+                        repository.getPlaceIdData(
+                            PlaceIdBody(
+                                textQuery = location.name
+                            )
                         )
+                    _geoCodesData.value[index].placeId = apiData.places?.get(0)?.id ?: ""
+                    println("placeIddddd: ${_geoCodesData.value[index].placeId}")
+                }
+                _imageState.value = ApiState.ReceivedPlaceId
+                _geoCodesData.value.forEachIndexed { index, location ->
+                    val apiData =
+                        repository.getPhotoId(
+                            photoId = _geoCodesData.value[index].placeId ?: ""
+                        )
+                    _geoCodesData.value[index].photoID =
+                        apiData.result?.photos?.get(0)?.photo_reference ?: ""
+                    println("photoIddddd: ${apiData.result}")
+                    println("photoIddddd 111: ${_geoCodesData.value[index].placeId}")
+                }
+                _imageState.value = ApiState.ReceivedPhotoId
+                _geoCodesData.value.forEachIndexed { index, location ->
+                    val apiData =
+                        repository.getPhoto(
+                            photoReference = _geoCodesData.value[index].photoID ?: "",
+                            maxWidth = 1200,
+                        )
+                    _geoCodesData.value[index].photo = apiData
+                }
+                dbRepository.insertAllTrips(_geoCodesData.value.take(8).map {
+                    TripsEntity(
+                        day = it.day,
+                        timeOfDay = it.timeOfDay,
+                        name = it.name,
+                        budget = it.budget,
+                        latitude = it.geoCode?.latitude?.toDouble(),
+                        longitude = it.geoCode?.longitude?.toDouble(),
+                        photoBase64 = byteArrayToBase64(it.photo ?: ByteArray(0)),
+                        source = source.value.text,
+                        destination = destination.value.text,
+                        travelActivity = "",
                     )
-                _geoCodesData.value[index].placeId = apiData.places?.get(0)?.id ?: ""
-                println("placeIddddd: ${_geoCodesData.value[index].placeId}")
+                })
+                _imageState.value = ApiState.ReceivedPhoto
             }
-            _imageState.value = ApiState.ReceivedPlaceId
-            getPhotoId()
         }
-
     }
 
-    private fun getPhoto() {
-        viewModelScope.launch {
-            delay(1000)
-            _geoCodesData.value.forEachIndexed { index, location ->
-                val apiData =
-                    repository.getPhoto(
-                        photoReference = _geoCodesData.value[index].photoID ?: "",
-                        maxWidth = 1200,
+    private suspend fun getGeoCodes() {
+        _data.value.forEachIndexed { index, location ->
+            val geoCodes = mutableMapOf<String, String>()
+            val day = location.getOrDefault("Day", "-2")
+            if (day != "-2") {
+                val locationName = location.getOrDefault("Name", "")
+                if (locationName != "") {
+                    val apiData =
+                        repository.getGeocodingData(
+                            query = "$locationName, ${_location.value}",
+                        )
+                    geoCodes["latitude"] =
+                        apiData.items?.get(0)?.position?.lat?.toString() ?: ""
+                    geoCodes["longitude"] =
+                        apiData.items?.get(0)?.position?.lng?.toString() ?: ""
+                    _geoCodesData.value[index].geoCode = GeoCode(
+                        latitude = geoCodes["latitude"] ?: "",
+                        longitude = geoCodes["longitude"] ?: ""
                     )
-                _geoCodesData.value[index].photo = apiData
+                }
             }
-            addTripToDatabase()
-            _imageState.value = ApiState.ReceivedPhoto
 
         }
-
+        _imageState.value = ApiState.ReceivedGeoCodes
     }
 
-    private fun addTripToDatabase() {
-        viewModelScope.launch {
-            println("Adding to databasesssssssssss")
-            dbRepository.insertAllTrips(_geoCodesData.value.map {
-                TripsEntity(
-                    day = it.day,
-                    timeOfDay = it.timeOfDay,
-                    name = it.name,
-                    budget = it.budget,
-                    latitude = it.geoCode?.latitude?.toDouble(),
-                    longitude = it.geoCode?.longitude?.toDouble(),
-                    photoBase64 = byteArrayToBase64(it.photo ?: ByteArray(0)),
-                    source = source.value.text,
-                    destination = destination.value.text,
-                    travelActivity = "",
+    private suspend fun getPlaceId() {
+        _geoCodesData.value.forEachIndexed { index, location ->
+            val apiData =
+                repository.getPlaceIdData(
+                    PlaceIdBody(
+                        textQuery = location.name
+                    )
                 )
-            })
+            _geoCodesData.value[index].placeId = apiData.places?.get(0)?.id ?: ""
+            println("placeIddddd: ${_geoCodesData.value[index].placeId}")
+        }
+        _imageState.value = ApiState.ReceivedPlaceId
+    }
+
+    private suspend fun getPhoto() {
+        _geoCodesData.value.forEachIndexed { index, location ->
+            val apiData =
+                repository.getPhoto(
+                    photoReference = _geoCodesData.value[index].photoID ?: "",
+                    maxWidth = 1200,
+                )
+            _geoCodesData.value[index].photo = apiData
+        }
+    }
+
+    private suspend fun addTripToDatabase() {
+        println("Adding to databasesssssssssss")
+        dbRepository.insertAllTrips(_geoCodesData.value.map {
+            TripsEntity(
+                day = it.day,
+                timeOfDay = it.timeOfDay,
+                name = it.name,
+                budget = it.budget,
+                latitude = it.geoCode?.latitude?.toDouble(),
+                longitude = it.geoCode?.longitude?.toDouble(),
+                photoBase64 = byteArrayToBase64(it.photo ?: ByteArray(0)),
+                source = source.value.text,
+                destination = destination.value.text,
+                travelActivity = "",
+            )
+        })
 
 //            _geoCodesData.value.forEachIndexed { _, location ->
 //                dbRepository.insertTrip(
@@ -234,32 +290,24 @@ class HomeViewModel @Inject constructor(
 //                    )
 //                )
 //            }
-
-        }
-
     }
 
     private fun byteArrayToBase64(byteArray: ByteArray): String {
         return Base64.encodeToString(byteArray, Base64.DEFAULT)
     }
 
-    private fun getPhotoId() {
-        viewModelScope.launch {
-            delay(1000)
-            _geoCodesData.value.forEachIndexed { index, location ->
-                val apiData =
-                    repository.getPhotoId(
-                        photoId = _geoCodesData.value[index].placeId ?: ""
-                    )
-                _geoCodesData.value[index].photoID =
-                    apiData.result?.photos?.get(0)?.photo_reference ?: ""
-                println("photoIddddd: ${apiData.result}")
-                println("photoIddddd 111: ${_geoCodesData.value[index].placeId}")
-            }
-            _imageState.value = ApiState.ReceivedPhotoId
-            getPhoto()
+    private suspend fun getPhotoId() {
+        _geoCodesData.value.forEachIndexed { index, location ->
+            val apiData =
+                repository.getPhotoId(
+                    photoId = _geoCodesData.value[index].placeId ?: ""
+                )
+            _geoCodesData.value[index].photoID =
+                apiData.result?.photos?.get(0)?.photo_reference ?: ""
+            println("photoIddddd: ${apiData.result}")
+            println("photoIddddd 111: ${_geoCodesData.value[index].placeId}")
         }
-
+        _imageState.value = ApiState.ReceivedPhotoId
     }
 
     fun updateMessage(message: String, location: String, noOfDays: String) {

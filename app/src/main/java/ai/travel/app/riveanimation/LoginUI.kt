@@ -280,8 +280,8 @@ fun LoginUI(
                             exit = slideOutHorizontally()
                         ) {
                             TextFieldWithIconsLogin(
-                                textValue = "Password",
-                                placeholder = "Enter Your Password",
+                                textValue = "OTP",
+                                placeholder = "Enter OTP Sent to your Phone Number",
                                 icon = Icons.Filled.Lock,
                                 mutableText = password,
                                 onValueChanged = {

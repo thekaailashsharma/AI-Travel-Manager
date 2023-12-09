@@ -104,7 +104,7 @@ fun MoreInfoTrips(viewModel: HomeViewModel, paddingValues: PaddingValues) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .fillMaxHeight(0.24f),
+                            .fillMaxHeight(0.34f),
                         shape = RoundedCornerShape(0.dp),
                         elevation = CardDefaults.cardElevation(7.dp),
                         colors = CardDefaults.cardColors(
@@ -136,7 +136,7 @@ fun MoreInfoTrips(viewModel: HomeViewModel, paddingValues: PaddingValues) {
                                                 )
                                             }
                                         },
-                                    contentScale = ContentScale.FillWidth
+                                    contentScale = ContentScale.Crop
                                 )
                             }
                     }
