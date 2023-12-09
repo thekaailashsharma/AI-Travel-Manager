@@ -262,7 +262,7 @@ fun TripDetailsScreen(
                                                                     )
                                                                 }
                                                             },
-                                                        contentScale = ContentScale.FillWidth
+                                                        contentScale = ContentScale.FillBounds
                                                     )
                                                 }
                                         }
