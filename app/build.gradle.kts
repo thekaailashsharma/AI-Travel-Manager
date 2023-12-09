@@ -151,6 +151,10 @@ dependencies {
     // DataStore
     implementation("androidx.datastore:datastore-core:1.0.0")
 
+    // Maps
+    implementation(project(":maps"))
+
+
     // SystemUIController
     val accompanistVersion = "0.30.1"
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
