@@ -32,7 +32,7 @@ fun NavController(
     val newTripViewModel: NewTripViewModel = hiltViewModel()
     val loginStatus = homeViewModel.loginStatus.collectAsState()
 
-    NavHost(navController = navHostController, startDestination = if (!loginStatus.value) Screens.Home.route else Screens.Login.route) {
+    NavHost(navController = navHostController, startDestination = if (loginStatus.value) Screens.Home.route else Screens.Login.route) {
         composable(Screens.Home.route) {
             HomeScreenMain(
                 viewModel = homeViewModel,
