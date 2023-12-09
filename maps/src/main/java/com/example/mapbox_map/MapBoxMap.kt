@@ -169,7 +169,7 @@ fun MapBoxMap(
     )
 }
 
-private fun addAnnotationToMap(
+fun addAnnotationToMap(
     icon: Int,
     context: Context,
     mapView: MapView,
