@@ -3,6 +3,7 @@ package ai.travel.app.home
 import ai.travel.app.database.ArrayListConverter
 import ai.travel.app.database.DatabaseRepo
 import ai.travel.app.database.travel.TripsEntity
+import ai.travel.app.datastore.UserDatastore
 import ai.travel.app.dto.ApiPrompt
 import ai.travel.app.dto.PalmApi
 import ai.travel.app.dto.Prompt
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -85,6 +87,15 @@ class HomeViewModel @Inject constructor(
 
     private val _loginStatus = MutableStateFlow(false)
     val loginStatus: StateFlow<Boolean> = _loginStatus.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val dataStore = UserDatastore(application.applicationContext)
+            dataStore.getLoginStatus.collectLatest {
+                _loginStatus.value = it
+            }
+        }
+    }
 
     fun updateUserDetails(
         userName: String,

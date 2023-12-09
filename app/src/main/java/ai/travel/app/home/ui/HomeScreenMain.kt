@@ -2,6 +2,7 @@ package ai.travel.app.home.ui
 
 import ai.travel.app.R
 import ai.travel.app.bottomBar.items
+import ai.travel.app.home.ApiState
 import ai.travel.app.home.HomeViewModel
 import ai.travel.app.newTrip.NewTripScreen
 import ai.travel.app.newTrip.NewTripViewModel
@@ -59,17 +60,22 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -284,6 +290,106 @@ fun HomeScreenMain(
                                 )
 
 
+                            }
+                        }
+                        if (viewModel.isAnimationVisible.value) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    when (state.value) {
+                                        is ApiState.Error -> {
+
+                                        }
+
+                                        is ApiState.Loaded -> {
+                                            val currenanim by rememberLottieComposition(
+                                                spec = LottieCompositionSpec.Asset("location.json")
+                                            )
+                                            LottieAnimation(
+                                                composition = currenanim,
+                                                iterations = Int.MAX_VALUE,
+                                                contentScale = ContentScale.Crop,
+                                                speed = 1f,
+                                                modifier = Modifier
+                                                    .size(250.dp)
+                                            )
+
+                                            Text(text = "Fetching your location", color = textColor, fontSize = 18.sp)
+                                        }
+
+                                        ApiState.Loading -> {
+                                            val currenanim by rememberLottieComposition(
+                                                spec = LottieCompositionSpec.Asset("location.json")
+                                            )
+                                            LottieAnimation(
+                                                composition = currenanim,
+                                                iterations = Int.MAX_VALUE,
+                                                contentScale = ContentScale.Crop,
+                                                speed = 1f,
+                                                modifier = Modifier
+                                                    .size(250.dp)
+                                            )
+
+                                            Text(text = "Fetching your location", color = textColor, fontSize = 18.sp)
+                                        }
+
+                                        ApiState.NotStarted -> {
+
+                                        }
+
+                                        ApiState.ReceivedGeoCodes -> {
+                                            val currenanim by rememberLottieComposition(
+                                                spec = LottieCompositionSpec.Asset("itineary.json")
+                                            )
+                                            LottieAnimation(
+                                                composition = currenanim,
+                                                iterations = Int.MAX_VALUE,
+                                                contentScale = ContentScale.Crop,
+                                                speed = 1f,
+                                                modifier = Modifier
+                                                    .size(250.dp)
+                                            )
+                                            Text(text = "Planning Itineary", color = textColor, fontSize = 18.sp)
+                                        }
+
+                                        ApiState.ReceivedPhoto -> {
+                                            viewModel.isAnimationVisible.value = false
+
+                                        }
+
+                                        ApiState.ReceivedPhotoId -> {
+                                            val currenanim by rememberLottieComposition(
+                                                spec = LottieCompositionSpec.Asset("getset.json")
+                                            )
+                                            LottieAnimation(
+                                                composition = currenanim,
+                                                iterations = Int.MAX_VALUE,
+                                                contentScale = ContentScale.Crop,
+                                                speed = 1f,
+                                                modifier = Modifier
+                                                    .size(250.dp)
+                                            )
+                                            Text(text = "Get Set Go", color = textColor, fontSize = 18.sp)
+                                        }
+
+                                        ApiState.ReceivedPlaceId -> {
+                                            val currenanim by rememberLottieComposition(
+                                                spec = LottieCompositionSpec.Asset("onyourmark.json")
+                                            )
+                                            LottieAnimation(
+                                                composition = currenanim,
+                                                iterations = Int.MAX_VALUE,
+                                                contentScale = ContentScale.Crop,
+                                                speed = 1f,
+                                                modifier = Modifier
+                                                    .size(250.dp)
+                                            )
+                                            Text(text = "ON your Mark", color = textColor, fontSize = 18.sp)
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
