@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -60,6 +61,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -329,6 +331,7 @@ fun NewTripScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextFieldWithIcons(
+    modifier: Modifier = Modifier,
     textValue: String,
     placeholder: String,
     icon: ImageVector,
@@ -341,7 +344,10 @@ fun TextFieldWithIcons(
     ifIsOtp: Boolean = false,
     isEnabled: Boolean = true,
     onValueChanged: (TextFieldValue) -> Unit,
-) {
+    onSearch: () -> Unit = {},
+    contentColor : Color = textColor,
+    containerColor : Color = CardBackground
+    ) {
     TextField(
         value = mutableText,
         leadingIcon = {
@@ -395,16 +401,22 @@ fun TextFieldWithIcons(
             keyboardType = keyboardType,
             imeAction = imeAction
         ),
-        modifier = Modifier
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                onSearch()
+            }
+        ),
+        modifier = modifier
             .padding(start = 15.dp, top = 5.dp, bottom = 15.dp, end = 15.dp)
             .fillMaxWidth(),
         colors = TextFieldDefaults.colors(
-            focusedTextColor = textColor,
-            disabledTextColor = textColor,
-            focusedContainerColor = CardBackground,
-            unfocusedContainerColor = CardBackground,
-            disabledContainerColor = CardBackground,
+            focusedTextColor = contentColor,
+            disabledTextColor = contentColor,
+            focusedContainerColor = containerColor,
+            unfocusedContainerColor = containerColor,
+            disabledContainerColor = containerColor,
         ),
-        enabled = isEnabled
+        enabled = isEnabled,
+        shape = RoundedCornerShape(20.dp),
     )
 }

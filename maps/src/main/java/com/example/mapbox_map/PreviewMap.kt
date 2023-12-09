@@ -32,13 +32,13 @@ import com.mapbox.maps.plugin.annotation.generated.PointAnnotationManager
 @Composable
 fun PreviewMap(
     modifier: Modifier = Modifier,
-    onPointChange: (Point) -> Unit,
+    onPointChange: (Point) -> Unit = {},
     isClicked: MutableState<Boolean> = mutableStateOf(false),
     isReset: MutableState<Boolean> = mutableStateOf(false),
-    points: List<MapItem>,
-    latitude: Double,
-    longitude: Double,
-    currentPoint: MutableState<MapBoxPoint?>,
+    points: List<MapItem> = listOf(),
+    latitude: Double = 0.0,
+    longitude: Double = 0.0,
+    currentPoint: MutableState<MapBoxPoint?> = mutableStateOf(null),
 ) {
 
     val context = LocalContext.current
@@ -56,10 +56,10 @@ fun PreviewMap(
     AndroidView(
         factory = { context ->
             val cameraOptions = CameraOptions.Builder()
-                .center(Point.fromLngLat(points[0].longitude, points[0].latitude))
-                .zoom(13.0)
-                .pitch(45.0)
-                .bearing(-17.6)
+                .center(Point.fromLngLat(78.9629, 20.5937))
+                .zoom(3.0)
+                .pitch(40.0)
+                .bearing(0.0)
                 .build()
             MapView(context).also { mapView ->
                 mapView.getMapboxMap().loadStyle(
@@ -67,10 +67,10 @@ fun PreviewMap(
                         val zoom = zoom()
                         Log.i("Zoommmmmmmm", "${zoom.literalValue}")
                         +terrain("terrain-enable")
-                        +projection(ProjectionName.MERCATOR)
+                        +projection(ProjectionName.GLOBE)
                         +atmosphere {
-                            color(rgb(220.0, 159.0, 159.0)) // Pink fog / lower atmosphere
-                            highColor(rgb(220.0, 159.0, 159.0)) // Blue sky / upper atmosphere
+                            color(rgb(18.0, 1.0, 0.0)) // Pink fog / lower atmosphere
+                            highColor(rgb(18.0, 1.0, 0.0)) // Blue sky / upper atmosphere
                             horizonBlend(0.4) // Exaggerate atmosphere (default is .1)
                         }
                         +rasterDemSource("raster-dem") {
@@ -81,9 +81,9 @@ fun PreviewMap(
                         }
                     }
                 )
-                isScalingOut(mapView) {
-                    isClicked.value = false
-                }
+//                isScalingOut(mapView) {
+//                    isClicked.value = false
+//                }
                 mapView.getMapboxMap().flyTo(
                     cameraOptions,
                     MapAnimationOptions.mapAnimationOptions {
@@ -102,39 +102,41 @@ fun PreviewMap(
             }
         },
         update = { mapView ->
-            isScalingOut(mapView) {
-                isClicked.value = false
-                isReset.value = true
-            }
+//            isScalingOut(mapView) {
+//                isClicked.value = false
+//                isReset.value = true
+//            }
             val cameraOptions = CameraOptions.Builder()
-                .center(Point.fromLngLat(longitude, latitude))
-                .zoom(currentPoint.value?.zoom ?: 3.0)
+                .center(Point.fromLngLat(78.9629, 20.5937))
+                .zoom(3.0)
+                .pitch(40.0)
+                .bearing(0.0)
                 .build()
             mapView.annotations.cleanup()
-            points.forEach { mapItem ->
-                addAnnotationToMap(
-                    context = context,
-                    mapView = mapView,
-                    point = Point.fromLngLat(mapItem.longitude, mapItem.latitude),
-                    icon = mapItem.image
-                )
-            }
-            if (isClicked.value) {
-                mapView.getMapboxMap().flyTo(
-                    cameraOptions,
-                    MapAnimationOptions.mapAnimationOptions {
-                        duration(5000L)
-                    }
-                )
-            }
-            if (isReset.value){
-                mapView.getMapboxMap().flyTo(
-                    cameraOptions,
-                    MapAnimationOptions.mapAnimationOptions {
-                        duration(5000L)
-                    }
-                )
-            }
+//            points.forEach { mapItem ->
+//                addAnnotationToMap(
+//                    context = context,
+//                    mapView = mapView,
+//                    point = Point.fromLngLat(mapItem.longitude, mapItem.latitude),
+//                    icon = mapItem.image
+//                )
+//            }
+//            if (isClicked.value) {
+//                mapView.getMapboxMap().flyTo(
+//                    cameraOptions,
+//                    MapAnimationOptions.mapAnimationOptions {
+//                        duration(5000L)
+//                    }
+//                )
+//            }
+//            if (isReset.value){
+//                mapView.getMapboxMap().flyTo(
+//                    cameraOptions,
+//                    MapAnimationOptions.mapAnimationOptions {
+//                        duration(5000L)
+//                    }
+//                )
+//            }
 
 
 //            if (point != null) {
