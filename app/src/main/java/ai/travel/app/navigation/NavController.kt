@@ -50,7 +50,7 @@ fun NavController(
             PfScreen()
         }
         composable(Screens.Routes.route) {
-            MapsSearchScreen(viewModel = mapsViewModel)
+            MapsSearchScreen(viewModel = mapsViewModel, navController = navHostController)
         }
 
         composable(Screens.TripDetails.route) {
