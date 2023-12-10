@@ -6,6 +6,8 @@ import ai.travel.app.home.ui.HomeScreenMain
 import ai.travel.app.home.ui.NewHomeScreen
 import ai.travel.app.home.ui.PfScreen
 import ai.travel.app.home.ui.RtScreen
+import ai.travel.app.mapsSearch.MapsSearchViewModel
+import ai.travel.app.mapsSearch.ui.MapsSearchScreen
 import ai.travel.app.newTrip.NewTripViewModel
 import ai.travel.app.riveanimation.LoginUI
 import ai.travel.app.tripDetails.TripDetailsScreen
@@ -30,6 +32,7 @@ fun NavController(
 
     val homeViewModel: HomeViewModel = hiltViewModel()
     val newTripViewModel: NewTripViewModel = hiltViewModel()
+    val mapsViewModel: MapsSearchViewModel = hiltViewModel()
     val loginStatus = homeViewModel.loginStatus.collectAsState()
 
     NavHost(navController = navHostController, startDestination = if (loginStatus.value) Screens.Home.route else Screens.Login.route) {
@@ -47,7 +50,7 @@ fun NavController(
             PfScreen()
         }
         composable(Screens.Routes.route) {
-            RtScreen()
+            MapsSearchScreen(viewModel = mapsViewModel, navController = navHostController)
         }
 
         composable(Screens.TripDetails.route) {
