@@ -128,6 +128,7 @@ class HomeViewModel @Inject constructor(
 
     fun getApiData() {
         viewModelScope.launch {
+            println("messageeeee: ${_message.value}")
             withContext(Dispatchers.IO) {
                 val apiData =
                     repository.getApiData(
@@ -139,6 +140,7 @@ class HomeViewModel @Inject constructor(
                     )
                 _imageState.value = ApiState.Loaded(apiData)
                 extractTourDetails(apiData.candidates?.get(0)?.output ?: "")
+                println("dataaaaaaaaa: ${_data.value}")
                 _data.value.forEachIndexed { index, location ->
                     val geoCodes = mutableMapOf<String, String>()
                     val day = location.getOrDefault("Day", "-2")
@@ -160,6 +162,7 @@ class HomeViewModel @Inject constructor(
 
                 }
                 _imageState.value = ApiState.ReceivedGeoCodes
+                println("geoCodesDataaaaa: ${_geoCodesData.value}")
                 _geoCodesData.value.forEachIndexed { index, location ->
                     val apiData =
                         repository.getPlaceIdData(
@@ -205,6 +208,7 @@ class HomeViewModel @Inject constructor(
                     )
                 })
                 _imageState.value = ApiState.ReceivedPhoto
+                _geoCodesData.value = mutableListOf()
             }
         }
     }

@@ -205,7 +205,7 @@ fun TripDetailsScreen(
                         }
                     }
 
-                    if (trips.value.isEmpty()) {
+                    if (trips.value.isEmpty() || days.value.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
