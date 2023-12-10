@@ -144,7 +144,7 @@ class MapsSearchViewModel @Inject constructor(
 
     private fun dataFromNetwork(query: String): Flow<String> {
         return flow {
-            delay(2000)
+            delay(500)
             emit(query)
         }
     }
