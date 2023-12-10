@@ -6,6 +6,7 @@ import ai.travel.app.dto.geocoding.GeoCodes
 import ai.travel.app.dto.getPhotoId.PhotoIdResponse
 import ai.travel.app.dto.getPlaceId.PlaceIdBody
 import ai.travel.app.dto.getPlaceId.PlaceIdResponse
+import ai.travel.app.dto.hereSearch.HereSearchResponse
 
 
 interface ApiService {
@@ -21,4 +22,11 @@ interface ApiService {
         maxWidth: Int,
         maxHeight: Int = 0,
     ): ByteArray
+
+    suspend fun hereSearch(
+        query: String,
+        latitude: Double,
+        longitude: Double,
+        limit: Int = 6,
+    ): HereSearchResponse
 }

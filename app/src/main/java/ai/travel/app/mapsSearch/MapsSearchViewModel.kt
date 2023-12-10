@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.delayEach
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
@@ -39,6 +40,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -72,6 +76,9 @@ class MapsSearchViewModel @Inject constructor(
     private val _searchResponse = MutableStateFlow<MapsSearchResponse?>(null)
     val searchResponse: StateFlow<MapsSearchResponse?> = _searchResponse.asStateFlow()
 
+    private val _isChecking = MutableStateFlow<Boolean>(false)
+    val isChecking: StateFlow<Boolean> = _isChecking.asStateFlow()
+
     var isClicked = mutableStateOf(false)
     var latitude =  mutableDoubleStateOf(20.5937)
     var longitude =mutableDoubleStateOf(78.9629)
@@ -85,9 +92,9 @@ class MapsSearchViewModel @Inject constructor(
     fun setQuery(query: TextFieldValue) {
         _query.value = query
         viewModelScope.launch {
-            _query.debounce(800)
+            _query.debounce(2400)
                 .filter { query ->
-                    if (query.text.isEmpty()) {
+                    if (query.text.isEmpty() && !_isChecking.value) {
                         _query.value = TextFieldValue("")
                         return@filter false
                     } else {
@@ -97,11 +104,17 @@ class MapsSearchViewModel @Inject constructor(
                 .filter {
                     return@filter _imageState.value !is ApiState.ReceivedPhoto
                 }
+                .onStart {
+                    _isChecking.emit(true) // Set API request status to true
+                }
                 .distinctUntilChanged()
                 .flatMapLatest { query ->
                     dataFromNetwork(query.text)
                         .catch {
                             emitAll(flowOf(""))
+                        }
+                        .onCompletion {
+                            _isChecking.emit(false) // Set API request status to false on completion
                         }
                 }
                 .flowOn(Dispatchers.Default)
@@ -137,7 +150,31 @@ class MapsSearchViewModel @Inject constructor(
     fun getAutoComplete(query: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO){
-                _addresses.value =  mapsSearch(application.applicationContext, query)
+                try {
+                    val apiData =
+                        repository.getGeocodingData(
+                            query = query,
+                        )
+                    val latitude = apiData.items?.get(0)?.position?.lat ?: 0.0
+                    val longitude = apiData.items?.get(0)?.position?.lng ?: 0.0
+                    val autoComplete = repository.hereSearch(
+                        latitude = latitude,
+                        longitude = longitude,
+                        query = query,
+                    )
+                    _addresses.value = autoComplete.items?.map {
+                        Address(
+                            name = it.title ?: "",
+                            formattedAddress = it.address?.label ?: "",
+                            latitude = latitude,
+                            longitude = longitude,
+                        )
+                    } ?: listOf()
+                    println("_addresses.value: ${_addresses.value}")
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+//                _addresses.value =  mapsSearch(application.applicationContext, query)
             }
         }
     }

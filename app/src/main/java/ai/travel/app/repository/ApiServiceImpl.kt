@@ -8,6 +8,7 @@ import ai.travel.app.dto.geocoding.GeoCodes
 import ai.travel.app.dto.getPhotoId.PhotoIdResponse
 import ai.travel.app.dto.getPlaceId.PlaceIdBody
 import ai.travel.app.dto.getPlaceId.PlaceIdResponse
+import ai.travel.app.dto.hereSearch.HereSearchResponse
 import android.util.Log
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -128,6 +129,33 @@ class ApiServiceImpl(
         } catch (e: Exception) {
             Log.i("ApiException", e.message.toString())
             return ByteArray(0)
+        }
+    }
+
+    override suspend fun hereSearch(
+        query: String,
+        latitude: Double,
+        longitude: Double,
+        limit: Int,
+    ): HereSearchResponse {
+        return try {
+            val a = client.get {
+                val encodedLocation = URLEncoder.encode(query, "UTF-8")
+                url("${ApiRoutes.hereSearch}?at=$latitude,$longitude&q=$encodedLocation" +
+                        "&lang=en&apiKey=${BuildConfig.Here_API_KEY}")
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+                headers {
+                    append("Accept", "*/*")
+                    append("Content-Type", "application/json")
+                }
+            }.body<HereSearchResponse>()
+            println("photooooo: $a")
+            return a
+        } catch (e: Exception) {
+            Log.i("ApiException", e.message.toString())
+            return HereSearchResponse(
+                items = null,
+            )
         }
     }
 }
