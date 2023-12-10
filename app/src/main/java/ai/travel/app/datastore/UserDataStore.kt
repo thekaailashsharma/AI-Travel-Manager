@@ -18,6 +18,7 @@ class UserDatastore(private val context: Context) {
         val userName = stringPreferencesKey("userName")
         val gender = stringPreferencesKey("gender")
         val isLoggedIn = booleanPreferencesKey("login")
+        val pfp = stringPreferencesKey("pfp")
     }
 
     val getNumber: Flow<String> = context.datastore.data.map {
@@ -27,6 +28,16 @@ class UserDatastore(private val context: Context) {
     suspend fun saveNumber(number: String) {
         context.datastore.edit {
             it[phoneNumber] = number
+        }
+    }
+
+    val getPfp: Flow<String> = context.datastore.data.map {
+        it[pfp] ?: ""
+    }
+
+    suspend fun savePfp(pfp: String) {
+        context.datastore.edit {
+            it[UserDatastore.pfp] = pfp
         }
     }
 

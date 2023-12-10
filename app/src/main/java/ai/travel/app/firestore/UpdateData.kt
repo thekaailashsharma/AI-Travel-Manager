@@ -9,12 +9,14 @@ fun updateInfoToFirebase(
     name: String?,
     phoneNumber: String?,
     gender: String?,
+    imageUrl: String?,
 
     ) {
     val profile = ProfileInfo(
         name,
         phoneNumber,
         gender,
+        imageUrl
     )
 
     val db = FirebaseFirestore.getInstance()
