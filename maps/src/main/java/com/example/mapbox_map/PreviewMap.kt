@@ -36,8 +36,8 @@ fun PreviewMap(
     isClicked: MutableState<Boolean> = mutableStateOf(false),
     isReset: MutableState<Boolean> = mutableStateOf(false),
     points: List<MapItem> = listOf(),
-    latitude: Double = 0.0,
-    longitude: Double = 0.0,
+    latitude: MutableState<Double> = mutableStateOf(20.5937),
+    longitude:MutableState<Double> = mutableStateOf(78.9629),
     currentPoint: MutableState<MapBoxPoint?> = mutableStateOf(null),
 ) {
 
@@ -56,7 +56,7 @@ fun PreviewMap(
     AndroidView(
         factory = { context ->
             val cameraOptions = CameraOptions.Builder()
-                .center(Point.fromLngLat(78.9629, 20.5937))
+                .center(Point.fromLngLat(longitude.value, latitude.value))
                 .zoom(3.0)
                 .pitch(40.0)
                 .bearing(0.0)
@@ -107,8 +107,8 @@ fun PreviewMap(
 //                isReset.value = true
 //            }
             val cameraOptions = CameraOptions.Builder()
-                .center(Point.fromLngLat(78.9629, 20.5937))
-                .zoom(3.0)
+                .center(Point.fromLngLat(longitude.value, latitude.value))
+                .zoom(10.0)
                 .pitch(40.0)
                 .bearing(0.0)
                 .build()
@@ -121,14 +121,14 @@ fun PreviewMap(
 //                    icon = mapItem.image
 //                )
 //            }
-//            if (isClicked.value) {
-//                mapView.getMapboxMap().flyTo(
-//                    cameraOptions,
-//                    MapAnimationOptions.mapAnimationOptions {
-//                        duration(5000L)
-//                    }
-//                )
-//            }
+            if (isClicked.value) {
+                mapView.getMapboxMap().flyTo(
+                    cameraOptions,
+                    MapAnimationOptions.mapAnimationOptions {
+                        duration(5000L)
+                    }
+                )
+            }
 //            if (isReset.value){
 //                mapView.getMapboxMap().flyTo(
 //                    cameraOptions,
