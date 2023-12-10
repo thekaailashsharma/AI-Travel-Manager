@@ -142,23 +142,21 @@ class HomeViewModel @Inject constructor(
                 _data.value.forEachIndexed { index, location ->
                     val geoCodes = mutableMapOf<String, String>()
                     val day = location.getOrDefault("Day", "-2")
-                    if (day != "-2") {
-                        val locationName = location.getOrDefault("Name", "")
-                        if (locationName != "") {
-                            val apiData =
-                                repository.getGeocodingData(
-                                    query = "$locationName, ${_location.value}",
-                                )
-                            geoCodes["latitude"] =
-                                apiData.items?.get(0)?.position?.lat?.toString() ?: ""
-                            geoCodes["longitude"] =
-                                apiData.items?.get(0)?.position?.lng?.toString() ?: ""
-                            _geoCodesData.value[index].geoCode = GeoCode(
-                                latitude = geoCodes["latitude"] ?: "",
-                                longitude = geoCodes["longitude"] ?: ""
+                    val locationName = location.getOrDefault("Name", "")
+//                    if (locationName != "") {
+                        val apiData =
+                            repository.getGeocodingData(
+                                query = "$locationName, ${_location.value}",
                             )
-                        }
-                    }
+                        geoCodes["latitude"] =
+                            apiData.items?.get(0)?.position?.lat?.toString() ?: ""
+                        geoCodes["longitude"] =
+                            apiData.items?.get(0)?.position?.lng?.toString() ?: ""
+                        _geoCodesData.value[index].geoCode = GeoCode(
+                            latitude = geoCodes["latitude"] ?: "",
+                            longitude = geoCodes["longitude"] ?: ""
+                        )
+//                    }
 
                 }
                 _imageState.value = ApiState.ReceivedGeoCodes

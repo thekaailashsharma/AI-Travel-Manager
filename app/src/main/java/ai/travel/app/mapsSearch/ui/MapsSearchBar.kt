@@ -75,7 +75,7 @@ fun MapsSearchBar(
     viewModel: MapsSearchViewModel,
     navController: NavController,
 ) {
-    var isChecking by remember { mutableStateOf(false) }
+    val isChecking by viewModel.isChecking.collectAsState()
     var isCheckingJob: Job? = null // Initialize isCheckingJob
     val addresses = viewModel.addresses.collectAsState()
     val imageState = viewModel.imageState.collectAsState()
@@ -133,9 +133,7 @@ fun MapsSearchBar(
                     }
                     isCheckingJob = CoroutineScope(Dispatchers.Main).launch {
                         delay(1000) // Adjust the delay time as needed
-                        isChecking = false
                     }
-                    isChecking = true
                 },
                 onSearch = {
                     viewModel.getAutoComplete(mutableText.text)
