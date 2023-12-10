@@ -1,12 +1,10 @@
 package ai.travel.app.mapsSearch.ui
 
+import ai.travel.app.home.ApiState
 import ai.travel.app.mapsSearch.MapsSearchViewModel
 import ai.travel.app.newTrip.TextFieldWithIcons
-import ai.travel.app.ui.theme.CardBackground
-import ai.travel.app.ui.theme.appGradient
 import ai.travel.app.ui.theme.lightText
 import ai.travel.app.ui.theme.textColor
-import ai.travel.app.utils.dashedBorder
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -24,18 +22,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.NorthEast
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
@@ -69,7 +65,7 @@ fun MapsSearchBar(
 ) {
     var isChecking by remember { mutableStateOf(false) }
     var isCheckingJob: Job? = null // Initialize isCheckingJob
-    val addresses = viewModel.address.collectAsState()
+    val addresses = viewModel.addresses.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -95,6 +91,9 @@ fun MapsSearchBar(
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Search,
                 onValueChanged = {
+                    viewModel.setImageState(
+                        ApiState.NotStarted
+                    )
                     onValueChange(it)
                     if (isCheckingJob?.isActive == true) {
                         isCheckingJob?.cancel()
@@ -109,7 +108,7 @@ fun MapsSearchBar(
                     viewModel.getAutoComplete(mutableText.text)
                 },
                 contentColor = textColor,
-                containerColor = Color.Transparent,
+                containerColor = Color.Black.copy(0.8f),
                 trailingIcon = Icons.Filled.Close,
                 isTrailingVisible = true,
                 onTrailingClick = {
@@ -133,11 +132,17 @@ fun MapsSearchBar(
             modifier = Modifier.fillMaxSize()
         ) {
             LazyColumn(contentPadding = PaddingValues(5.dp)) {
-                items(addresses.value) { address ->
+                itemsIndexed(addresses.value) {index, address ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(15.dp),
+                            .padding(15.dp)
+                            .clickable(
+                                interactionSource = MutableInteractionSource(),
+                                indication = null
+                            ) {
+                                viewModel.searchPlace(index)
+                            },
                         colors = CardDefaults.cardColors(
                             containerColor = Color.Transparent
                         ),
@@ -145,7 +150,7 @@ fun MapsSearchBar(
                         elevation = CardDefaults.cardElevation(0.dp)
                     ) {
                         Row(
-                            modifier = Modifier,
+                            modifier = Modifier.fillMaxWidth().padding(10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
@@ -155,11 +160,12 @@ fun MapsSearchBar(
                                 fontSize = 15.sp,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.fillMaxWidth(0.8f)
                             )
                             Icon(
                                 imageVector = Icons.Filled.NorthEast,
                                 contentDescription = "",
-                                tint = textColor
+                                tint = lightText
                             )
                         }
                     }
