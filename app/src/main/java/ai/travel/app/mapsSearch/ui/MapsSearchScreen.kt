@@ -36,7 +36,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddReaction
+import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -57,6 +59,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -65,32 +68,32 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.mapbox_map.PreviewMap
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapsSearchScreen(viewModel: MapsSearchViewModel) {
+fun MapsSearchScreen(viewModel: MapsSearchViewModel,navController: NavController) {
     val query = viewModel.query.collectAsState()
     val address = viewModel.addresses.collectAsState()
     val imageState = viewModel.imageState.collectAsState()
     val searchResponse = viewModel.searchResponse.collectAsState()
+    val photoId = viewModel.photoId.collectAsState()
     val modalSheetStates = rememberBottomSheetScaffoldState(
         bottomSheetState = SheetState(
             initialValue = SheetValue.Hidden,
             skipPartiallyExpanded = false
         )
     )
-    var latitude = remember { mutableDoubleStateOf(20.5937) }
-    var longitude = remember { mutableDoubleStateOf(78.9629) }
     val coroutineScope = rememberCoroutineScope()
     println("Search Responsessss: ${searchResponse.value}")
     println("Image State: ${imageState.value}")
     Box(modifier = Modifier.fillMaxSize()) {
         PreviewMap(
             modifier = Modifier.fillMaxSize(),
-            latitude = latitude,
-            longitude = longitude,
+            latitude = viewModel.latitude,
+            longitude = viewModel.longitude,
             isClicked = viewModel.isClicked,
         )
 
@@ -104,7 +107,8 @@ fun MapsSearchScreen(viewModel: MapsSearchViewModel) {
                     viewModel = viewModel,
                     onTrailingClick = {
                         viewModel.setQuery(TextFieldValue(""))
-                    }
+                    },
+                    navController = navController
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 AnimatedVisibility(
@@ -116,57 +120,6 @@ fun MapsSearchScreen(viewModel: MapsSearchViewModel) {
                             .padding(horizontal = 10.dp),
                         color = lightText
                     )
-                }
-                AnimatedVisibility(
-                    visible = imageState.value is ApiState.ReceivedPhoto,
-                    enter = slideInVertically(initialOffsetY = {
-                        it
-                    }),
-                    exit = slideOutVertically(targetOffsetY = {
-                        it
-                    })
-                ) {
-                    searchResponse.value?.let { response ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
-                                elevation = CardDefaults.cardElevation(7.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = Color.Black.copy(0.8f),
-                                ),
-                                border = BorderStroke(
-                                    width = 0.5.dp,
-                                    color = textColor
-                                )
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.AddReaction,
-                                        contentDescription = "topText",
-                                        tint = lightText,
-                                        modifier = Modifier.size(30.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(7.dp))
-                                    Text(
-                                        text = "Generate Trip",
-                                        color = textColor,
-                                        fontSize = 15.sp,
-                                    )
-                                }
-                            }
-                        }
-                    }
                 }
 
             }
@@ -193,23 +146,23 @@ fun MapsSearchScreen(viewModel: MapsSearchViewModel) {
 fun SearchResults(viewModel: MapsSearchViewModel) {
     val searchResponse = viewModel.searchResponse.collectAsState()
     searchResponse.value?.let { response ->
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.34f),
-            shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
-            elevation = CardDefaults.cardElevation(7.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.Black.copy(0.8f),
-            ),
-            border = BorderStroke(
-                width = 0.5.dp,
-                color = textColor
-            )
-        ) {
-            Column() {
+//        Card(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .fillMaxHeight(0.34f),
+//            shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
+//            elevation = CardDefaults.cardElevation(7.dp),
+//            colors = CardDefaults.cardColors(
+//                containerColor = Color.Transparent.copy(0.8f),
+//            ),
+//            border = BorderStroke(
+//                width = 0.5.dp,
+//                color = textColor
+//            )
+//        ) {
+//            Column() {
                 LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().fillMaxHeight(0.34f),
                     contentPadding = PaddingValues(30.dp)
                 ) {
                     items(response.photos) { photo ->
@@ -221,34 +174,15 @@ fun SearchResults(viewModel: MapsSearchViewModel) {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .fillMaxHeight()
-                                        .drawWithCache {
-                                            val gradient =
-                                                Brush.verticalGradient(
-                                                    colors = listOf(
-                                                        Color.Transparent,
-                                                        Color.Black.copy(
-                                                            0.8f
-                                                        )
-                                                    ),
-                                                    startY = size.height / 5.5f,
-                                                    endY = size.height
-                                                )
-                                            onDrawWithContent {
-                                                drawContent()
-                                                drawRect(
-                                                    gradient,
-                                                    blendMode = BlendMode.Multiply
-                                                )
-                                            }
-                                        },
+                                        .padding(horizontal = 10.dp),
                                     contentScale = ContentScale.Crop
                                 )
                             }
                     }
                 }
             }
-        }
-    }
+//        }
+//    }
 }
 
 
