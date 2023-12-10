@@ -97,6 +97,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun LoginUI(
@@ -608,28 +609,32 @@ fun LoginUI(
                     Button(
                         onClick = {
                             coroutineScope.launch {
-                                if (selectedAvatar.imageUrl != "") {
-                                    updateInfoToFirebase(
-                                        name = name.text,
-                                        phoneNumber = phoneNumber.text,
-                                        gender = gender.text,
-                                        context = context,
-                                        imageUrl = selectedAvatar.imageUrl
-                                    )
-                                    dataStore.saveGender(gender.text)
-                                    dataStore.saveName(name.text)
-                                    dataStore.saveNumber(phoneNumber.text)
-                                    dataStore.savePfp(selectedAvatar.imageUrl)
-                                    dataStore.saveLoginStatus(true)
-                                    navController.navigate(
-                                        Screens.Home.route
-                                    )
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        "Please Select an Avatar",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                withContext(Dispatchers.IO) {
+                                    if (selectedAvatar.imageUrl != "") {
+                                        dataStore.saveGender(gender.text)
+                                        dataStore.saveName(name.text)
+                                        dataStore.saveNumber(phoneNumber.text)
+                                        dataStore.savePfp(selectedAvatar.imageUrl)
+                                        dataStore.saveLoginStatus(true)
+                                        updateInfoToFirebase(
+                                            name = name.text,
+                                            phoneNumber = phoneNumber.text,
+                                            gender = gender.text,
+                                            context = context,
+                                            imageUrl = selectedAvatar.imageUrl
+                                        )
+                                        withContext(Dispatchers.Main) {
+                                            navController.navigate(
+                                                Screens.Home.route
+                                            )
+                                        }
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Please Select an Avatar",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 }
                             }
                         },

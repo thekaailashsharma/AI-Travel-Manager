@@ -76,7 +76,7 @@ import androidx.navigation.NavController
 
 @Composable
 fun CollapsedTopBarHomeScreen(
-    imageUrl: Int,
+    imageUrl: String,
     isCollapsed: Boolean,
     scroll: LazyListState
 ) {
@@ -122,7 +122,7 @@ fun CollapsedTopBarHomeScreen(
                 ProfileImage(
                     imageUrl = imageUrl,
                     modifier = Modifier
-                        .size(80.dp)
+                        .size(70.dp)
                         .border(
                             brush = appGradient, shape = CircleShape, width = 1.dp
                         )

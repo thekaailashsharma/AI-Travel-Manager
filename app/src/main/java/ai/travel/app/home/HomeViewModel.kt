@@ -85,6 +85,9 @@ class HomeViewModel @Inject constructor(
     private val _userName = MutableStateFlow("")
     val userName: StateFlow<String> = _userName.asStateFlow()
 
+    private val _userPfp = MutableStateFlow("")
+    val userPfp: StateFlow<String> = _userPfp.asStateFlow()
+
     private val _gender = MutableStateFlow("")
     val gender: StateFlow<String> = _gender.asStateFlow()
 
@@ -108,11 +111,13 @@ class HomeViewModel @Inject constructor(
         gender: String,
         userPhoneNumber: String,
         loginStatus: Boolean,
+        pfp: String,
     ) {
         _userName.value = userName
         _userPhoneNumber.value = userPhoneNumber
         _gender.value = gender
         _loginStatus.value = loginStatus
+        _userPfp.value = pfp
     }
 
 

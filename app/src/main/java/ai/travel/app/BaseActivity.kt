@@ -66,12 +66,14 @@ class BaseActivity : ComponentActivity() {
                     val userPhone = userDatastore.getNumber.collectAsState(initial = "")
                     val userGender = userDatastore.getGender.collectAsState(initial = "")
                     val loginStatus = userDatastore.getLoginStatus.collectAsState(initial = false)
+                    val pfp = userDatastore.getPfp.collectAsState(initial = "")
                     SplashScreen(
                         homeViewModel = homeViewModel,
                         userName = userName.value,
                         userPhone = userPhone.value,
                         userGender = userGender.value,
-                        loginStatus = loginStatus.value
+                        loginStatus = loginStatus.value,
+                        pfp = pfp.value
                     )
 
                 }
@@ -86,7 +88,8 @@ fun SplashScreen(
     userName: String,
     userPhone: String,
     userGender: String,
-    loginStatus : Boolean
+    loginStatus : Boolean,
+    pfp: String
 ) {
     val scale = remember {
         androidx.compose.animation.core.Animatable(0f)
@@ -106,7 +109,8 @@ fun SplashScreen(
                 userName = userName,
                 userPhoneNumber = userPhone,
                 gender = userGender,
-                loginStatus = loginStatus
+                loginStatus = loginStatus,
+                pfp = pfp
             )
             delay(1000L)
             val refresh = Intent(context, MainActivity::class.java)

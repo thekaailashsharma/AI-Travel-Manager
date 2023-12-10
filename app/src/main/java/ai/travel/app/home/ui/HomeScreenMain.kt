@@ -2,14 +2,18 @@ package ai.travel.app.home.ui
 
 import ai.travel.app.R
 import ai.travel.app.bottomBar.items
+import ai.travel.app.datastore.UserDatastore
+import ai.travel.app.datastore.UserDatastore.Companion.pfp
 import ai.travel.app.home.ApiState
 import ai.travel.app.home.HomeViewModel
+import ai.travel.app.navigation.Screens
 import ai.travel.app.newTrip.NewTripScreen
 import ai.travel.app.newTrip.NewTripViewModel
 import ai.travel.app.ui.theme.CardBackground
 import ai.travel.app.ui.theme.appGradient
 import ai.travel.app.ui.theme.bottomBarBackground
 import ai.travel.app.ui.theme.lightText
+import ai.travel.app.ui.theme.monteSB
 import ai.travel.app.ui.theme.textColor
 import ai.travel.app.utils.ProfileImage
 import ai.travel.app.utils.dashedBorder
@@ -43,6 +47,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -68,8 +73,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -86,6 +91,10 @@ fun HomeScreenMain(
     isBottomBarVisible: MutableState<Boolean>,
     navController: NavController,
 ) {
+    val context = LocalContext.current
+    val userDatastore = UserDatastore(context)
+    val userName = userDatastore.getName.collectAsState(initial = "")
+    val pfp = userDatastore.getPfp.collectAsState(initial = "")
     val modalSheetStates = rememberBottomSheetScaffoldState(
         bottomSheetState = SheetState(
             initialValue = SheetValue.Hidden,
@@ -124,7 +133,7 @@ fun HomeScreenMain(
         Scaffold(
             topBar = {
                 CollapsedTopBarHomeScreen(
-                    imageUrl = R.drawable.app_icon,
+                    imageUrl = pfp.value,
                     isCollapsed = isCollapsed.value,
                     scroll = listState,
                 )
@@ -155,23 +164,160 @@ fun HomeScreenMain(
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(vertical = 20.dp),
+                                        .padding(vertical = 0.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center
                                 ) {
-
-                                    ProfileImage(
-                                        imageUrl = R.drawable.app_icon,
+                                    Card(
                                         modifier = Modifier
-                                            .size(150.dp)
-                                            .clip(CircleShape),
-                                    )
-                                    Spacer(modifier = Modifier.height(10.dp))
-                                    Text(text = "Welcome to", fontSize = 20.sp, color = textColor)
-                                    Text(text = "Tripify", fontSize = 30.sp, color = textColor)
+                                            .clip(RoundedCornerShape(0.dp, 0.dp, 50.dp, 50.dp))
+                                            .fillMaxWidth(),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = CardBackground.copy(0.8f)
+                                        ),
+                                    ) {
+                                        Column {
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(
+                                                        top = 45.dp,
+                                                        bottom = 15.dp,
+                                                        end = 25.dp,
+                                                        start = 25.dp
+                                                    ),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Column {
+                                                    Text(
+                                                        text = "Welcome Back",
+                                                        color = lightText,
+                                                        fontSize = 13.sp,
+                                                        fontFamily = monteSB,
+                                                        modifier = Modifier.padding(bottom = 7.dp)
+                                                    )
+                                                    Text(
+                                                        text = userName.value,
+                                                        color = textColor,
+                                                        fontSize = 20.sp,
+                                                        fontFamily = monteSB,
+                                                        modifier = Modifier.padding(bottom = 7.dp)
+                                                    )
+                                                    Text(
+                                                        text = "We make your travel funn",
+                                                        color = lightText,
+                                                        fontSize = 13.sp,
+                                                        fontFamily = monteSB,
+                                                        modifier = Modifier.padding(bottom = 7.dp)
+                                                    )
+                                                }
+                                                ProfileImage(
+                                                    imageUrl = pfp.value,
+                                                    modifier = Modifier
+                                                        .size(70.dp)
+                                                        .border(
+                                                            width = 1.dp,
+                                                            color = textColor,
+                                                            shape = CircleShape
+                                                        )
+                                                        .padding(2.dp)
+                                                        .clip(CircleShape)
+                                                        .clickable {
+                                                            navController.navigate(Screens.Profile.route)
+                                                        }
+                                                )
+                                            }
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(
+                                                        bottom = 20.dp,
+                                                        start = 25.dp,
+                                                        end = 25.dp
+                                                    ),
+                                                horizontalArrangement = Arrangement.SpaceBetween
+                                            ) {
+                                                Column(
+                                                    modifier = Modifier
+                                                        .padding(top = 15.dp),
+                                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                                    verticalArrangement = Arrangement.Center
+                                                ) {
+                                                    Text(
+                                                        text = "Points Earned",
+                                                        color = textColor,
+                                                        fontSize = 14.sp,
+                                                        fontFamily = monteSB,
+                                                        softWrap = true,
+                                                        modifier = Modifier.padding(start = 7.dp)
+                                                    )
+                                                    Row(
+                                                        modifier = Modifier.padding(
+                                                            end = 0.dp,
+                                                            top = 7.dp
+                                                        )
+                                                    ) {
+                                                        Icon(
+                                                            Icons.Filled.Wallet,
+                                                            contentDescription = "coins",
+                                                            modifier = Modifier
+                                                                .size(20.dp)
+                                                                .padding(end = 5.dp),
+                                                            tint = lightText
+                                                        )
+                                                        Text(
+                                                            text = "100",
+                                                            color = textColor,
+                                                            fontSize = 15.sp,
+                                                            fontFamily = monteSB,
+                                                        )
+                                                    }
+
+                                                }
+                                                Column(
+                                                    modifier = Modifier
+                                                        .padding(top = 15.dp),
+                                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                                    verticalArrangement = Arrangement.Center
+                                                ) {
+                                                    Text(
+                                                        text = "Points Earned",
+                                                        color = textColor,
+                                                        fontSize = 14.sp,
+                                                        fontFamily = monteSB,
+                                                        softWrap = true,
+                                                        modifier = Modifier.padding(start = 7.dp)
+                                                    )
+                                                    Row(
+                                                        modifier = Modifier.padding(
+                                                            end = 0.dp,
+                                                            top = 7.dp
+                                                        )
+                                                    ) {
+                                                        Icon(
+                                                            Icons.Filled.Wallet,
+                                                            contentDescription = "coins",
+                                                            modifier = Modifier
+                                                                .size(20.dp)
+                                                                .padding(end = 5.dp),
+                                                            tint = lightText
+                                                        )
+                                                        Text(
+                                                            text = "100",
+                                                            color = textColor,
+                                                            fontSize = 15.sp,
+                                                            fontFamily = monteSB,
+                                                        )
+                                                    }
+
+                                                }
+                                            }
+                                            Spacer(modifier = Modifier.height(15.dp))
+                                        }
+                                    }
 
                                 }
-                                Divider(modifier = Modifier, color = lightText)
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -316,7 +462,11 @@ fun HomeScreenMain(
                                                     .size(250.dp)
                                             )
 
-                                            Text(text = "Fetching your location", color = textColor, fontSize = 18.sp)
+                                            Text(
+                                                text = "Fetching your location",
+                                                color = textColor,
+                                                fontSize = 18.sp
+                                            )
                                         }
 
                                         ApiState.Loading -> {
@@ -332,7 +482,11 @@ fun HomeScreenMain(
                                                     .size(250.dp)
                                             )
 
-                                            Text(text = "Fetching your location", color = textColor, fontSize = 18.sp)
+                                            Text(
+                                                text = "Fetching your location",
+                                                color = textColor,
+                                                fontSize = 18.sp
+                                            )
                                         }
 
                                         ApiState.NotStarted -> {
@@ -351,7 +505,11 @@ fun HomeScreenMain(
                                                 modifier = Modifier
                                                     .size(250.dp)
                                             )
-                                            Text(text = "Planning Itineary", color = textColor, fontSize = 18.sp)
+                                            Text(
+                                                text = "Planning Itineary",
+                                                color = textColor,
+                                                fontSize = 18.sp
+                                            )
                                         }
 
                                         ApiState.ReceivedPhoto -> {
@@ -371,7 +529,11 @@ fun HomeScreenMain(
                                                 modifier = Modifier
                                                     .size(250.dp)
                                             )
-                                            Text(text = "Get Set Go", color = textColor, fontSize = 18.sp)
+                                            Text(
+                                                text = "Get Set Go",
+                                                color = textColor,
+                                                fontSize = 18.sp
+                                            )
                                         }
 
                                         ApiState.ReceivedPlaceId -> {
@@ -386,7 +548,11 @@ fun HomeScreenMain(
                                                 modifier = Modifier
                                                     .size(250.dp)
                                             )
-                                            Text(text = "ON your Mark", color = textColor, fontSize = 18.sp)
+                                            Text(
+                                                text = "ON your Mark",
+                                                color = textColor,
+                                                fontSize = 18.sp
+                                            )
                                         }
                                     }
                                 }
@@ -398,7 +564,6 @@ fun HomeScreenMain(
         }
     }
 }
-
 
 
 @Composable
