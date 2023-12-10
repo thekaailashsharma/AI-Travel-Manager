@@ -14,61 +14,90 @@
 ![Static Badge](https://img.shields.io/badge/Mapbox-black?style=for-the-badge&logo=mapbox&logoColor=%23000000&labelColor=white)
 ![Static Badge](https://img.shields.io/badge/HERE-black?style=for-the-badge&logo=here&logoColor=%2300AFAA&labelColor=black)
 
-Explore hidden gems, make your perfect trip, discover new places, engage in captivating events, and share your own travel stories with Tripify.
+**Available only for Android.**
 
-This innovative tool is your key to unlocking:
+### Tripify is an AI travel planner revolutionizing journeys. 
+Explore hidden gems, discover new places, engage in captivating events, and share your own travel stories with Tripify.
 
-•	A fingertip pulse on your city: Never miss a beat with real-time updates on local happenings and exciting events.🌆
-
-•	A platform to create and share: Document your adventures and inspire others with your travel experiences.🔄
-
-•	A gateway to endless exploration: Explore everything you've ever dreamed of, all in one place with the power of Tripify and HERE API.🌍
-
-•	Plan your perfect trip: Build personalized itineraries based on your interests, budget, and travel style using the power of AI.📅
+- 🌆  A fingertip pulse on your city: Never miss a beat with real-time updates on `Local happenings` and exciting events
+- 🔄  A platform to `Create and Share`: Document your adventures and inspire others with your travel experiences.
+- 🌍  A gateway to endless exploration: Explore everything you've ever dreamed of, all in one place with the power of `Tripify` and `HERE API`.
+- 📅  Plan your perfect trip: Build personalized `Itineraries` based on your `Interests`, `Budget`, and `Travel-Style` using the `Power of AI`.
 
 
-Functionalities✏️:
-1. Discovery 🗺:
-Explore a map powered by HERE API, showing nearby restaurants, tourist attractions, landmarks, parks, petrol pumps, and more.
-2. Geo-Memories 📱:
-Create memory blocks triggered by specific locations. Add your travel memories with images, videos, or text, with customizable memory block covers.
-3. Curated Plans📅:
-Discover plans tailored to your interests, budgets and travel style. Provide Tripify with your trip details: Source, destination, budget and number of days for   the trip and receive a detailed itinerary, covering tourist attractions, local highlights, events, restaurants, and hotels, offering detailed plans from the       beginning to the end of each day.
-4. Navigate🧭:
-Benefit from turn-by-turn directions and real-time traffic updates for walking, biking, driving, or public transportation, facilitated by Tripify.
-
-Use Cases of HERE API:
-1. Geocoding🌍:
-  Geocoding is the process of transforming description of transforming a description of a location (address, coordinates, or name of a place) to a location on       earth’s surface.
-
-    •	Converts your entered destination address or point of interest into precise coordinates (latitude and longitude). This allows Tripify to accurately display        locations on the map.
-   
-    •	Enables Tripify to identify and display relevant nearby points of interest based on your preferences.
-  
-3. Reverse Geocoding🌏:
-   It’s the reverse process of Geocoding in which a location can be transformed into its description (address, coordinates, or name of a place).
-   
-    •	Determines your current location by translating your device's GPS signal into a meaningful address or point of interest. This provides context and helps you       discover nearby amenities.
-   
-    •	Refines your search queries based on keywords or descriptions. For example, searching for "coffee shops nearby" returns nearby coffee shops relative to your 
-    location.
+## Demo Video
+__________________
+> Demo Video Link: [Click here](https://youtu.be/ipniPvVFRyY?feature=shared)
 
 
-    
-Overall, HERE API empowers Tripify to:
+## Map your moments, live your itinerary
 
-  •	Locate destinations precisely.pen
-  
-  •	Discover nearby points of interest based on your interests.
-  
-  •	Provide location context for better awareness.
-  
-  •	Refine search queries for targeted results.
+| Preview  | Full Search  |
+|----------|--------------|
+| ![Preview](https://firebasestorage.googleapis.com/v0/b/palmapi-b548f.appspot.com/o/Screenrecorder-2023-12-10-22-55-41-661.gif?alt=media&token=8166ac59-eaa7-42b4-9f3b-b86f4b8e2cff) | ![theme_celestial](https://firebasestorage.googleapis.com/v0/b/palmapi-b548f.appspot.com/o/Maps.gif?alt=media&token=3c81389b-985c-4450-9d5d-d8610752dc19) |
+
+## Features ✏️
+
+1. 🗺  **Discovery** - Explore a map powered by `HERE API` showcasing various places.
+2. 📱 **Geo-Memories** - Create `location-based` memory blocks with media integration.
+3. 📅  **Curated Plans** -Tailored `itineraries` based on interests, budgets, and destinations using `AI`.
+4. 🧭  **Navigate** - Get `real-time directions` for walking, biking, driving, or public transport.
 
 
-Distribution:
+## Let's have a look
 
-Download APK ✅:
+<p align="center">
+  <a href="https://firebasestorage.googleapis.com/v0/b/palmapi-b548f.appspot.com/o/Screenshot%202023-12-11%20at%202.08.04%20AM.png?alt=media&token=8d6d698e-ffd9-4f22-ac48-45fe1c0e5d5c">
+    <img src="https://firebasestorage.googleapis.com/v0/b/palmapi-b548f.appspot.com/o/Screenshot%202023-12-11%20at%202.08.04%20AM.png?alt=media&token=8d6d698e-ffd9-4f22-ac48-45fe1c0e5d5c" border="0"></a>
+</p>
+
+<p align="center">
+  <a href="https://firebasestorage.googleapis.com/v0/b/palmapi-b548f.appspot.com/o/Screenshot%202023-12-11%20at%202.19.32%20AM.png?alt=media&token=d317fe56-16d3-4875-bff0-2075e6c8d550">
+    <img src="https://firebasestorage.googleapis.com/v0/b/palmapi-b548f.appspot.com/o/Screenshot%202023-12-11%20at%202.19.32%20AM.png?alt=media&token=d317fe56-16d3-4875-bff0-2075e6c8d550" border="0"></a>
+</p>
+
+
+| Uses of Here API    |
+|--------------------------|
+| 1. Geocoding          |
+| 2. Reverse Geocoding     |
+| 3. Nearby hotels         |
+| 4. Nearby tourist attractions |
+
+
+### Tech Stack
+| Name | Description |
+| --- | --- |
+| [`@palm-llm`](https://makersuite.google.com) | Palm API 2 |
+| [`@here-api`](https://www.here.com/docs/) | Here API |
+| [`@mapbox`](https://docs.mapbox.com/) | Mapbox |
+| [`@compose`](https://developer.android.com/jetpack/compose) | Jetpack Compose |
+| [`@materialUI`](https://m3.material.io/) | Material 3 |
+| [`@ktor-client`](https://ktor.io/docs/create-client.html) | Ktor CLient |
+| [`@navigation-compose`](https://developer.android.com/jetpack/compose/navigation) | Navigation Compose |
+| [`@coil`](https://coil-kt.github.io/coil/compose/) | Coil-Compose |
+| [`@ksp-room`](https://developer.android.com/build/migrate-to-ksp) | Room Android |
+| [`@dagger-hilt`](https://developer.android.com/training/dependency-injection/hilt-android) | Dagger-hilt |
+
+## Steps To Run on your Device
+- The Following project was build using `AGP 8.1.0`
+-  Check your Android Studio's AGP.
+-  If it is `lower` than given AGP follow given steps :-
+-  -  #### Go to gradle/libs.version.toml
+   -  #### In [versions] change value of AGP as per requirement
+
+## Steps To Install on your Device
+- Visit the following link 
+- [Install Now](https://drive.google.com/drive/folders/1_IQ9iA7CroncRSsy5x06kdQ4sjPRhHW_?usp=drive_link)
+- Minimum SDK `27` --> `Android version 8.1`
+
+
+## Authors
+
+[@nandinisingh](https://linkedin.com/in/heyfromnandini)
+[@vignesh](https://linkedin.com/in/vigneshgadhari)
+[@thekaailashsharma](https://linkedin.com/in/thekaailashsharma)
+
 
 
 
