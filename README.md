@@ -63,6 +63,7 @@ __________________
 | 2. Reverse Geocoding     |
 | 3. Nearby hotels         |
 | 4. Nearby tourist attractions |
+| 5. Here AutoSuggest |
 
 
 ### Tech Stack
