@@ -9,6 +9,7 @@ import ai.travel.app.home.ui.RtScreen
 import ai.travel.app.mapsSearch.MapsSearchViewModel
 import ai.travel.app.mapsSearch.ui.MapsSearchScreen
 import ai.travel.app.newTrip.NewTripViewModel
+import ai.travel.app.profile.NewProfileScreen
 import ai.travel.app.riveanimation.LoginUI
 import ai.travel.app.tripDetails.TripDetailsScreen
 import androidx.compose.foundation.layout.PaddingValues
@@ -47,7 +48,7 @@ fun NavController(
 //            TripDetailsScreen(viewModel = homeViewModel, paddingValues = paddingValues)
         }
         composable(Screens.Profile.route) {
-            PfScreen()
+            NewProfileScreen(navHostController)
         }
         composable(Screens.Routes.route) {
             MapsSearchScreen(viewModel = mapsViewModel, navController = navHostController)
