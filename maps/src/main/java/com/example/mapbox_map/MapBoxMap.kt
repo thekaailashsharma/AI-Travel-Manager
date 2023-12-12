@@ -71,7 +71,7 @@ fun MapBoxMap(
         factory = { context ->
             val cameraOptions = CameraOptions.Builder()
                 .center(Point.fromLngLat(points[0].longitude, points[0].latitude))
-                .zoom(13.0)
+                .zoom(9.0)
                 .pitch(45.0)
                 .bearing(-17.6)
                 .build()
