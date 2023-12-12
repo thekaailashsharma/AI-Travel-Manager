@@ -2,6 +2,7 @@ package ai.travel.app.tripDetails
 
 import ai.travel.app.R
 import ai.travel.app.database.travel.TripsEntity
+import ai.travel.app.home.CustomMarker
 import ai.travel.app.home.HomeViewModel
 import ai.travel.app.home.base64ToByteArray
 import ai.travel.app.home.ui.CollapsedTopBarDetailsScreen
@@ -9,6 +10,7 @@ import ai.travel.app.home.ui.CollapsedTopBarHomeScreen
 import ai.travel.app.home.ui.convertImageByteArrayToBitmap
 import ai.travel.app.ui.theme.CardBackground
 import ai.travel.app.ui.theme.appGradient
+import ai.travel.app.ui.theme.borderBrush
 import ai.travel.app.ui.theme.bottomBarBackground
 import ai.travel.app.ui.theme.bottomBarBorder
 import ai.travel.app.ui.theme.lightText
@@ -421,9 +423,9 @@ fun TripDetailsScreen(
                                         items(days.value) { day ->
                                             Card(
                                                 colors = CardDefaults.cardColors(
-                                                    containerColor = if (day == currentDay.value) lightText else bottomBarBackground,
+                                                    containerColor = if (day == currentDay.value) lightText else Color.Transparent,
                                                 ),
-                                                border = BorderStroke(1.dp, bottomBarBorder),
+                                                border = BorderStroke(1.dp, brush = borderBrush),
                                                 shape = RoundedCornerShape(20.dp),
                                                 elevation = CardDefaults.cardElevation(0.dp),
                                                 modifier = Modifier
@@ -485,7 +487,7 @@ fun TripDetailsScreen(
                                         Column(
                                             modifier = Modifier.fillMaxWidth(0.3f),
                                             horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.Top
+                                            verticalArrangement = Arrangement.Center
                                         ) {
                                             if (index != 0) {
                                                 Spacer(modifier = Modifier.height(5.dp))
@@ -504,12 +506,7 @@ fun TripDetailsScreen(
                                                 )
                                                 Spacer(modifier = Modifier.height(15.dp))
                                             }
-                                            Icon(
-                                                imageVector = Icons.Filled.WbSunny,
-                                                contentDescription = "topText",
-                                                tint = lightText,
-                                                modifier = Modifier.size(25.dp)
-                                            )
+                                            CustomMarker(text = (index + 1).toString())
                                             Spacer(modifier = Modifier.height(5.dp))
                                             VerticalDashedDivider(
                                                 color = lightText,
@@ -528,7 +525,7 @@ fun TripDetailsScreen(
                                             verticalArrangement = Arrangement.Center
                                         ) {
                                             if (index != 0) {
-                                                Spacer(modifier = Modifier.height(32.dp))
+                                                Spacer(modifier = Modifier.height(15.dp))
                                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                                     Spacer(modifier = Modifier.width(7.dp))
                                                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -561,7 +558,7 @@ fun TripDetailsScreen(
                                                         )
                                                     }
                                                 }
-                                                Spacer(modifier = Modifier.height(35.dp))
+                                                Spacer(modifier = Modifier.height(55.dp))
                                             }
                                             Text(
                                                 text = it?.timeOfDay ?: "",
