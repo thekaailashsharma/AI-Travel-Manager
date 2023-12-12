@@ -121,7 +121,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
                                     "DO NOT CHANGE THE output FORMAT. DO NOT. DO NOT change the FORMAT. " +
                                     "Format is Day1 Morning: 1. Location (Latitude, Longitude) 2. Name:" +
                                     " Name of Location 3. Budget, 4. Some additional notes. " +
-                                    "Same for Afternoon Evening  ",
+                                    "Similarly for afternoon & evening. Generate same output for all days" ,
                             location = location,
                             noOfDays = noOfDays
                         )

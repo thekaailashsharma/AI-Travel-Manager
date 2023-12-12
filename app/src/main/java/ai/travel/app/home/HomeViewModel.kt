@@ -139,6 +139,8 @@ class HomeViewModel @Inject constructor(
                         )
                     )
                 _imageState.value = ApiState.Loaded(apiData)
+                println("dataaaaaaaaa message: ${_message.value}")
+                println("dataaaaaaaaa value: ${apiData.candidates?.get(0)?.output ?: ""}")
                 extractTourDetails(apiData.candidates?.get(0)?.output ?: "")
                 println("dataaaaaaaaa: ${_data.value}")
                 _data.value.forEachIndexed { index, location ->
