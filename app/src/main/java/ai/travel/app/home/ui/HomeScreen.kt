@@ -189,6 +189,8 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 }
 
             }
+
+            else -> {}
         }
 
 

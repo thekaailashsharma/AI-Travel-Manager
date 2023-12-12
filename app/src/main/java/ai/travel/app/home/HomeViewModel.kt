@@ -165,6 +165,18 @@ class HomeViewModel @Inject constructor(
                 }
                 _imageState.value = ApiState.ReceivedGeoCodes
                 println("geoCodesDataaaaa: ${_geoCodesData.value}")
+                _geoCodesData.value.forEachIndexed { index, tourDetails ->
+                    if (index != 0) {
+                        val apiData =
+                            repository.getDistanceMatrix(
+                                origins = "${_geoCodesData.value[index - 1].name},${_geoCodesData.value[index - 1].name}",
+                                destinations = "${_geoCodesData.value[index].name},${_geoCodesData.value[index].name}",
+                            )
+                        _geoCodesData.value[index].distance = apiData.rows?.get(0)?.elements?.get(0)?.distance?.text ?: "0 m"
+                        _geoCodesData.value[index].duration = apiData.rows?.get(0)?.elements?.get(0)?.duration?.text ?: "0 hrs"
+                    }
+                }
+                _imageState.value = ApiState.CalculatedDistance
                 _geoCodesData.value.forEachIndexed { index, location ->
                     val apiData =
                         repository.getPlaceIdData(
@@ -207,6 +219,8 @@ class HomeViewModel @Inject constructor(
                         source = source.value.text,
                         destination = destination.value.text,
                         travelActivity = "",
+                        distance = it.distance,
+                        duration = it.duration,
                     )
                 })
                 _imageState.value = ApiState.ReceivedPhoto
@@ -424,6 +438,7 @@ sealed class ApiState {
     object ReceivedGeoCodes : ApiState()
     object ReceivedPlaceId : ApiState()
     object ReceivedPhotoId : ApiState()
+    object CalculatedDistance : ApiState()
 
     object ReceivedPhoto : ApiState()
 }
@@ -442,6 +457,8 @@ data class TourDetails(
     var placeId: String? = null,
     var photoID: String? = null,
     var photo: ByteArray? = null,
+    var distance: String = "0",
+    var duration: String = "0",
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

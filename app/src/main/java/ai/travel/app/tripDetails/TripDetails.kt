@@ -40,14 +40,18 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AvTimer
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.BottomSheetScaffold
@@ -465,7 +469,7 @@ fun TripDetailsScreen(
                                     }
                                 }
 
-                                items(dayTrips.value) {
+                                itemsIndexed(dayTrips.value) {index, it ->
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -483,6 +487,23 @@ fun TripDetailsScreen(
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                             verticalArrangement = Arrangement.Top
                                         ) {
+                                            if (index != 0) {
+                                                Spacer(modifier = Modifier.height(5.dp))
+                                                Icon(
+                                                    imageVector = Icons.Filled.Timer,
+                                                    contentDescription = "topText",
+                                                    tint = lightText,
+                                                    modifier = Modifier.size(25.dp)
+                                                )
+                                                Spacer(modifier = Modifier.height(5.dp))
+                                                VerticalDashedDivider(
+                                                    color = lightText,
+                                                    height = 40,
+                                                    dashWidth = 14f,
+                                                    gapWidth = 10f
+                                                )
+                                                Spacer(modifier = Modifier.height(15.dp))
+                                            }
                                             Icon(
                                                 imageVector = Icons.Filled.WbSunny,
                                                 contentDescription = "topText",
@@ -496,6 +517,7 @@ fun TripDetailsScreen(
                                                 dashWidth = 14f,
                                                 gapWidth = 10f
                                             )
+
                                         }
 
                                         Column(
@@ -503,8 +525,44 @@ fun TripDetailsScreen(
                                                 .fillMaxWidth()
                                                 .weight(1f),
                                             horizontalAlignment = Alignment.Start,
-                                            verticalArrangement = Arrangement.Top
+                                            verticalArrangement = Arrangement.Center
                                         ) {
+                                            if (index != 0) {
+                                                Spacer(modifier = Modifier.height(32.dp))
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Spacer(modifier = Modifier.width(7.dp))
+                                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.DirectionsCar,
+                                                            contentDescription = "topText",
+                                                            tint = lightText,
+                                                            modifier = Modifier.size(25.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(7.dp))
+                                                        Text(
+                                                            text = dayTrips.value[index]?.distance ?: "",
+                                                            color = textColor,
+                                                            fontSize = 13.sp,
+                                                        )
+                                                    }
+                                                    Spacer(modifier = Modifier.width(7.dp))
+                                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.AvTimer,
+                                                            contentDescription = "topText",
+                                                            tint = lightText,
+                                                            modifier = Modifier.size(25.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(7.dp))
+                                                        Text(
+                                                            text = dayTrips.value[index]?.duration ?: "",
+                                                            color = textColor,
+                                                            fontSize = 13.sp,
+                                                        )
+                                                    }
+                                                }
+                                                Spacer(modifier = Modifier.height(35.dp))
+                                            }
                                             Text(
                                                 text = it?.timeOfDay ?: "",
                                                 color = textColor,

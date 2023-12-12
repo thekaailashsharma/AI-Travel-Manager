@@ -267,6 +267,8 @@ fun NewHomeScreen(
                                             )
                                             Text(text = "ON your Mark", color = textColor, fontSize = 18.sp)
                                         }
+
+                                        else -> {}
                                     }
                                 }
                             }
