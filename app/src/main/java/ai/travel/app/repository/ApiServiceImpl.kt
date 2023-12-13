@@ -4,6 +4,7 @@ import ai.travel.app.BuildConfig
 import ai.travel.app.dto.ApiPrompt
 import ai.travel.app.dto.Candidate
 import ai.travel.app.dto.PalmApi
+import ai.travel.app.dto.distanceMatrix.DistanceMatrixResponse
 import ai.travel.app.dto.geocoding.GeoCodes
 import ai.travel.app.dto.getPhotoId.PhotoIdResponse
 import ai.travel.app.dto.getPlaceId.PlaceIdBody
@@ -155,6 +156,35 @@ class ApiServiceImpl(
             Log.i("ApiException", e.message.toString())
             return HereSearchResponse(
                 items = null,
+            )
+        }
+    }
+
+    override suspend fun getDistanceMatrix(
+        origins: String,
+        destinations: String,
+        units: String,
+    ): DistanceMatrixResponse {
+        return try {
+            val a = client.get {
+                val encodedLocation = URLEncoder.encode(origins, "UTF-8")
+                val encodedLocation2 = URLEncoder.encode(destinations, "UTF-8")
+                url("${ApiRoutes.distanceMatrix}?origins=$encodedLocation&destinations=$encodedLocation2&units=$units&key=${BuildConfig.Places_API_KEY}")
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+                headers {
+                    append("Accept", "*/*")
+                    append("Content-Type", "application/json")
+                }
+            }.body<DistanceMatrixResponse>()
+            println("photooooo: $a")
+            return a
+        } catch (e: Exception) {
+            Log.i("ApiException", e.message.toString())
+            return DistanceMatrixResponse(
+                rows = null,
+                status = null,
+                destinationAddresses = null,
+                originAddresses = null,
             )
         }
     }

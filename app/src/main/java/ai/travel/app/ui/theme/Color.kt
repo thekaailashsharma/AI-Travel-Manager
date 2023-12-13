@@ -34,6 +34,16 @@ val bottomBarBackground = Color(0xFF172749)
 val bottomBarBorder = Color(0xFF3c69a8)
 val CardBackground = Color(0xFF122754)
 
+val borderBrush = Brush.radialGradient(
+    listOf(
+        bottomBarBorder,
+        Color.White,
+        bottomBarBorder,
+        Color.White,
+        bottomBarBorder,
+    )
+)
+
 val isDarkThemeEnabled : Boolean
     @Composable
     get() = isSystemInDarkTheme()

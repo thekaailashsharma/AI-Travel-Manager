@@ -13,4 +13,6 @@ object ApiRoutes {
     const val getPhoto = "https://maps.googleapis.com/maps/api/place/photo"
 
     const val hereSearch = "https://autosuggest.search.hereapi.com/v1/autosuggest"
+
+    const val distanceMatrix = "https://maps.googleapis.com/maps/api/distancematrix/json"
 }

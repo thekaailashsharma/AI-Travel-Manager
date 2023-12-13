@@ -145,7 +145,7 @@ fun NewTripScreen(
                                         "[LOCATION] for [NUMBER_OF_DAYS] days, considering various factors " +
                                         "such as [BUDGET_RANGE], preferred activities, accommodations, " +
                                         "transportation, and any specific preferences.1. Destination: " +
-                                        "[${homeViewModel.destination.value}] 2. Duration: [${homeViewModel.tripNoOfDays.value}] days 3. Budget: [${homeViewModel.tripBudget.value}] 4. " +
+                                        "[${homeViewModel.destination.value.text}] 2. Duration: [${homeViewModel.tripNoOfDays.value.text}] days 3. Budget: [${homeViewModel.tripBudget.value.text}] 4. " +
                                         "Activities: [TEMPLES, Sea] 5. Accommodations: [AC] 6. " +
                                         "Transportation: [Bus, Car] 7. Special Preferences: [None]." +
                                         "Provide a comprehensive guided tour plan that includes " +
@@ -156,7 +156,7 @@ fun NewTripScreen(
                                         "DO NOT CHANGE THE output FORMAT. DO NOT. DO NOT change the FORMAT. " +
                                         "Format is Day1 Morning: 1. Location (Latitude, Longitude) 2. Name:" +
                                         " Name of Location 3. Budget, 4. Some additional notes. " +
-                                        "Same for Afternoon Evening  ",
+                                        "Same for afternoon & evening. Generate same output for all days",
                                 location = homeViewModel.destination.value.text,
                                 noOfDays = homeViewModel.tripNoOfDays.value.text
                             )

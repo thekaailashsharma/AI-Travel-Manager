@@ -2,6 +2,7 @@ package ai.travel.app.tripDetails
 
 import ai.travel.app.R
 import ai.travel.app.database.travel.TripsEntity
+import ai.travel.app.home.CustomMarker
 import ai.travel.app.home.HomeViewModel
 import ai.travel.app.home.base64ToByteArray
 import ai.travel.app.home.ui.CollapsedTopBarDetailsScreen
@@ -9,6 +10,7 @@ import ai.travel.app.home.ui.CollapsedTopBarHomeScreen
 import ai.travel.app.home.ui.convertImageByteArrayToBitmap
 import ai.travel.app.ui.theme.CardBackground
 import ai.travel.app.ui.theme.appGradient
+import ai.travel.app.ui.theme.borderBrush
 import ai.travel.app.ui.theme.bottomBarBackground
 import ai.travel.app.ui.theme.bottomBarBorder
 import ai.travel.app.ui.theme.lightText
@@ -40,14 +42,18 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AvTimer
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.BottomSheetScaffold
@@ -417,9 +423,9 @@ fun TripDetailsScreen(
                                         items(days.value) { day ->
                                             Card(
                                                 colors = CardDefaults.cardColors(
-                                                    containerColor = if (day == currentDay.value) lightText else bottomBarBackground,
+                                                    containerColor = if (day == currentDay.value) lightText else Color.Transparent,
                                                 ),
-                                                border = BorderStroke(1.dp, bottomBarBorder),
+                                                border = BorderStroke(1.dp, brush = borderBrush),
                                                 shape = RoundedCornerShape(20.dp),
                                                 elevation = CardDefaults.cardElevation(0.dp),
                                                 modifier = Modifier
@@ -465,7 +471,7 @@ fun TripDetailsScreen(
                                     }
                                 }
 
-                                items(dayTrips.value) {
+                                itemsIndexed(dayTrips.value) {index, it ->
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -481,14 +487,26 @@ fun TripDetailsScreen(
                                         Column(
                                             modifier = Modifier.fillMaxWidth(0.3f),
                                             horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.Top
+                                            verticalArrangement = Arrangement.Center
                                         ) {
-                                            Icon(
-                                                imageVector = Icons.Filled.WbSunny,
-                                                contentDescription = "topText",
-                                                tint = lightText,
-                                                modifier = Modifier.size(25.dp)
-                                            )
+                                            if (index != 0) {
+                                                Spacer(modifier = Modifier.height(5.dp))
+                                                Icon(
+                                                    imageVector = Icons.Filled.Timer,
+                                                    contentDescription = "topText",
+                                                    tint = lightText,
+                                                    modifier = Modifier.size(25.dp)
+                                                )
+                                                Spacer(modifier = Modifier.height(5.dp))
+                                                VerticalDashedDivider(
+                                                    color = lightText,
+                                                    height = 40,
+                                                    dashWidth = 14f,
+                                                    gapWidth = 10f
+                                                )
+                                                Spacer(modifier = Modifier.height(15.dp))
+                                            }
+                                            CustomMarker(text = (index + 1).toString())
                                             Spacer(modifier = Modifier.height(5.dp))
                                             VerticalDashedDivider(
                                                 color = lightText,
@@ -496,6 +514,7 @@ fun TripDetailsScreen(
                                                 dashWidth = 14f,
                                                 gapWidth = 10f
                                             )
+
                                         }
 
                                         Column(
@@ -503,8 +522,44 @@ fun TripDetailsScreen(
                                                 .fillMaxWidth()
                                                 .weight(1f),
                                             horizontalAlignment = Alignment.Start,
-                                            verticalArrangement = Arrangement.Top
+                                            verticalArrangement = Arrangement.Center
                                         ) {
+                                            if (index != 0) {
+                                                Spacer(modifier = Modifier.height(15.dp))
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Spacer(modifier = Modifier.width(7.dp))
+                                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.DirectionsCar,
+                                                            contentDescription = "topText",
+                                                            tint = lightText,
+                                                            modifier = Modifier.size(25.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(7.dp))
+                                                        Text(
+                                                            text = dayTrips.value[index]?.distance ?: "",
+                                                            color = textColor,
+                                                            fontSize = 13.sp,
+                                                        )
+                                                    }
+                                                    Spacer(modifier = Modifier.width(7.dp))
+                                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.AvTimer,
+                                                            contentDescription = "topText",
+                                                            tint = lightText,
+                                                            modifier = Modifier.size(25.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(7.dp))
+                                                        Text(
+                                                            text = dayTrips.value[index]?.duration ?: "",
+                                                            color = textColor,
+                                                            fontSize = 13.sp,
+                                                        )
+                                                    }
+                                                }
+                                                Spacer(modifier = Modifier.height(55.dp))
+                                            }
                                             Text(
                                                 text = it?.timeOfDay ?: "",
                                                 color = textColor,
