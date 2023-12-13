@@ -2,6 +2,7 @@ package ai.travel.app.repository
 
 import ai.travel.app.dto.ApiPrompt
 import ai.travel.app.dto.PalmApi
+import ai.travel.app.dto.distanceMatrix.DistanceMatrixResponse
 import ai.travel.app.dto.geocoding.GeoCodes
 import ai.travel.app.dto.getPhotoId.PhotoIdResponse
 import ai.travel.app.dto.getPlaceId.PlaceIdBody
@@ -29,4 +30,10 @@ interface ApiService {
         longitude: Double,
         limit: Int = 6,
     ): HereSearchResponse
+
+    suspend fun getDistanceMatrix(
+        origins: String,
+        destinations: String,
+        units: String = "imperial",
+    ): DistanceMatrixResponse
 }

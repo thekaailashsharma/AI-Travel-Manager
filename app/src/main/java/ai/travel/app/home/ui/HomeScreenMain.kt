@@ -554,6 +554,25 @@ fun HomeScreenMain(
                                                 fontSize = 18.sp
                                             )
                                         }
+
+                                        ApiState.CalculatedDistance -> {
+                                            val currenanim by rememberLottieComposition(
+                                                spec = LottieCompositionSpec.Asset("go.json")
+                                            )
+                                            LottieAnimation(
+                                                composition = currenanim,
+                                                iterations = Int.MAX_VALUE,
+                                                contentScale = ContentScale.Crop,
+                                                speed = 1f,
+                                                modifier = Modifier
+                                                    .size(250.dp)
+                                            )
+                                            Text(
+                                                text = "Calculating Distance",
+                                                color = textColor,
+                                                fontSize = 18.sp
+                                            )
+                                        }
                                     }
                                 }
                             }

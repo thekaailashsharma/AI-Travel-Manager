@@ -16,7 +16,9 @@ data class TripsEntity(
     val budget: String? = null,
     val latitude: Double?,
     val longitude: Double?,
-    val photoBase64: String? = null // Store photo as Base64 String
+    val photoBase64: String? = null, // Store photo as Base64 String,
+    val distance: String = "0",
+    val duration: String = "0",
 )
 
 
