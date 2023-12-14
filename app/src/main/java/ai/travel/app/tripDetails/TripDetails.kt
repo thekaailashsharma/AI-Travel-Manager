@@ -8,6 +8,7 @@ import ai.travel.app.home.base64ToByteArray
 import ai.travel.app.home.ui.CollapsedTopBarDetailsScreen
 import ai.travel.app.home.ui.CollapsedTopBarHomeScreen
 import ai.travel.app.home.ui.convertImageByteArrayToBitmap
+import ai.travel.app.navigation.Screens
 import ai.travel.app.ui.theme.CardBackground
 import ai.travel.app.ui.theme.appGradient
 import ai.travel.app.ui.theme.borderBrush
@@ -53,6 +54,7 @@ import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Reorder
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material.icons.filled.WbSunny
@@ -143,6 +145,9 @@ fun TripDetailsScreen(
     val collapseThreshold = remember {
         mutableFloatStateOf(0.25f)
     }
+    var isReorderVisible by remember {
+        mutableStateOf(false)
+    }
     val listState = rememberLazyListState()
     val isCollapsed = remember(listState) {
         derivedStateOf {
@@ -157,7 +162,11 @@ fun TripDetailsScreen(
 
     BottomSheetScaffold(
         sheetContent = {
-            MoreInfoTrips(viewModel = viewModel, paddingValues = paddingValues)
+            if (isReorderVisible) {
+                ReorderLists(viewModel = viewModel, paddingValues = paddingValues)
+            } else {
+                MoreInfoTrips(viewModel = viewModel, paddingValues = paddingValues)
+            }
         },
         sheetContainerColor = CardBackground,
         scaffoldState = modalSheetStates,
@@ -397,20 +406,45 @@ fun TripDetailsScreen(
                                                         top = 0.dp,
                                                         bottom = 0.dp,
                                                         end = 12.dp
-                                                    )
+                                                    ),
+                                                horizontalArrangement = Arrangement.SpaceBetween
                                             ) {
-                                                Icon(
-                                                    imageVector = Icons.Filled.LocationOn,
-                                                    contentDescription = "topText",
-                                                    tint = lightText,
-                                                    modifier = Modifier.size(30.dp)
-                                                )
-                                                Spacer(modifier = Modifier.width(7.dp))
-                                                Text(
-                                                    text = "Your Schedule",
-                                                    color = textColor,
-                                                    fontSize = 25.sp,
-                                                )
+                                                Row {
+                                                    Icon(
+                                                        imageVector = Icons.Filled.LocationOn,
+                                                        contentDescription = "topText",
+                                                        tint = lightText,
+                                                        modifier = Modifier.size(30.dp)
+                                                    )
+                                                    Spacer(modifier = Modifier.width(7.dp))
+                                                    Text(
+                                                        text = "Your Schedule",
+                                                        color = textColor,
+                                                        fontSize = 25.sp,
+                                                    )
+                                                }
+                                                Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(end = 12.dp)
+                                                            .clickable(
+                                                                interactionSource = MutableInteractionSource(),
+                                                                indication = null
+                                                            ) {
+                                                                coroutineScope.launch {
+                                                                    isReorderVisible = true
+                                                                    modalSheetStates.bottomSheetState.expand()
+                                                                }
+                                                            },
+                                                        horizontalArrangement = Arrangement.End
+                                                    ){
+                                                        Icon(
+                                                            imageVector = Icons.Filled.Reorder,
+                                                            contentDescription = "topText",
+                                                            tint = lightText,
+                                                            modifier = Modifier.size(25.dp)
+                                                        )
+                                                    }
                                             }
 
                                             Spacer(modifier = Modifier.height(20.dp))
@@ -519,7 +553,7 @@ fun TripDetailsScreen(
 
                                         Column(
                                             modifier = Modifier
-                                                .fillMaxWidth()
+                                                .fillMaxWidth(0.7f)
                                                 .weight(1f),
                                             horizontalAlignment = Alignment.Start,
                                             verticalArrangement = Arrangement.Center
@@ -561,7 +595,7 @@ fun TripDetailsScreen(
                                                 Spacer(modifier = Modifier.height(55.dp))
                                             }
                                             Text(
-                                                text = it?.timeOfDay ?: "",
+                                                text = if (index == 0) "Morning" else if (index == 1) "Afternoon" else "Evening",
                                                 color = textColor,
                                                 fontSize = 25.sp,
                                                 modifier = Modifier
@@ -600,6 +634,7 @@ fun TripDetailsScreen(
                                                         viewModel.currentNewDestination.value =
                                                             it?.name ?: ""
                                                         coroutineScope.launch {
+                                                            isReorderVisible = false
                                                             modalSheetStates.bottomSheetState.expand()
                                                         }
                                                     },
