@@ -97,6 +97,9 @@ class HomeViewModel @Inject constructor(
     private val _loginStatus = MutableStateFlow(false)
     val loginStatus: StateFlow<Boolean> = _loginStatus.asStateFlow()
 
+    private val _isReorderLoading = MutableStateFlow(false)
+    val isReorderLoading: StateFlow<Boolean> = _isReorderLoading.asStateFlow()
+
     init {
         viewModelScope.launch {
             val dataStore = UserDatastore(application.applicationContext)
@@ -148,18 +151,18 @@ class HomeViewModel @Inject constructor(
                     val day = location.getOrDefault("Day", "-2")
                     val locationName = location.getOrDefault("Name", "")
 //                    if (locationName != "") {
-                        val apiData =
-                            repository.getGeocodingData(
-                                query = "$locationName, ${_location.value}",
-                            )
-                        geoCodes["latitude"] =
-                            apiData.items?.get(0)?.position?.lat?.toString() ?: ""
-                        geoCodes["longitude"] =
-                            apiData.items?.get(0)?.position?.lng?.toString() ?: ""
-                        _geoCodesData.value[index].geoCode = GeoCode(
-                            latitude = geoCodes["latitude"] ?: "",
-                            longitude = geoCodes["longitude"] ?: ""
+                    val apiData =
+                        repository.getGeocodingData(
+                            query = "$locationName, ${_location.value}",
                         )
+                    geoCodes["latitude"] =
+                        apiData.items?.get(0)?.position?.lat?.toString() ?: ""
+                    geoCodes["longitude"] =
+                        apiData.items?.get(0)?.position?.lng?.toString() ?: ""
+                    _geoCodesData.value[index].geoCode = GeoCode(
+                        latitude = geoCodes["latitude"] ?: "",
+                        longitude = geoCodes["longitude"] ?: ""
+                    )
 //                    }
 
                 }
@@ -169,11 +172,13 @@ class HomeViewModel @Inject constructor(
                     if (index != 0) {
                         val apiData =
                             repository.getDistanceMatrix(
-                                origins = "${_geoCodesData.value[index - 1].name},${_geoCodesData.value[index - 1].name}",
-                                destinations = "${_geoCodesData.value[index].name},${_geoCodesData.value[index].name}",
+                                origins = _geoCodesData.value[index - 1].name,
+                                destinations = _geoCodesData.value[index].name,
                             )
-                        _geoCodesData.value[index].distance = apiData.rows?.get(0)?.elements?.get(0)?.distance?.text ?: "0 m"
-                        _geoCodesData.value[index].duration = apiData.rows?.get(0)?.elements?.get(0)?.duration?.text ?: "0 hrs"
+                        _geoCodesData.value[index].distance =
+                            apiData.rows?.get(0)?.elements?.get(0)?.distance?.text ?: "0 m"
+                        _geoCodesData.value[index].duration =
+                            apiData.rows?.get(0)?.elements?.get(0)?.duration?.text ?: "0 hrs"
                     }
                 }
                 _imageState.value = ApiState.CalculatedDistance
@@ -280,22 +285,99 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun addTripToDatabase() {
-        println("Adding to databasesssssssssss")
-        dbRepository.insertAllTrips(_geoCodesData.value.map {
-            TripsEntity(
-                day = it.day,
-                timeOfDay = it.timeOfDay,
-                name = it.name,
-                budget = it.budget,
-                latitude = it.geoCode?.latitude?.toDouble(),
-                longitude = it.geoCode?.longitude?.toDouble(),
-                photoBase64 = byteArrayToBase64(it.photo ?: ByteArray(0)),
-                source = source.value.text,
-                destination = destination.value.text,
-                travelActivity = "",
+    fun swapTripPositions(day: String, fromIndex: Int, toIndex: Int, destination: String) {
+        viewModelScope.launch {
+            dbRepository.swapTripPositions(day, fromIndex, toIndex, destination)
+        }
+    }
+
+    fun updateTrips(
+        name: String, budget: String?, latitude: Double?, longitude: Double?,
+        photoBase64: String?, distance: String, duration: String, timeOfDay: String,
+        fromId: Long, fromDay: String, fromDestination: String,
+    ) {
+        viewModelScope.launch {
+            dbRepository.updateTrips(
+                name,
+                budget,
+                latitude,
+                longitude,
+                photoBase64,
+                distance,
+                duration,
+                timeOfDay,
+                fromId,
+                fromDay,
+                fromDestination
             )
-        })
+        }
+    }
+
+    fun updateTripsWithDistance(
+        newTripsEntity: MutableList<TripsEntity?>,
+        oldTrips: MutableList<TripsEntity?>, fromDay: String, fromDestination: String,
+    ) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                _isReorderLoading.value = true
+                val tempList = mutableListOf<TripsEntity>()
+                newTripsEntity.forEach {
+                    if (it != null) {
+                        tempList.add(it)
+                    }
+                }
+                newTripsEntity.forEachIndexed { index, tourDetails ->
+                    if (index != 0) {
+                        println("fromDistancee = ${newTripsEntity[index - 1]?.name}, toooo = ${newTripsEntity[index]?.name}")
+                        val apiData =
+                            repository.getDistanceMatrix(
+                                origins = "${newTripsEntity[index - 1]?.name}",
+                                destinations = "${newTripsEntity[index]?.name}",
+                            )
+                        tempList[index].distance =
+                            apiData.rows?.get(0)?.elements?.get(0)?.distance?.text ?: "0 m"
+                        tempList[index].duration =
+                            apiData.rows?.get(0)?.elements?.get(0)?.duration?.text ?: "0 hrs"
+
+                        println("fromDistanceeApidata = ${apiData.rows?.get(0)?.elements?.get(0)?.distance?.text}, " +
+                                "toooo = ${apiData.rows?.get(0)?.elements?.get(0)?.duration?.text}")
+
+                        println("fromDistanceeValue = ${newTripsEntity[index - 1]?.name}, " +
+                                "toooo = ${newTripsEntity[index]?.name}," +
+                                " distance = ${tempList[index].distance}, " +
+                                "duration = ${tempList[index].duration}")
+                    }
+                }
+                newTripsEntity.forEachIndexed { index, it ->
+                    dbRepository.updateTrips(
+                        it?.name ?: "",
+                        it?.budget ?: "",
+                        it?.latitude,
+                        it?.longitude,
+                        it?.photoBase64,
+                        tempList[index].distance ?: "",
+                        tempList[index].duration ?: "",
+                        oldTrips[index]?.timeOfDay ?: "",
+                        oldTrips[index]?.id ?: 0,
+                        fromDay,
+                        fromDestination
+                    )
+                }
+                _isReorderLoading.value = false
+            }
+        }
+    }
+
+    fun addTripToDatabase(tripsEntity: List<TripsEntity?>) {
+        viewModelScope.launch {
+            val tempList = mutableListOf<TripsEntity>()
+            tripsEntity.forEach {
+                if (it != null) {
+                    tempList.add(it)
+                }
+            }
+            dbRepository.insertAllTrips(tempList)
+        }
 
 //            _geoCodesData.value.forEachIndexed { _, location ->
 //                dbRepository.insertTrip(

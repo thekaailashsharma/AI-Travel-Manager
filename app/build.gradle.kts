@@ -151,6 +151,9 @@ dependencies {
     // DataStore
     implementation("androidx.datastore:datastore-core:1.0.0")
 
+    // Reorderable Lists
+    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
+
     // Maps
     implementation(project(":maps"))
 

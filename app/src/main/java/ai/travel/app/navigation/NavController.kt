@@ -11,6 +11,7 @@ import ai.travel.app.mapsSearch.ui.MapsSearchScreen
 import ai.travel.app.newTrip.NewTripViewModel
 import ai.travel.app.profile.NewProfileScreen
 import ai.travel.app.riveanimation.LoginUI
+import ai.travel.app.tripDetails.ReorderLists
 import ai.travel.app.tripDetails.TripDetailsScreen
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.BottomSheetScaffoldState
@@ -60,6 +61,10 @@ fun NavController(
 
         composable(Screens.Login.route) {
             LoginUI(paddingValues = paddingValues, viewModel = homeViewModel, navController = navHostController)
+        }
+
+        composable(Screens.ReorderTrip.route) {
+            ReorderLists(viewModel = homeViewModel, paddingValues = paddingValues)
         }
     }
 
