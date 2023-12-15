@@ -18,6 +18,14 @@ import ai.travel.app.ui.theme.lightText
 import ai.travel.app.ui.theme.monteSB
 import ai.travel.app.ui.theme.textColor
 import android.graphics.Point
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -91,6 +99,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.rotate
@@ -101,14 +110,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.mapbox_map.MapBoxMap
 import com.example.mapbox_map.MapBoxPoint
 import com.example.mapbox_map.MapItem
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import me.saket.swipe.SwipeAction
+import me.saket.swipe.SwipeableActionsBox
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -156,6 +172,16 @@ fun TripDetailsScreen(
     var isReorderVisible by remember {
         mutableStateOf(false)
     }
+
+    var isDeleteSheetOpen = remember {
+        mutableStateOf(false)
+    }
+    var isDeleteUndo = remember {
+        mutableStateOf(false)
+    }
+    var isDeleteClicked = remember {
+        mutableStateOf(false)
+    }
     val listState = rememberLazyListState()
     val isCollapsed = remember(listState) {
         derivedStateOf {
@@ -188,6 +214,28 @@ fun TripDetailsScreen(
     LaunchedEffect(key1 = dayTrips.value) {
         viewModel.extractBudgetValue(viewModel.currentDestination.value)
     }
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+
+    val delete = SwipeAction(
+        icon = {
+            val currenanim by rememberLottieComposition(
+                spec = LottieCompositionSpec.Asset("delete.json")
+            )
+            LottieAnimation(
+                composition = currenanim,
+                iterations = 1,
+                contentScale = ContentScale.Crop,
+                speed = 0.85f,
+                modifier = Modifier
+                    .size(125.dp)
+            )
+        },
+        background = Color(0xFFFF5F52),
+        isUndo = isDeleteUndo.value,
+        onSwipe = {
+            isDeleteSheetOpen.value = true
+        }
+    )
 
     BottomSheetScaffold(
         sheetContent = {
@@ -213,235 +261,241 @@ fun TripDetailsScreen(
         ) { padding ->
             println(padding)
             CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(appGradient)
-                        .padding(paddingValues)
-                ) {
-                    val newItems = remember {
-                        mutableStateListOf<TripsEntity?>()
-                    }
-                    LaunchedEffect(key1 = viewModel.getCurrentTrip(viewModel.currentDestination.value)) {
-                        viewModel.getCurrentTrip(viewModel.currentDestination.value).collectLatest {
-                            if (it.isNotEmpty() && viewModel.currentDestination.value != "") {
-                                newItems.clear()
-                                newItems.addAll(
-                                    extractTripsByDestination(
-                                        it,
-                                        viewModel.currentDestination.value
-                                    )
-                                )
-                            }
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(appGradient)
+                            .padding(paddingValues)
+                    ) {
+                        val newItems = remember {
+                            mutableStateListOf<TripsEntity?>()
                         }
-                    }
+                        LaunchedEffect(key1 = viewModel.getCurrentTrip(viewModel.currentDestination.value)) {
+                            viewModel.getCurrentTrip(viewModel.currentDestination.value)
+                                .collectLatest {
+                                    if (it.isNotEmpty() && viewModel.currentDestination.value != "") {
+                                        newItems.clear()
+                                        newItems.addAll(
+                                            extractTripsByDestination(
+                                                it,
+                                                viewModel.currentDestination.value
+                                            )
+                                        )
+                                    }
+                                }
+                        }
 
-                    if (trips.value.isEmpty() || days.value.isEmpty()
-                        && remainingBudget.value == 0.0
-                        && totalBudget.value.isEmpty()) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
+                        if (trips.value.isEmpty() || days.value.isEmpty()
+                            && remainingBudget.value == 0.0
+                            && totalBudget.value.isEmpty()
                         ) {
-                            CircularProgressIndicator(color = lightText)
-                        }
-                    } else {
-                        trips.value[0]?.photoBase64?.let {
-                            LazyColumn(
-                                modifier = Modifier
-                                    .fillMaxSize(),
-                                state = listState
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
                             ) {
-                                item {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.TopStart
-                                    ) {
-                                        Card(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .fillMaxHeight(0.34f),
-                                            shape = RoundedCornerShape(0.dp),
-                                            elevation = CardDefaults.cardElevation(7.dp),
-                                            colors = CardDefaults.cardColors(
-                                                containerColor = Color.Transparent
-                                            )
+                                CircularProgressIndicator(color = lightText)
+                            }
+                        } else {
+                            trips.value[0]?.photoBase64?.let {
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .then(
+                                            if(isDeleteSheetOpen.value) Modifier.blur(10.dp) else Modifier
+                                        ),
+                                    state = listState
+                                ) {
+                                    item {
+                                        Box(
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentAlignment = Alignment.TopStart
                                         ) {
-                                            convertImageByteArrayToBitmap(base64ToByteArray(it))?.asImageBitmap()
-                                                ?.let { it1 ->
-                                                    Image(
-                                                        bitmap = it1,
-                                                        contentDescription = "some useful description",
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .fillMaxHeight()
-                                                            .drawWithCache {
-                                                                val gradient =
-                                                                    Brush.verticalGradient(
-                                                                        colors = listOf(
-                                                                            Color.Transparent,
-                                                                            Color.Black.copy(
-                                                                                0.8f
-                                                                            )
-                                                                        ),
-                                                                        startY = size.height / 5.5f,
-                                                                        endY = size.height
-                                                                    )
-                                                                onDrawWithContent {
-                                                                    drawContent()
-                                                                    drawRect(
-                                                                        gradient,
-                                                                        blendMode = BlendMode.Multiply
-                                                                    )
-                                                                }
-                                                            },
-                                                        contentScale = ContentScale.FillWidth
-                                                    )
-                                                }
-                                        }
-
-                                        Column(modifier = Modifier.fillMaxSize()) {
-                                            Icon(
-                                                imageVector = Icons.Filled.Close,
-                                                contentDescription = "Arrow Back",
-                                                tint = lightText,
-                                                modifier = Modifier
-                                                    .padding(start = 15.dp, top = 10.dp)
-                                                    .size(25.dp)
-                                                    .clickable {
-                                                        navController.popBackStack()
-                                                    }
-                                            )
-                                            Spacer(modifier = Modifier.height(70.dp))
-                                            Text(
-                                                text = viewModel.currentDestination.value,
-                                                color = textColor,
-                                                fontSize = 35.sp,
-                                                modifier = Modifier.padding(
-                                                    start = 20.dp,
-                                                    top = 20.dp,
-                                                    bottom = 8.dp
-                                                )
-                                            )
-
-
-                                            LazyVerticalGrid(
-                                                columns = GridCells.Fixed(2),
-                                                modifier = Modifier.height(200.dp)
-                                            ) {
-                                                items(cardData1) {
-                                                    GridCard(
-                                                        topText = it.topText,
-                                                        bottomText = it.bottomText,
-                                                        icon = it.icon
-                                                    )
-                                                }
-
-                                                items(cardData2) {
-                                                    GridCard(
-                                                        topText = it.topText,
-                                                        bottomText = it.bottomText,
-                                                        icon = it.icon
-                                                    )
-                                                }
-
-                                            }
-
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                modifier = Modifier
-                                                    .padding(
-                                                        start = 12.dp,
-                                                        top = 0.dp,
-                                                        bottom = 0.dp,
-                                                        end = 12.dp
-                                                    )
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Filled.Map,
-                                                    contentDescription = "topText",
-                                                    tint = lightText,
-                                                    modifier = Modifier.size(30.dp)
-                                                )
-                                                Spacer(modifier = Modifier.width(7.dp))
-                                                Text(
-                                                    text = "Map View",
-                                                    color = textColor,
-                                                    fontSize = 25.sp,
-                                                )
-                                            }
-
-                                            Spacer(modifier = Modifier.height(20.dp))
-
                                             Card(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
-                                                    .padding(start = 12.dp, end = 12.dp)
-                                                    .height(200.dp)
-                                                    .shadow(10.dp),
-                                                shape = RoundedCornerShape(10.dp),
-                                                elevation = CardDefaults.cardElevation(40.dp),
+                                                    .fillMaxHeight(0.34f),
+                                                shape = RoundedCornerShape(0.dp),
+                                                elevation = CardDefaults.cardElevation(7.dp),
                                                 colors = CardDefaults.cardColors(
                                                     containerColor = Color.Transparent
-                                                ),
-                                            ) {
-                                                MapBoxMap(
-                                                    onPointChange = { point ->
-
-                                                    },
-                                                    points = dayTrips.value.map {
-                                                        MapItem(
-                                                            image = R.drawable.app_icon,
-                                                            latitude = it?.latitude ?: 0.0,
-                                                            longitude = it?.longitude ?: 0.0,
-                                                            location = it?.destination ?: "",
-                                                            time = it?.timeOfDay ?: "",
-                                                        )
-                                                    },
-                                                    currentPoint = currentPoint.apply {
-                                                        value = MapBoxPoint(
-                                                            latitude = dayTrips.value[0]?.latitude
-                                                                ?: 0.0,
-                                                            longitude = dayTrips.value[0]?.longitude
-                                                                ?: 0.0,
-                                                            zoom = 15.0
-                                                        )
-                                                    },
-                                                    latitude = dayTrips.value[0]?.latitude
-                                                        ?: 0.0,
-                                                    longitude = dayTrips.value[0]?.longitude
-                                                        ?: 0.0,
                                                 )
+                                            ) {
+                                                convertImageByteArrayToBitmap(base64ToByteArray(it))?.asImageBitmap()
+                                                    ?.let { it1 ->
+                                                        Image(
+                                                            bitmap = it1,
+                                                            contentDescription = "some useful description",
+                                                            modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .fillMaxHeight()
+                                                                .drawWithCache {
+                                                                    val gradient =
+                                                                        Brush.verticalGradient(
+                                                                            colors = listOf(
+                                                                                Color.Transparent,
+                                                                                Color.Black.copy(
+                                                                                    0.8f
+                                                                                )
+                                                                            ),
+                                                                            startY = size.height / 5.5f,
+                                                                            endY = size.height
+                                                                        )
+                                                                    onDrawWithContent {
+                                                                        drawContent()
+                                                                        drawRect(
+                                                                            gradient,
+                                                                            blendMode = BlendMode.Multiply
+                                                                        )
+                                                                    }
+                                                                },
+                                                            contentScale = ContentScale.FillWidth
+                                                        )
+                                                    }
                                             }
 
-                                            Spacer(modifier = Modifier.height(20.dp))
+                                            Column(modifier = Modifier.fillMaxSize()) {
+                                                Icon(
+                                                    imageVector = Icons.Filled.Close,
+                                                    contentDescription = "Arrow Back",
+                                                    tint = lightText,
+                                                    modifier = Modifier
+                                                        .padding(start = 15.dp, top = 10.dp)
+                                                        .size(25.dp)
+                                                        .clickable {
+                                                            navController.popBackStack()
+                                                        }
+                                                )
+                                                Spacer(modifier = Modifier.height(70.dp))
+                                                Text(
+                                                    text = viewModel.currentDestination.value,
+                                                    color = textColor,
+                                                    fontSize = 35.sp,
+                                                    modifier = Modifier.padding(
+                                                        start = 20.dp,
+                                                        top = 20.dp,
+                                                        bottom = 8.dp
+                                                    )
+                                                )
 
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                modifier = Modifier
-                                                    .padding(
-                                                        start = 12.dp,
-                                                        top = 0.dp,
-                                                        bottom = 0.dp,
-                                                        end = 12.dp
-                                                    ),
-                                                horizontalArrangement = Arrangement.SpaceBetween
-                                            ) {
-                                                Row {
+
+                                                LazyVerticalGrid(
+                                                    columns = GridCells.Fixed(2),
+                                                    modifier = Modifier.height(200.dp)
+                                                ) {
+                                                    items(cardData1) {
+                                                        GridCard(
+                                                            topText = it.topText,
+                                                            bottomText = it.bottomText,
+                                                            icon = it.icon
+                                                        )
+                                                    }
+
+                                                    items(cardData2) {
+                                                        GridCard(
+                                                            topText = it.topText,
+                                                            bottomText = it.bottomText,
+                                                            icon = it.icon
+                                                        )
+                                                    }
+
+                                                }
+
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    modifier = Modifier
+                                                        .padding(
+                                                            start = 12.dp,
+                                                            top = 0.dp,
+                                                            bottom = 0.dp,
+                                                            end = 12.dp
+                                                        )
+                                                ) {
                                                     Icon(
-                                                        imageVector = Icons.Filled.LocationOn,
+                                                        imageVector = Icons.Filled.Map,
                                                         contentDescription = "topText",
                                                         tint = lightText,
                                                         modifier = Modifier.size(30.dp)
                                                     )
                                                     Spacer(modifier = Modifier.width(7.dp))
                                                     Text(
-                                                        text = "Your Schedule",
+                                                        text = "Map View",
                                                         color = textColor,
                                                         fontSize = 25.sp,
                                                     )
                                                 }
+
+                                                Spacer(modifier = Modifier.height(20.dp))
+
+                                                Card(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(start = 12.dp, end = 12.dp)
+                                                        .height(200.dp)
+                                                        .shadow(10.dp),
+                                                    shape = RoundedCornerShape(10.dp),
+                                                    elevation = CardDefaults.cardElevation(40.dp),
+                                                    colors = CardDefaults.cardColors(
+                                                        containerColor = Color.Transparent
+                                                    ),
+                                                ) {
+                                                    MapBoxMap(
+                                                        onPointChange = { point ->
+
+                                                        },
+                                                        points = dayTrips.value.map {
+                                                            MapItem(
+                                                                image = R.drawable.app_icon,
+                                                                latitude = it?.latitude ?: 0.0,
+                                                                longitude = it?.longitude ?: 0.0,
+                                                                location = it?.destination ?: "",
+                                                                time = it?.timeOfDay ?: "",
+                                                            )
+                                                        },
+                                                        currentPoint = currentPoint.apply {
+                                                            value = MapBoxPoint(
+                                                                latitude = dayTrips.value[0]?.latitude
+                                                                    ?: 0.0,
+                                                                longitude = dayTrips.value[0]?.longitude
+                                                                    ?: 0.0,
+                                                                zoom = 15.0
+                                                            )
+                                                        },
+                                                        latitude = dayTrips.value[0]?.latitude
+                                                            ?: 0.0,
+                                                        longitude = dayTrips.value[0]?.longitude
+                                                            ?: 0.0,
+                                                    )
+                                                }
+
+                                                Spacer(modifier = Modifier.height(20.dp))
+
                                                 Row(
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    modifier = Modifier
+                                                        .padding(
+                                                            start = 12.dp,
+                                                            top = 0.dp,
+                                                            bottom = 0.dp,
+                                                            end = 12.dp
+                                                        ),
+                                                    horizontalArrangement = Arrangement.SpaceBetween
+                                                ) {
+                                                    Row {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.LocationOn,
+                                                            contentDescription = "topText",
+                                                            tint = lightText,
+                                                            modifier = Modifier.size(30.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(7.dp))
+                                                        Text(
+                                                            text = "Your Schedule",
+                                                            color = textColor,
+                                                            fontSize = 25.sp,
+                                                        )
+                                                    }
+                                                    Row(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
                                                             .padding(end = 12.dp)
@@ -455,7 +509,7 @@ fun TripDetailsScreen(
                                                                 }
                                                             },
                                                         horizontalArrangement = Arrangement.End
-                                                    ){
+                                                    ) {
                                                         Icon(
                                                             imageVector = Icons.Filled.Reorder,
                                                             contentDescription = "topText",
@@ -463,462 +517,545 @@ fun TripDetailsScreen(
                                                             modifier = Modifier.size(25.dp)
                                                         )
                                                     }
-                                            }
+                                                }
 
-                                            Spacer(modifier = Modifier.height(20.dp))
+                                                Spacer(modifier = Modifier.height(20.dp))
+                                            }
                                         }
                                     }
-                                }
 
-                                item {
-                                    LazyRow {
-                                        items(days.value) { day ->
-                                            Card(
-                                                colors = CardDefaults.cardColors(
-                                                    containerColor = if (day == currentDay.value) lightText else Color.Transparent,
-                                                ),
-                                                border = BorderStroke(1.dp, brush = borderBrush),
-                                                shape = RoundedCornerShape(20.dp),
-                                                elevation = CardDefaults.cardElevation(0.dp),
+                                    item {
+                                        LazyRow {
+                                            items(days.value) { day ->
+                                                Card(
+                                                    colors = CardDefaults.cardColors(
+                                                        containerColor = if (day == currentDay.value) lightText else Color.Transparent,
+                                                    ),
+                                                    border = BorderStroke(
+                                                        1.dp,
+                                                        brush = borderBrush
+                                                    ),
+                                                    shape = RoundedCornerShape(20.dp),
+                                                    elevation = CardDefaults.cardElevation(0.dp),
+                                                    modifier = Modifier
+                                                        .width(120.dp)
+                                                        .padding(
+                                                            start = 12.dp,
+                                                            top = 0.dp,
+                                                            bottom = 12.dp,
+                                                            end = 12.dp
+                                                        )
+                                                        .clickable(
+                                                            interactionSource = MutableInteractionSource(),
+                                                            indication = null
+                                                        ) {
+                                                            coroutineScope.launch {
+                                                                currentDay.value = day ?: "1"
+                                                            }
+                                                        }
+
+                                                ) {
+                                                    Column(
+                                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                                        verticalArrangement = Arrangement.Center,
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(
+                                                                start = 0.dp,
+                                                                top = 10.dp,
+                                                                bottom = 10.dp
+                                                            )
+                                                    ) {
+                                                        Text(
+                                                            text = "Day $day",
+                                                            color = textColor,
+                                                            fontSize = 18.sp,
+                                                            modifier = Modifier.padding(start = 2.dp)
+                                                        )
+                                                    }
+                                                }
+
+
+                                            }
+                                        }
+                                    }
+
+                                    itemsIndexed(dayTrips.value) { index, it ->
+                                        SwipeableActionsBox(
+                                            endActions = listOf(delete),
+                                            backgroundUntilSwipeThreshold = Color(0xFF4792ff),
+                                            swipeThreshold = (screenWidth / 2.5).dp
+                                        ) {
+                                            Row(
                                                 modifier = Modifier
-                                                    .width(120.dp)
+                                                    .fillMaxWidth()
                                                     .padding(
-                                                        start = 12.dp,
+                                                        start = 0.dp,
                                                         top = 0.dp,
                                                         bottom = 12.dp,
                                                         end = 12.dp
-                                                    )
-                                                    .clickable(
-                                                        interactionSource = MutableInteractionSource(),
-                                                        indication = null
-                                                    ) {
-                                                        coroutineScope.launch {
-                                                            currentDay.value = day ?: "1"
-                                                        }
-                                                    }
-
+                                                    ),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.Start
                                             ) {
                                                 Column(
+                                                    modifier = Modifier.fillMaxWidth(0.3f),
                                                     horizontalAlignment = Alignment.CenterHorizontally,
-                                                    verticalArrangement = Arrangement.Center,
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .padding(
-                                                            start = 0.dp,
-                                                            top = 10.dp,
-                                                            bottom = 10.dp
-                                                        )
+                                                    verticalArrangement = Arrangement.Center
                                                 ) {
-                                                    Text(
-                                                        text = "Day $day",
-                                                        color = textColor,
-                                                        fontSize = 18.sp,
-                                                        modifier = Modifier.padding(start = 2.dp)
+                                                    if (index != 0) {
+                                                        Spacer(modifier = Modifier.height(5.dp))
+                                                        Icon(
+                                                            imageVector = Icons.Filled.Timer,
+                                                            contentDescription = "topText",
+                                                            tint = textColor,
+                                                            modifier = Modifier
+                                                                .size(35.dp)
+                                                                .background(
+                                                                    Color(0xFF007c6e),
+                                                                    shape = CircleShape
+                                                                )
+                                                                .padding(5.dp)
+
+                                                        )
+                                                        Spacer(modifier = Modifier.height(5.dp))
+                                                        VerticalDashedDivider(
+                                                            color = lightText,
+                                                            height = 40,
+                                                            dashWidth = 14f,
+                                                            gapWidth = 10f
+                                                        )
+                                                        Spacer(modifier = Modifier.height(15.dp))
+                                                    }
+                                                    CustomMarker(text = (index + 1).toString())
+                                                    Spacer(modifier = Modifier.height(5.dp))
+                                                    VerticalDashedDivider(
+                                                        color = lightText,
+                                                        height = 100,
+                                                        dashWidth = 14f,
+                                                        gapWidth = 10f
                                                     )
+
                                                 }
-                                            }
 
-
-                                        }
-                                    }
-                                }
-
-                                itemsIndexed(dayTrips.value) {index, it ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(
-                                                start = 0.dp,
-                                                top = 0.dp,
-                                                bottom = 12.dp,
-                                                end = 12.dp
-                                            ),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Start
-                                    ) {
-                                        Column(
-                                            modifier = Modifier.fillMaxWidth(0.3f),
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.Center
-                                        ) {
-                                            if (index != 0) {
-                                                Spacer(modifier = Modifier.height(5.dp))
-                                                Icon(
-                                                    imageVector = Icons.Filled.Timer,
-                                                    contentDescription = "topText",
-                                                    tint = textColor,
+                                                Column(
                                                     modifier = Modifier
-                                                        .size(35.dp)
-                                                        .background(Color(0xFF007c6e), shape = CircleShape)
-                                                        .padding(5.dp)
-
-                                                )
-                                                Spacer(modifier = Modifier.height(5.dp))
-                                                VerticalDashedDivider(
-                                                    color = lightText,
-                                                    height = 40,
-                                                    dashWidth = 14f,
-                                                    gapWidth = 10f
-                                                )
-                                                Spacer(modifier = Modifier.height(15.dp))
-                                            }
-                                            CustomMarker(text = (index + 1).toString())
-                                            Spacer(modifier = Modifier.height(5.dp))
-                                            VerticalDashedDivider(
-                                                color = lightText,
-                                                height = 100,
-                                                dashWidth = 14f,
-                                                gapWidth = 10f
-                                            )
-
-                                        }
-
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth(0.7f)
-                                                .weight(1f),
-                                            horizontalAlignment = Alignment.Start,
-                                            verticalArrangement = Arrangement.Center
-                                        ) {
-                                            if (index != 0) {
-                                                Spacer(modifier = Modifier.height(15.dp))
-                                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                                    Spacer(modifier = Modifier.width(7.dp))
-                                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                                        Icon(
-                                                            imageVector = Icons.Filled.DirectionsCar,
-                                                            contentDescription = "topText",
-                                                            tint = Color(0xFF6588bf),
-                                                            modifier = Modifier.size(25.dp)
-                                                        )
-                                                        Spacer(modifier = Modifier.width(7.dp))
-                                                        Text(
-                                                            text = dayTrips.value[index]?.distance ?: "",
-                                                            color = textColor,
-                                                            fontSize = 13.sp,
-                                                        )
-                                                    }
-                                                    Spacer(modifier = Modifier.width(7.dp))
-                                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                                        Icon(
-                                                            imageVector = Icons.Filled.AvTimer,
-                                                            contentDescription = "topText",
-                                                            tint = Color(0xFF6588bf),
-                                                            modifier = Modifier.size(25.dp)
-                                                        )
-                                                        Spacer(modifier = Modifier.width(7.dp))
-                                                        Text(
-                                                            text = dayTrips.value[index]?.duration ?: "",
-                                                            color = textColor,
-                                                            fontSize = 13.sp,
-                                                        )
-                                                    }
-                                                }
-                                                Spacer(modifier = Modifier.height(55.dp))
-                                            }
-                                            Text(
-                                                text = if (index == 0) "Morning" else if (index == 1) "Afternoon" else "Evening",
-                                                color = textColor,
-                                                fontSize = 25.sp,
-                                                modifier = Modifier
-                                            )
-                                            Spacer(modifier = Modifier.height(10.dp))
-                                            Text(
-                                                text = it?.name ?: "",
-                                                color = textColor,
-                                                fontSize = 13.sp,
-                                                modifier = Modifier,
-                                                softWrap = true
-                                            )
-                                            Spacer(modifier = Modifier.height(10.dp))
-                                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                                Icon(
-                                                    imageVector = Icons.Filled.Wallet,
-                                                    contentDescription = "topText",
-                                                    tint = lightText,
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                                Spacer(modifier = Modifier.width(7.dp))
-                                                Text(
-                                                    text = it?.budget ?: "",
-                                                    color = textColor,
-                                                    fontSize = 12.sp,
-                                                )
-                                            }
-                                            Spacer(modifier = Modifier.height(10.dp))
-                                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                                Button(
-                                                    onClick = {
-                                                        viewModel.currentDay.value =
-                                                            currentDay.value
-                                                        viewModel.currentTimeOfDay.value =
-                                                            it?.timeOfDay ?: ""
-                                                        viewModel.currentNewDestination.value =
-                                                            it?.name ?: ""
-                                                        coroutineScope.launch {
-                                                            isReorderVisible = false
-                                                            modalSheetStates.bottomSheetState.expand()
+                                                        .fillMaxWidth(0.7f)
+                                                        .weight(1f),
+                                                    horizontalAlignment = Alignment.Start,
+                                                    verticalArrangement = Arrangement.Center
+                                                ) {
+                                                    if (index != 0) {
+                                                        Spacer(modifier = Modifier.height(15.dp))
+                                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                                            Spacer(modifier = Modifier.width(7.dp))
+                                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                                Icon(
+                                                                    imageVector = Icons.Filled.DirectionsCar,
+                                                                    contentDescription = "topText",
+                                                                    tint = Color(0xFF6588bf),
+                                                                    modifier = Modifier.size(25.dp)
+                                                                )
+                                                                Spacer(modifier = Modifier.width(7.dp))
+                                                                Text(
+                                                                    text = dayTrips.value[index]?.distance
+                                                                        ?: "",
+                                                                    color = textColor,
+                                                                    fontSize = 13.sp,
+                                                                )
+                                                            }
+                                                            Spacer(modifier = Modifier.width(7.dp))
+                                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                                Icon(
+                                                                    imageVector = Icons.Filled.AvTimer,
+                                                                    contentDescription = "topText",
+                                                                    tint = Color(0xFF6588bf),
+                                                                    modifier = Modifier.size(25.dp)
+                                                                )
+                                                                Spacer(modifier = Modifier.width(7.dp))
+                                                                Text(
+                                                                    text = dayTrips.value[index]?.duration
+                                                                        ?: "",
+                                                                    color = textColor,
+                                                                    fontSize = 13.sp,
+                                                                )
+                                                            }
                                                         }
-                                                    },
-                                                    colors = ButtonDefaults.buttonColors(
-                                                        containerColor = lightText,
-                                                        contentColor = textColor
-                                                    )
-                                                ) {
+                                                        Spacer(modifier = Modifier.height(55.dp))
+                                                    }
                                                     Text(
-                                                        text = "More Info",
+                                                        text = if (index == 0) "Morning" else if (index == 1) "Afternoon" else "Evening",
                                                         color = textColor,
-                                                        fontSize = 12.sp,
+                                                        fontSize = 25.sp,
+                                                        modifier = Modifier
                                                     )
-
-                                                }
-                                                Spacer(modifier = Modifier.width(10.dp))
-                                                Button(
-                                                    onClick = { /*TODO*/ },
-                                                    colors = ButtonDefaults.buttonColors(
-                                                        containerColor = lightText,
-                                                        contentColor = textColor
-                                                    )
-                                                ) {
+                                                    Spacer(modifier = Modifier.height(10.dp))
                                                     Text(
-                                                        text = "Navigate",
+                                                        text = it?.name ?: "",
                                                         color = textColor,
-                                                        fontSize = 12.sp,
+                                                        fontSize = 13.sp,
+                                                        modifier = Modifier,
+                                                        softWrap = true
                                                     )
+                                                    Spacer(modifier = Modifier.height(10.dp))
+                                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.Wallet,
+                                                            contentDescription = "topText",
+                                                            tint = lightText,
+                                                            modifier = Modifier.size(20.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(7.dp))
+                                                        Text(
+                                                            text = it?.budget ?: "",
+                                                            color = textColor,
+                                                            fontSize = 12.sp,
+                                                        )
+                                                    }
+                                                    Spacer(modifier = Modifier.height(10.dp))
+                                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                                        Button(
+                                                            onClick = {
+                                                                viewModel.currentDay.value =
+                                                                    currentDay.value
+                                                                viewModel.currentTimeOfDay.value =
+                                                                    it?.timeOfDay ?: ""
+                                                                viewModel.currentNewDestination.value =
+                                                                    it?.name ?: ""
+                                                                coroutineScope.launch {
+                                                                    isReorderVisible = false
+                                                                    modalSheetStates.bottomSheetState.expand()
+                                                                }
+                                                            },
+                                                            colors = ButtonDefaults.buttonColors(
+                                                                containerColor = lightText,
+                                                                contentColor = textColor
+                                                            )
+                                                        ) {
+                                                            Text(
+                                                                text = "More Info",
+                                                                color = textColor,
+                                                                fontSize = 12.sp,
+                                                            )
 
+                                                        }
+                                                        Spacer(modifier = Modifier.width(10.dp))
+                                                        Button(
+                                                            onClick = { /*TODO*/ },
+                                                            colors = ButtonDefaults.buttonColors(
+                                                                containerColor = lightText,
+                                                                contentColor = textColor
+                                                            )
+                                                        ) {
+                                                            Text(
+                                                                text = "Navigate",
+                                                                color = textColor,
+                                                                fontSize = 12.sp,
+                                                            )
+
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
+
                                     }
 
-                                }
-
-                                item {
-                                    Spacer(modifier = Modifier.height(40.dp))
-                                    Card(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(
-                                                start = 10.dp,
-                                                end = 15.dp,
-                                                bottom = 10.dp,
-                                                top = 10.dp
-                                            ),
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = Color.Transparent,
-                                            contentColor = textColor
-                                        ),
-                                        elevation = CardDefaults.cardElevation(0.dp),
-                                        shape = RoundedCornerShape(10.dp),
-                                        border = BorderStroke(0.5.dp, color = bottomBarBorder.copy(0.5f))
-                                    ) {
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                                    item {
+                                        Spacer(modifier = Modifier.height(40.dp))
+                                        Card(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(10.dp)) {
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.SpaceBetween,
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Row(
-                                                    modifier = Modifier,
-                                                    verticalAlignment = Alignment.CenterVertically
-                                                ) {
-                                                    Icon(
-                                                        imageVector = Icons.Filled.Language,
-                                                        contentDescription = "topText",
-                                                        tint = Color(0xFF6588bf),
-                                                        modifier = Modifier.size(20.dp)
-                                                    )
-                                                    Spacer(modifier = Modifier.width(7.dp))
-                                                    Text(
-                                                        text = "Language",
-                                                        color = Color(0xFF6588bf),
-                                                        fontSize = 12.sp,
-                                                    )
-                                                }
-                                                Text(
-                                                    text = "English",
-                                                    color = Color.White,
-                                                    fontSize = 12.sp,
-                                                )
-                                            }
-                                            VerticalDashedDivider(
-                                                color = lightText,
-                                                height = 15,
-                                                dashWidth = 14f,
-                                                gapWidth = 10f,
-                                                modifier = Modifier.rotate(90f)
+                                                .padding(
+                                                    start = 10.dp,
+                                                    end = 15.dp,
+                                                    bottom = 10.dp,
+                                                    top = 10.dp
+                                                ),
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = Color.Transparent,
+                                                contentColor = textColor
+                                            ),
+                                            elevation = CardDefaults.cardElevation(0.dp),
+                                            shape = RoundedCornerShape(10.dp),
+                                            border = BorderStroke(
+                                                0.5.dp,
+                                                color = bottomBarBorder.copy(0.5f)
                                             )
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.SpaceBetween,
-                                                verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(10.dp)
                                             ) {
                                                 Row(
-                                                    modifier = Modifier,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
                                                     verticalAlignment = Alignment.CenterVertically
                                                 ) {
-                                                    Icon(
-                                                        imageVector = Icons.Filled.WbSunny,
-                                                        contentDescription = "topText",
-                                                        tint = Color(0xFF6588bf),
-                                                        modifier = Modifier.size(20.dp)
-                                                    )
-                                                    Spacer(modifier = Modifier.width(7.dp))
+                                                    Row(
+                                                        modifier = Modifier,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.Language,
+                                                            contentDescription = "topText",
+                                                            tint = Color(0xFF6588bf),
+                                                            modifier = Modifier.size(20.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(7.dp))
+                                                        Text(
+                                                            text = "Language",
+                                                            color = Color(0xFF6588bf),
+                                                            fontSize = 12.sp,
+                                                        )
+                                                    }
                                                     Text(
-                                                        text = "Weather",
-                                                        color = Color(0xFF6588bf),
+                                                        text = "English",
+                                                        color = Color.White,
                                                         fontSize = 12.sp,
                                                     )
                                                 }
-                                                Text(
-                                                    text = "Sunny",
-                                                    color = Color.White,
-                                                    fontSize = 12.sp,
+                                                VerticalDashedDivider(
+                                                    color = lightText,
+                                                    height = 15,
+                                                    dashWidth = 14f,
+                                                    gapWidth = 10f,
+                                                    modifier = Modifier.rotate(90f)
                                                 )
-                                            }
-                                            VerticalDashedDivider(
-                                                color = lightText,
-                                                height = 15,
-                                                dashWidth = 14f,
-                                                gapWidth = 10f,
-                                                modifier = Modifier.rotate(90f)
-                                            )
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.SpaceBetween,
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
                                                 Row(
-                                                    modifier = Modifier,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
                                                     verticalAlignment = Alignment.CenterVertically
                                                 ) {
-                                                    Icon(
-                                                        imageVector = Icons.Filled.AccountBalanceWallet,
-                                                        contentDescription = "topText",
-                                                        tint = Color(0xFF6588bf),
-                                                        modifier = Modifier.size(20.dp)
-                                                    )
-                                                    Spacer(modifier = Modifier.width(7.dp))
+                                                    Row(
+                                                        modifier = Modifier,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.WbSunny,
+                                                            contentDescription = "topText",
+                                                            tint = Color(0xFF6588bf),
+                                                            modifier = Modifier.size(20.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(7.dp))
+                                                        Text(
+                                                            text = "Weather",
+                                                            color = Color(0xFF6588bf),
+                                                            fontSize = 12.sp,
+                                                        )
+                                                    }
                                                     Text(
-                                                        text = "Total Budget",
-                                                        color = Color(0xFF6588bf),
+                                                        text = "Sunny",
+                                                        color = Color.White,
                                                         fontSize = 12.sp,
                                                     )
                                                 }
-                                                Text(
-                                                    text = "Rs ${totalBudget.value[0]}",
-                                                    color = Color.White,
-                                                    fontSize = 12.sp,
+                                                VerticalDashedDivider(
+                                                    color = lightText,
+                                                    height = 15,
+                                                    dashWidth = 14f,
+                                                    gapWidth = 10f,
+                                                    modifier = Modifier.rotate(90f)
                                                 )
-                                            }
-                                            VerticalDashedDivider(
-                                                color = lightText,
-                                                height = 15,
-                                                dashWidth = 14f,
-                                                gapWidth = 10f,
-                                                modifier = Modifier.rotate(90f)
-                                            )
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.SpaceBetween,
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
                                                 Row(
-                                                    modifier = Modifier,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
                                                     verticalAlignment = Alignment.CenterVertically
                                                 ) {
-                                                    Icon(
-                                                        imageVector = Icons.Filled.MoneyOff,
-                                                        contentDescription = "topText",
-                                                        tint = Color(0xFF6588bf),
-                                                        modifier = Modifier.size(20.dp)
-                                                    )
-                                                    Spacer(modifier = Modifier.width(7.dp))
+                                                    Row(
+                                                        modifier = Modifier,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.AccountBalanceWallet,
+                                                            contentDescription = "topText",
+                                                            tint = Color(0xFF6588bf),
+                                                            modifier = Modifier.size(20.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(7.dp))
+                                                        Text(
+                                                            text = "Total Budget",
+                                                            color = Color(0xFF6588bf),
+                                                            fontSize = 12.sp,
+                                                        )
+                                                    }
                                                     Text(
-                                                        text = "Used Budget",
-                                                        color = Color(0xFF6588bf),
+                                                        text = "Rs ${totalBudget.value[0]}",
+                                                        color = Color.White,
                                                         fontSize = 12.sp,
                                                     )
                                                 }
-                                                Text(
-                                                    text = "Rs ${remainingBudget.value}",
-                                                    color = Color.White,
-                                                    fontSize = 12.sp,
+                                                VerticalDashedDivider(
+                                                    color = lightText,
+                                                    height = 15,
+                                                    dashWidth = 14f,
+                                                    gapWidth = 10f,
+                                                    modifier = Modifier.rotate(90f)
                                                 )
-                                            }
-                                            VerticalDashedDivider(
-                                                color = lightText,
-                                                height = 15,
-                                                dashWidth = 14f,
-                                                gapWidth = 10f,
-                                                modifier = Modifier.rotate(90f)
-                                            )
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.SpaceBetween,
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
                                                 Row(
-                                                    modifier = Modifier,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
                                                     verticalAlignment = Alignment.CenterVertically
                                                 ) {
-                                                    Icon(
-                                                        imageVector = Icons.Filled.Money,
-                                                        contentDescription = "topText",
-                                                        tint = Color(0xFF6588bf),
-                                                        modifier = Modifier.size(20.dp)
-                                                    )
-                                                    Spacer(modifier = Modifier.width(7.dp))
+                                                    Row(
+                                                        modifier = Modifier,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.MoneyOff,
+                                                            contentDescription = "topText",
+                                                            tint = Color(0xFF6588bf),
+                                                            modifier = Modifier.size(20.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(7.dp))
+                                                        Text(
+                                                            text = "Used Budget",
+                                                            color = Color(0xFF6588bf),
+                                                            fontSize = 12.sp,
+                                                        )
+                                                    }
                                                     Text(
-                                                        text = "Available Budget",
-                                                        color = Color(0xFF6588bf),
+                                                        text = "Rs ${remainingBudget.value}",
+                                                        color = Color.White,
                                                         fontSize = 12.sp,
                                                     )
                                                 }
-                                                Text(
-                                                    text = "Rs ${(totalBudget.value[0]?.minus(
-                                                        remainingBudget.value
-                                                    )) ?: 0}",
-                                                    color = Color.White,
-                                                    fontSize = 12.sp,
+                                                VerticalDashedDivider(
+                                                    color = lightText,
+                                                    height = 15,
+                                                    dashWidth = 14f,
+                                                    gapWidth = 10f,
+                                                    modifier = Modifier.rotate(90f)
                                                 )
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.Money,
+                                                            contentDescription = "topText",
+                                                            tint = Color(0xFF6588bf),
+                                                            modifier = Modifier.size(20.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(7.dp))
+                                                        Text(
+                                                            text = "Available Budget",
+                                                            color = Color(0xFF6588bf),
+                                                            fontSize = 12.sp,
+                                                        )
+                                                    }
+                                                    Text(
+                                                        text = "Rs ${
+                                                            (totalBudget.value[0]?.minus(
+                                                                remainingBudget.value
+                                                            )) ?: 0
+                                                        }",
+                                                        color = Color.White,
+                                                        fontSize = 12.sp,
+                                                    )
+                                                }
                                             }
                                         }
                                     }
-                                }
 
-                                item {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(end = 16.dp),
-                                        horizontalAlignment = Alignment.End
-                                    ) {
-                                        Spacer(modifier = Modifier.height(20.dp))
-                                        Text(
-                                            text = "Wishing You",
-                                            color = textColor.copy(0.75f),
-                                            fontSize = 23.sp,
-                                            fontFamily = monteSB,
-                                        )
-                                        Spacer(modifier = Modifier.height(10.dp))
-                                        Text(
-                                            text = "A Very Happy ❤️ Journey",
-                                            color = textColor.copy(0.65f),
-                                            fontSize = 13.sp,
-                                            fontFamily = monteSB,
-                                        )
-                                        Spacer(modifier = Modifier.height(20.dp))
+                                    item {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(end = 16.dp),
+                                            horizontalAlignment = Alignment.End
+                                        ) {
+                                            Spacer(modifier = Modifier.height(20.dp))
+                                            Text(
+                                                text = "Wishing You",
+                                                color = textColor.copy(0.75f),
+                                                fontSize = 23.sp,
+                                                fontFamily = monteSB,
+                                            )
+                                            Spacer(modifier = Modifier.height(10.dp))
+                                            Text(
+                                                text = "A Very Happy ❤️ Journey",
+                                                color = textColor.copy(0.65f),
+                                                fontSize = 13.sp,
+                                                fontFamily = monteSB,
+                                            )
+                                            Spacer(modifier = Modifier.height(20.dp))
+                                        }
+
                                     }
-
                                 }
+
                             }
 
                         }
+                    }
 
+                    AnimatedVisibility(
+                        visible = isDeleteSheetOpen.value,
+                        enter = slideInVertically(initialOffsetY = {
+                            it
+                        }, animationSpec = tween(
+                            durationMillis = 50,
+                        )),
+                        exit = slideOutVertically(targetOffsetY = {
+                            -it
+                        }, animationSpec = tween(
+                                durationMillis = 80,
+                        ))
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            contentAlignment = Alignment.BottomCenter
+                        ) {
+                            DeleteBottomSheet(
+                                isDeleteSuccess = isDeleteSheetOpen,
+                                isDeleteUndo = isDeleteUndo,
+                                isDeleteClicked = isDeleteClicked,
+                            )
+                        }
+                    }
+                    AnimatedVisibility(
+                        visible = isDeleteClicked.value,
+                        enter = fadeIn(animationSpec = tween(
+                            durationMillis = 50,
+                        )),
+                        exit = fadeOut(animationSpec = tween(
+                            durationMillis = 50,
+                        ))
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            val currenanim by rememberLottieComposition(
+                                spec = LottieCompositionSpec.Asset("boom.json")
+                            )
+                            LottieAnimation(
+                                composition = currenanim,
+                                iterations = 1,
+                                contentScale = ContentScale.Crop,
+                                speed = 0.85f,
+                                modifier = Modifier
+                                    .size(200.dp)
+                            )
+                        }
+                        LaunchedEffect(key1 = isDeleteClicked) {
+                            if (isDeleteClicked.value) {
+                                delay(2000)
+                                isDeleteClicked.value = false
+                                isDeleteSheetOpen.value = false
+                                isDeleteUndo.value = false
+                            }
+                        }
                     }
                 }
             }
