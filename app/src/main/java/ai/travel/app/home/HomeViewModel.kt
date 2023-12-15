@@ -435,6 +435,7 @@ class HomeViewModel @Inject constructor(
     fun extractBudgetValue(destination: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                _remainingBudget.value = 0.0
                 dbRepository.getBudget(destination).collectLatest { budgets ->
                     println("budgetssss: $budgets")
                     budgets.forEach {

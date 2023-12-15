@@ -172,7 +172,20 @@ fun TripDetailsScreen(
 
     val remainingBudget = viewModel.remainingBudget.collectAsState(initial = 0.0)
 
+    val trips = viewModel.getCurrentTrip(viewModel.currentDestination.value)
+        .collectAsState(initial = emptyList())
+    val days = viewModel.uniqueDays(viewModel.currentDestination.value)
+        .collectAsState(initial = emptyList())
+    val currentDay = remember { mutableStateOf("1") }
+    var dayTrips =
+        viewModel.getTrips(currentDay.value, viewModel.currentDestination.value)
+            .collectAsState(initial = emptyList())
+
     LaunchedEffect(key1 = Unit) {
+        viewModel.extractBudgetValue(viewModel.currentDestination.value)
+    }
+
+    LaunchedEffect(key1 = dayTrips.value) {
         viewModel.extractBudgetValue(viewModel.currentDestination.value)
     }
 
@@ -206,19 +219,6 @@ fun TripDetailsScreen(
                         .background(appGradient)
                         .padding(paddingValues)
                 ) {
-
-                    val trips = viewModel.getCurrentTrip(viewModel.currentDestination.value)
-                        .collectAsState(initial = emptyList())
-                    val days = viewModel.uniqueDays(viewModel.currentDestination.value)
-                        .collectAsState(initial = emptyList())
-                    val currentDay = remember { mutableStateOf("1") }
-                    var point: Point? by remember {
-                        mutableStateOf(null)
-                    }
-                    var dayTrips =
-                        viewModel.getTrips(currentDay.value, viewModel.currentDestination.value)
-                            .collectAsState(initial = emptyList())
-
                     val newItems = remember {
                         mutableStateListOf<TripsEntity?>()
                     }
