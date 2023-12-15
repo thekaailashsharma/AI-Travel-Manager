@@ -16,9 +16,10 @@ fun VerticalDashedDivider(
     color: Color = Color.Black,
     height: Int = 100,
     dashWidth: Float = 4f,
-    gapWidth: Float = 4f
+    gapWidth: Float = 4f,
+    modifier: Modifier = Modifier
 ) {
-    Canvas(modifier = Modifier.height(height.dp)) {
+    Canvas(modifier = modifier.height(height.dp)) {
         val pathEffect = PathEffect.dashPathEffect(floatArrayOf(dashWidth, gapWidth), 0f)
         drawLine(
             color = color,

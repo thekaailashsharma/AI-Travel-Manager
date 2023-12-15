@@ -67,4 +67,10 @@ interface TripsDao {
     @Query("DELETE FROM trips WHERE id = :tripId and destination = :destination and day = :day")
     suspend fun deleteTripById(tripId: Long, destination: String, day: String)
 
+    @Query("Select budget from trips where destination = :destination")
+    fun getBudget(destination: String): Flow<List<String?>>
+
+    @Query("Select totalBudget from trips where destination = :destination")
+    fun getTotalBudget(destination: String): Flow<List<Double?>>
+
 }
