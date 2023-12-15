@@ -93,6 +93,11 @@ class HomeViewModel @Inject constructor(
 
     private val _userPhoneNumber = MutableStateFlow("")
     val userPhoneNumber: StateFlow<String> = _userPhoneNumber.asStateFlow()
+    fun totalBudget(destination: String): Flow<List<Double?>> =
+        dbRepository.getTotalBudget(destination)
+
+    private val _remainingBudget = MutableStateFlow<Double>(0.0)
+    val remainingBudget: StateFlow<Double> = _remainingBudget.asStateFlow()
 
     private val _loginStatus = MutableStateFlow(false)
     val loginStatus: StateFlow<Boolean> = _loginStatus.asStateFlow()
@@ -226,6 +231,7 @@ class HomeViewModel @Inject constructor(
                         travelActivity = "",
                         distance = it.distance,
                         duration = it.duration,
+                        totalBudget = tripBudget.value.text.toDoubleOrNull(),
                     )
                 })
                 _imageState.value = ApiState.ReceivedPhoto
@@ -339,13 +345,17 @@ class HomeViewModel @Inject constructor(
                         tempList[index].duration =
                             apiData.rows?.get(0)?.elements?.get(0)?.duration?.text ?: "0 hrs"
 
-                        println("fromDistanceeApidata = ${apiData.rows?.get(0)?.elements?.get(0)?.distance?.text}, " +
-                                "toooo = ${apiData.rows?.get(0)?.elements?.get(0)?.duration?.text}")
+                        println(
+                            "fromDistanceeApidata = ${apiData.rows?.get(0)?.elements?.get(0)?.distance?.text}, " +
+                                    "toooo = ${apiData.rows?.get(0)?.elements?.get(0)?.duration?.text}"
+                        )
 
-                        println("fromDistanceeValue = ${newTripsEntity[index - 1]?.name}, " +
-                                "toooo = ${newTripsEntity[index]?.name}," +
-                                " distance = ${tempList[index].distance}, " +
-                                "duration = ${tempList[index].duration}")
+                        println(
+                            "fromDistanceeValue = ${newTripsEntity[index - 1]?.name}, " +
+                                    "toooo = ${newTripsEntity[index]?.name}," +
+                                    " distance = ${tempList[index].distance}, " +
+                                    "duration = ${tempList[index].duration}"
+                        )
                     }
                 }
                 newTripsEntity.forEachIndexed { index, it ->
@@ -420,6 +430,25 @@ class HomeViewModel @Inject constructor(
         this.noOfDays.value = noOfDays
         _message.value = message
         _imageState.value = ApiState.Loading
+    }
+
+    fun extractBudgetValue(destination: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                dbRepository.getBudget(destination).collectLatest { budgets ->
+                    println("budgetssss: $budgets")
+                    budgets.forEach {
+                        val regex = Regex("[^\\d]")
+                        val output = it?.replace(regex, "")
+                        println("budgetssss: $output")
+                        _remainingBudget.value +=
+                                output?.toDoubleOrNull() ?: 0.0
+
+                    }
+                }
+            }
+
+        }
     }
 
     private fun extractTourDetails(output: String) {

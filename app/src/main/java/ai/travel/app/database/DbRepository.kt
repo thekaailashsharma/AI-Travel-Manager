@@ -41,6 +41,12 @@ class DatabaseRepo(private val tripsDao: TripsDao) {
         }
     }
 
+    fun getBudget(destination: String): Flow<List<String?>> =
+        tripsDao.getBudget(destination)
+
+    fun getTotalBudget(destination: String): Flow<List<Double?>> =
+        tripsDao.getTotalBudget(destination)
+
     fun insertAllTrips(trips: List<TripsEntity>) {
         coroutineScope.launch {
             tripsDao.insertAllTrips(trips)

@@ -19,6 +19,7 @@ data class TripsEntity(
     var photoBase64: String? = null, // Store photo as Base64 String,
     var distance: String = "0",
     var duration: String = "0",
+    var totalBudget: Double? = 0.0,
 )
 
 

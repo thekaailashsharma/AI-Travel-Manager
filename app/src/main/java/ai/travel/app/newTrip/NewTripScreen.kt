@@ -68,6 +68,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.text.isDigitsOnly
 import kotlinx.coroutines.launch
 
 data class TravelModes(
@@ -136,7 +137,8 @@ fun NewTripScreen(
                         if (homeViewModel.tripName.value.text.isNotEmpty() && homeViewModel.source.value.text.isNotEmpty()
                             && homeViewModel.destination.value.text.isNotEmpty()
                             && homeViewModel.tripBudget.value.text.isNotEmpty()
-                            && homeViewModel.tripNoOfDays.value.text.isNotEmpty() && homeViewModel.travelMode.isNotEmpty()) {
+                            && homeViewModel.tripNoOfDays.value.text.isNotEmpty() && homeViewModel.travelMode.isNotEmpty()
+                            && homeViewModel.tripBudget.value.text.isDigitsOnly()) {
                             coroutineScope.launch {
                                 sheetScaffoldState.bottomSheetState.hide()
                             }
