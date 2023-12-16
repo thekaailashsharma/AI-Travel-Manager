@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -73,6 +74,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -192,36 +194,32 @@ fun HomeScreenMain(
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Column {
-                                                    Row {
-                                                        Text(
-                                                            text = "Welcome to",
-                                                            color = lightText,
-                                                            fontSize = 13.sp,
-                                                            fontFamily = monteSB,
-                                                            modifier = Modifier.padding(bottom = 7.dp)
-                                                        )
+
+                                                    Text(
+                                                        text = "WELCOME TO ",
+                                                        color = lightText,
+                                                        fontSize = 18.sp,
+                                                        fontFamily = monteSB,
+                                                        modifier = Modifier.padding(bottom = 7.dp)
+                                                    )
+
                                                         Text(
                                                             text = "Mumbai",
-                                                            color = lightText,
-                                                            fontSize = 18.sp,
+                                                            color = Color.White,
+                                                            fontSize = 35.sp,
                                                             fontFamily = monteSB,
-                                                            modifier = Modifier.padding(bottom = 7.dp)
+                                                            modifier = Modifier
                                                         )
-                                                    }
+
+
                                                     Text(
                                                         text = userName.value,
-                                                        color = textColor,
-                                                        fontSize = 20.sp,
-                                                        fontFamily = monteSB,
-                                                        modifier = Modifier.padding(bottom = 7.dp)
-                                                    )
-                                                    Text(
-                                                        text = "We make your travel funn",
                                                         color = lightText,
-                                                        fontSize = 13.sp,
+                                                        fontSize = 23.sp,
                                                         fontFamily = monteSB,
                                                         modifier = Modifier.padding(bottom = 7.dp)
                                                     )
+
                                                 }
                                                 ProfileImage(imageUrl = pfp.value,
                                                     modifier = Modifier
@@ -314,7 +312,7 @@ fun HomeScreenMain(
                                     }
                                 }
                                 LazyRow {
-                                    items(6) { icon ->
+                                    items(image) { icon ->
 
                                         Spacer(modifier = Modifier.width(15.dp))
 
@@ -327,9 +325,10 @@ fun HomeScreenMain(
                                             Box(modifier = Modifier.fillMaxSize()) {
 
                                                 Image(
-                                                    painter = painterResource(id = R.drawable.practice),
+                                                    painter = painterResource(id = icon.image ),
                                                     contentDescription = "",
-                                                    modifier = Modifier.fillMaxSize()
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    contentScale = ContentScale.Crop
                                                 )
                                                 Box(
                                                     modifier = Modifier.fillMaxSize(),
@@ -356,13 +355,13 @@ fun HomeScreenMain(
                                                                 verticalAlignment = Alignment.CenterVertically
                                                             ) {
                                                                 Text(
-                                                                    text = "Marine Drive",
+                                                                    text = icon.name,
                                                                     fontSize = 14.sp,
 
                                                                     )
 
                                                                 Text(
-                                                                    text = "2.1 mi",
+                                                                    text = icon.distance,
                                                                     fontSize = 14.sp,
                                                                 )
 
@@ -402,7 +401,7 @@ fun HomeScreenMain(
                                 }
 
                                 LazyRow(modifier = Modifier.padding(top = 15.dp, bottom = 15.dp)) {
-                                    items(6) { icon ->
+                                    items(image2) { icon ->
 
                                         Spacer(modifier = Modifier.width(20.dp))
                                         Card(
@@ -411,12 +410,45 @@ fun HomeScreenMain(
                                         ) {
 
                                             Image(
-                                                painter = painterResource(id = R.drawable.practice),
-                                                contentDescription = ""
+                                                painter = painterResource(id = icon),
+                                                contentDescription = "",
+                                                contentScale = ContentScale.FillBounds,
+                                                modifier = Modifier.fillMaxSize()
                                             )
                                         }
                                     }
                                 }
+                                Spacer(modifier = Modifier.height(50.dp))
+
+                                Column (modifier = Modifier.fillMaxWidth().padding(start = 20.dp),
+                                    horizontalAlignment = Alignment.Start,
+                                    verticalArrangement = Arrangement.Center){
+                                    Text(
+                                        text = "We make travel fun",
+                                        color = lightText,
+                                        fontSize = 15.sp,
+                                        fontFamily = monteSB,
+                                        modifier = Modifier.padding(bottom = 7.dp)
+                                    )
+                                    Text(
+                                        text = "Waste wise, Reward Rise",
+                                        color = lightText,
+                                        fontSize = 15.sp,
+                                        fontFamily = monteSB,
+                                        modifier = Modifier.padding(bottom = 7.dp)
+                                    )
+                                    Text(
+                                        text = "Effort by Team Centennials ❤️",
+                                        color = lightText,
+                                        fontSize = 15.sp,
+                                        fontFamily = monteSB,
+                                        modifier = Modifier.padding(bottom = 7.dp)
+                                    )
+
+
+                                }
+
+                                Spacer(modifier = Modifier.height(150.dp))
                             }
                         }
                         if (viewModel.isAnimationVisible.value) {
@@ -616,3 +648,53 @@ fun TravelCards(text1: String, text2: String, text3: String) {
         }
     }
 }
+
+
+val image = listOf(
+    MumbaiImages(
+        R.drawable.mum4,
+        "Taj Hotel",
+        "2.1 mi"
+    ),
+    MumbaiImages(
+        R.drawable.mum3,
+        "CSMT",
+        "2.1 mi"
+    ),
+    MumbaiImages(
+        R.drawable.mum6,
+        "Gateway",
+        "2.1 mi"
+    ),
+    MumbaiImages(
+        R.drawable.mum2,
+        "CSMT",
+        "2.1 mi"
+    ),
+    MumbaiImages(
+        R.drawable.mum1,
+        "Wankhede",
+        "2.1 mi"
+    ),
+    MumbaiImages(
+        R.drawable.mum5,
+        "HajiAli",
+        "2.1 mi"
+    ),
+
+    )
+
+data class MumbaiImages(
+    val image: Int,
+    val name: String,
+    val distance: String
+)
+
+val image2= listOf(
+    R.drawable.mum1,
+    R.drawable.mum2,
+    R.drawable.mum3,
+    R.drawable.mum4,
+    R.drawable.mum5,
+    R.drawable.mum6
+)
