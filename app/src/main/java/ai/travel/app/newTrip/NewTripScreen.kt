@@ -33,6 +33,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIos
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.material.icons.filled.DirectionsWalk
@@ -181,6 +182,9 @@ fun NewTripScreen(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
+
+        Spacer(modifier = Modifier.height(60.dp))
+
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -199,7 +203,7 @@ fun NewTripScreen(
                     }
             )
 
-            Spacer(modifier = Modifier.width(30.dp))
+            Spacer(modifier = Modifier.width(60.dp))
 
             Text(
                 text = "Create New Trip",
@@ -276,6 +280,25 @@ fun NewTripScreen(
                 homeViewModel.tripBudget.value = value
             }
         )
+
+        TextFieldWithIcons(
+            textValue = "No of Days",
+            placeholder = "Enter No of Days",
+            icon = Icons.Filled.CalendarToday,
+            mutableText = homeViewModel.tripNoOfDays.value,
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Next,
+            isTrailingVisible = false,
+            trailingIcon = null,
+            onTrailingClick = {},
+            ifIsOtp = false,
+            isEnabled = true,
+            onValueChanged = { value ->
+                homeViewModel.tripNoOfDays.value = value
+            }
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
 
         Text(
             text = "Select Departure Date and Time",
@@ -368,12 +391,12 @@ fun NewTripScreen(
                 timepicker(
                     initialTime = LocalTime.NOON,
                     title = "Pick a time",
-                    timeRange = LocalTime.MIDNIGHT..LocalTime.NOON
                 ) {
                     departPickedTime = it
                 }
             }
         }
+
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -402,7 +425,7 @@ fun NewTripScreen(
                     text = if (!isArrivalDateSelected) {
                         "Pick date"
                     } else {
-                        arrivalFormattedTime
+                        arrivalFormattedDate
                     },
                     color = textColor
                 )
@@ -427,7 +450,7 @@ fun NewTripScreen(
                     initialDate = LocalDate.now(),
                     title = "Pick a date",
                 ) {
-                    departPickedDate = it
+                    arrivalPickedDate = it
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -444,7 +467,7 @@ fun NewTripScreen(
                     text = if (!isArrivalTimeSelected) {
                         "Pick time"
                     } else {
-                        arrivalFormattedDate
+                        arrivalFormattedTime
                     },
                     color = textColor
                 )
@@ -468,9 +491,8 @@ fun NewTripScreen(
                 timepicker(
                     initialTime = LocalTime.NOON,
                     title = "Pick a time",
-                    timeRange = LocalTime.MIDNIGHT..LocalTime.NOON
                 ) {
-                    departPickedTime = it
+                    arrivalPickedTime = it
                 }
             }
         }
@@ -565,9 +587,6 @@ fun NewTripScreen(
                         && homeViewModel.tripNoOfDays.value.text.isNotEmpty() && homeViewModel.travelMode.isNotEmpty()
                         && homeViewModel.tripBudget.value.text.isDigitsOnly()
                     ) {
-                        coroutineScope.launch {
-
-                        }
                         homeViewModel.updateMessage(
                             "Generate a guided tour plan for a trip to " +
                                     "[LOCATION] for [NUMBER_OF_DAYS] days, considering various factors " +
@@ -587,6 +606,12 @@ fun NewTripScreen(
                                     "Same for afternoon & evening. Generate same output for all days",
                             location = homeViewModel.destination.value.text,
                             noOfDays = homeViewModel.tripNoOfDays.value.text
+                        )
+                        homeViewModel.updateDates(
+                            departureDate = departFormattedDate,
+                            arrivalDate = arrivalFormattedDate,
+                            departureTime = departFormattedTime,
+                            arrivalTime = arrivalFormattedTime
                         )
                         homeViewModel.getApiData()
                         homeViewModel.isAnimationVisible.value = true

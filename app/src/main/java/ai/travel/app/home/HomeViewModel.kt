@@ -53,6 +53,11 @@ class HomeViewModel @Inject constructor(
     private val _budget = MutableStateFlow("")
     private val noOfDays = MutableStateFlow("")
 
+    private val _arrivalDate = MutableStateFlow("")
+    private val _arrivalTime = MutableStateFlow("")
+    private val _departureDate = MutableStateFlow("")
+    private val _departureTime = MutableStateFlow("")
+
     private val _data = MutableStateFlow(emptyList<Map<String, String>>())
     val data: StateFlow<List<Map<String, String>>> = _data.asStateFlow()
 
@@ -67,6 +72,12 @@ class HomeViewModel @Inject constructor(
 
     fun getTrips(day: String, destination: String): Flow<List<TripsEntity?>> =
         dbRepository.getTrips(day, destination)
+
+    fun getDepartureDate(day: String, destination: String): Flow<List<String?>> =
+        dbRepository.getDepartureDate(day, destination)
+
+    fun getArrivalDate(day: String, destination: String): Flow<List<String?>> =
+        dbRepository.getArrivalDate(day, destination)
 
     fun getMoreInfo(destination: String): Flow<List<TripsEntity?>> =
         dbRepository.getMoreInfo(destination)
@@ -125,6 +136,18 @@ class HomeViewModel @Inject constructor(
                 _loginStatus.value = it
             }
         }
+    }
+
+    fun updateDates(
+        arrivalDate: String,
+        arrivalTime: String,
+        departureDate: String,
+        departureTime: String,
+    ) {
+        _arrivalDate.value = arrivalDate
+        _arrivalTime.value = arrivalTime
+        _departureDate.value = departureDate
+        _departureTime.value = departureTime
     }
 
 
@@ -279,6 +302,10 @@ class HomeViewModel @Inject constructor(
                         distance = it.distance,
                         duration = it.duration,
                         totalBudget = tripBudget.value.text.toDoubleOrNull(),
+                        departureDate = _departureDate.value,
+                        arrivalDate = _arrivalDate.value,
+                        departureTime = _departureTime.value,
+                        arrivalTime = _arrivalTime.value,
                     )
                 })
                 _imageState.value = ApiState.ReceivedPhoto
