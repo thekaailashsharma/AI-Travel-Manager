@@ -1,5 +1,6 @@
 package ai.travel.app.tripDetails
 
+import ai.travel.app.R
 import ai.travel.app.home.HomeViewModel
 import ai.travel.app.home.base64ToByteArray
 import ai.travel.app.home.ui.convertImageByteArrayToBitmap
@@ -23,14 +24,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PhotoAlbum
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -47,14 +57,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,9 +96,11 @@ fun MoreInfoTrips(viewModel: HomeViewModel, paddingValues: PaddingValues) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
             .fillMaxHeight(0.95f)
             .background(appGradient)
             .padding(paddingValues)
+
     ) {
 
         println("MoreInfoTripssss: trips.value = ${viewModel.currentNewDestination.value}")
@@ -141,106 +157,239 @@ fun MoreInfoTrips(viewModel: HomeViewModel, paddingValues: PaddingValues) {
                             }
                     }
 
-                    Column {
-                        Spacer(modifier = Modifier.fillMaxHeight(0.13f))
-                        Text(
-                            text = viewModel.currentDestination.value,
-                            color = textColor,
-                            fontSize = 35.sp,
-                            modifier = Modifier.padding(
-                                start = 20.dp,
-                                top = 20.dp,
-                                bottom = 8.dp
-                            )
-                        )
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = 20.dp)
+                    ) {
 
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            modifier = Modifier.height(100.dp)
-                        ) {
-                            items(cardData1) {
-                                GridCard(
-                                    topText = it.topText,
-                                    bottomText = it.bottomText,
-                                    icon = it.icon
-                                )
-                            }
+                        Row (modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 5.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically){
 
-                        }
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                                .padding(
-                                    start = 12.dp,
-                                    top = 0.dp,
-                                    bottom = 0.dp,
-                                    end = 12.dp
-                                )
-                        ) {
                             Icon(
-                                imageVector = Icons.Filled.PhotoAlbum,
-                                contentDescription = "topText",
-                                tint = lightText,
-                                modifier = Modifier.size(20.dp)
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = null,
+                                modifier = Modifier.padding(8.dp)
                             )
-                            Spacer(modifier = Modifier.width(7.dp))
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = null,
+                                modifier = Modifier.padding(8.dp)
+                            )
+
+                        }
+                        Spacer(modifier = Modifier.height(95.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(end = 40.dp),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(
-                                text = "Collections",
+                                text = viewModel.currentDestination.value,
                                 color = textColor,
-                                fontSize = 12.sp,
+                                fontSize = 45.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(
+                                    start = 20.dp,
+                                    top = 20.dp,
+                                    bottom = 8.dp
+                                )
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Card(
+                        Spacer(modifier = Modifier.height(40.dp))
+                        Row(
                             modifier = Modifier
-                                .width(220.dp)
-                                .height(180.dp)
-                                .padding(16.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = CardBackground
-                            ),
-                            shape = RoundedCornerShape(16.dp),
-                            elevation = CardDefaults.cardElevation(10.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center) {
-                                Card(
-                                    modifier = Modifier
-                                        .padding(4.dp)
-                                        .fillMaxHeight(0.6f)
-                                        .dashedBorder(1.dp, textColor, 4.dp),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = CardBackground
-                                    ),
-                                    shape = RoundedCornerShape(16.dp),
-                                    elevation = CardDefaults.cardElevation(10.dp),
-                                ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        Icon(
-                                            Icons.Filled.PhotoLibrary,
-                                            contentDescription = "",
-                                            modifier = Modifier.size(50.dp),
-                                            tint = lightText
+
+                            LazyRow {
+                                items(6) { item ->
+
+
+                                    Card(modifier = Modifier.clip(RoundedCornerShape(15.dp))) {
+                                        Text(
+                                            text = "Hotels",
+                                            modifier = Modifier.padding(all = 10.dp)
                                         )
-                                        Spacer(modifier = Modifier.height(8.dp))
+                                    }
+                                    Spacer(modifier = Modifier.width(20.dp))
+
+
+                                }
+                            }
+                        }
+
+
+
+                        Spacer(modifier = Modifier.height(30.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .zIndex(5f),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+
+                            Card(
+                                modifier = Modifier
+                                    .height(200.dp)
+                                    .width(135.dp)
+                            ) {
+                                Box(modifier = Modifier.fillMaxSize()) {
+
+                                    Image(
+                                        painter = painterResource(id = R.drawable.dummycard),
+                                        contentDescription = "",
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth()
+                                                .align(Alignment.BottomCenter)
+                                        ) {
+                                            Card(modifier = Modifier.clip(RoundedCornerShape(15.dp))) {
+
+                                                Column (modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)){
+                                                    Text(text = "Hotels", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                                    Row(
+                                                        modifier = Modifier,
+                                                        horizontalArrangement = Arrangement.Center,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Text(text = "2.9")
+                                                        Row(
+                                                            modifier = Modifier,
+                                                            verticalAlignment = Alignment.CenterVertically
+                                                        ) {
+                                                            Icon(
+                                                                imageVector = Icons.Default.Star,
+                                                                contentDescription = null,
+                                                                modifier = Modifier.padding(1.dp).size(18.dp)
+                                                            )
+                                                            Icon(
+                                                                imageVector = Icons.Default.Star,
+                                                                contentDescription = null,
+                                                                modifier = Modifier.padding(1.dp).size(18.dp)
+                                                            )
+                                                            Icon(
+                                                                imageVector = Icons.Default.Star,
+                                                                contentDescription = null,
+                                                                modifier = Modifier.padding(1.dp).size(18.dp)
+                                                            )
+                                                            Icon(
+                                                                imageVector = Icons.Default.Star,
+                                                                contentDescription = null,
+                                                                modifier = Modifier.padding(1.dp).size(18.dp)
+                                                            )
+                                                            Icon(
+                                                                imageVector = Icons.Default.Star,
+                                                                contentDescription = null,
+                                                                modifier = Modifier.padding(1.dp).size(18.dp)
+                                                            )
+
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
 
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Text(
-                                    text = "Photo Gallery",
-                                    fontSize = 15.sp,
-                                    color = textColor,
-                                    modifier = Modifier.weight(1f)
-                                )
+
 
                             }
+
                         }
+
+
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
+                                .padding(end = 15.dp, top = 15.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "More Info",fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            Icon(
+                                imageVector = Icons.Outlined.Bookmark,
+                                contentDescription = null,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
+
+                        Row(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 20.dp)) {
+                            Text(
+                                text = "Lorem Ipsum is simply dummy text of the printing " +
+                                        "and typesetting industry." +
+                                        " Lorem Ipsum has been the industry's"
+                            )
+                        }
+
+                        Row(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 15.dp),
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically) {
+
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end= 8.dp).size(25.dp)
+                            )
+                            Text(
+                                text = "Mumbai, Maharashtra 400070",
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+
+                        Column(modifier = Modifier.padding(top = 10.dp)) {
+                            Text(text = "Ratings", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            Row(
+                                modifier = Modifier,
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = "2.9")
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Row(
+                                    modifier = Modifier,
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Star,
+                                        contentDescription = null,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Default.Star,
+                                        contentDescription = null,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Default.Star,
+                                        contentDescription = null,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(40.dp))
+
+
                     }
 
                 }
@@ -249,3 +398,4 @@ fun MoreInfoTrips(viewModel: HomeViewModel, paddingValues: PaddingValues) {
         }
     }
 }
+
