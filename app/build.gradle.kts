@@ -151,6 +151,17 @@ dependencies {
     // DataStore
     implementation("androidx.datastore:datastore-core:1.0.0")
 
+    // Reorderable Lists
+    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
+
+
+    // Swipe
+    implementation("me.saket.swipe:swipe:1.2.0")
+
+    // Dialogs
+    implementation("io.github.vanpra.compose-material-dialogs:datetime:0.9.0")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
     // Maps
     implementation(project(":maps"))
 

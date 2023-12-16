@@ -82,7 +82,7 @@ fun MoreInfoTrips(viewModel: HomeViewModel, paddingValues: PaddingValues) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.95f)
+            .fillMaxHeight(0.88f)
             .background(appGradient)
             .padding(paddingValues)
     ) {
@@ -139,109 +139,11 @@ fun MoreInfoTrips(viewModel: HomeViewModel, paddingValues: PaddingValues) {
                                     contentScale = ContentScale.Crop
                                 )
                             }
-                    }
+                    }     //IMAGE
 
-                    Column {
-                        Spacer(modifier = Modifier.fillMaxHeight(0.13f))
-                        Text(
-                            text = viewModel.currentDestination.value,
-                            color = textColor,
-                            fontSize = 35.sp,
-                            modifier = Modifier.padding(
-                                start = 20.dp,
-                                top = 20.dp,
-                                bottom = 8.dp
-                            )
-                        )
-
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            modifier = Modifier.height(100.dp)
-                        ) {
-                            items(cardData1) {
-                                GridCard(
-                                    topText = it.topText,
-                                    bottomText = it.bottomText,
-                                    icon = it.icon
-                                )
-                            }
-
-                        }
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                                .padding(
-                                    start = 12.dp,
-                                    top = 0.dp,
-                                    bottom = 0.dp,
-                                    end = 12.dp
-                                )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.PhotoAlbum,
-                                contentDescription = "topText",
-                                tint = lightText,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(7.dp))
-                            Text(
-                                text = "Collections",
-                                color = textColor,
-                                fontSize = 12.sp,
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Card(
-                            modifier = Modifier
-                                .width(220.dp)
-                                .height(180.dp)
-                                .padding(16.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = CardBackground
-                            ),
-                            shape = RoundedCornerShape(16.dp),
-                            elevation = CardDefaults.cardElevation(10.dp)
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center) {
-                                Card(
-                                    modifier = Modifier
-                                        .padding(4.dp)
-                                        .fillMaxHeight(0.6f)
-                                        .dashedBorder(1.dp, textColor, 4.dp),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = CardBackground
-                                    ),
-                                    shape = RoundedCornerShape(16.dp),
-                                    elevation = CardDefaults.cardElevation(10.dp),
-                                ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        Icon(
-                                            Icons.Filled.PhotoLibrary,
-                                            contentDescription = "",
-                                            modifier = Modifier.size(50.dp),
-                                            tint = lightText
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                    }
-                                }
-
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Text(
-                                    text = "Photo Gallery",
-                                    fontSize = 15.sp,
-                                    color = textColor,
-                                    modifier = Modifier.weight(1f)
-                                )
-
-                            }
-                        }
-                    }
+                    Text(text = "Mumbai")
+                 /////////////
+                    
 
                 }
 

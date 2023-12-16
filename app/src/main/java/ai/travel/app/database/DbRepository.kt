@@ -27,11 +27,37 @@ class DatabaseRepo(private val tripsDao: TripsDao) {
         }
     }
 
+    fun swapTripPositions(day: String, fromIndex: Int, toIndex: Int, destination: String) {
+        coroutineScope.launch {
+            tripsDao.swapTripPositions(day, fromIndex, toIndex, destination)
+        }
+    }
+
+    fun updateTrips(name: String, budget: String?, latitude: Double?, longitude: Double?,
+                    photoBase64: String?, distance: String, duration: String,timeOfDay: String,
+                    fromId: Long, fromDay: String, fromDestination: String) {
+        coroutineScope.launch {
+            tripsDao.updateTrips(name, budget, latitude, longitude, photoBase64, distance, duration,timeOfDay, fromId, fromDay, fromDestination)
+        }
+    }
+
+    fun getBudget(destination: String): Flow<List<String?>> =
+        tripsDao.getBudget(destination)
+
+    fun getTotalBudget(destination: String): Flow<List<Double?>> =
+        tripsDao.getTotalBudget(destination)
+
     fun insertAllTrips(trips: List<TripsEntity>) {
         coroutineScope.launch {
             tripsDao.insertAllTrips(trips)
         }
     }
+
+    fun getDepartureDate(day: String, destination: String): Flow<List<String?>> =
+        tripsDao.getDepartureDate(day, destination)
+
+    fun getArrivalDate(day: String, destination: String): Flow<List<String?>> =
+        tripsDao.getArrivalDate(day, destination)
 
 
 }

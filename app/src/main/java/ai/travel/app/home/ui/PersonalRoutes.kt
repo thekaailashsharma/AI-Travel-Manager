@@ -34,17 +34,22 @@ import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,8 +59,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,9 +91,9 @@ fun PersonalRoutes(
     Column {
         LazyRow() {
             item {
-                NewRouteCard(sheetState)
+                NewRouteCard(sheetState, navController)
             }
-            items(newItems) { item ->
+            items(newItems.reversed()) { item ->
                 RouteCard(item, navController, homeViewModel)
             }
 
@@ -95,7 +104,7 @@ fun PersonalRoutes(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewRouteCard(sheetState: BottomSheetScaffoldState) {
+fun NewRouteCard(sheetState: BottomSheetScaffoldState, navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
     Card(
         modifier = Modifier
@@ -104,9 +113,7 @@ fun NewRouteCard(sheetState: BottomSheetScaffoldState) {
             .padding(16.dp)
             .clickable(interactionSource = MutableInteractionSource(), indication = null,
                 onClick = {
-                    coroutineScope.launch {
-                        sheetState.bottomSheetState.expand()
-                    }
+                    navController.navigate(Screens.NewTrip.route)
                 }),
         colors = CardDefaults.cardColors(
             containerColor = CardBackground

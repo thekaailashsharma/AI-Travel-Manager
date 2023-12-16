@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -47,6 +48,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Card
@@ -72,9 +74,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -97,8 +101,7 @@ fun HomeScreenMain(
     val pfp = userDatastore.getPfp.collectAsState(initial = "")
     val modalSheetStates = rememberBottomSheetScaffoldState(
         bottomSheetState = SheetState(
-            initialValue = SheetValue.Hidden,
-            skipPartiallyExpanded = false
+            initialValue = SheetValue.Hidden, skipPartiallyExpanded = false
         )
     )
     val listState = rememberLazyListState()
@@ -111,19 +114,14 @@ fun HomeScreenMain(
         derivedStateOf {
             val firstVisibleItemOffset = listState.firstVisibleItemScrollOffset
             val firstItemHeight = listState.layoutInfo.visibleItemsInfo.firstOrNull()?.size ?: 0
-            val totalOffset =
-                (firstVisibleItemOffset.toFloat() / firstItemHeight.toFloat())
+            val totalOffset = (firstVisibleItemOffset.toFloat() / firstItemHeight.toFloat())
 
             totalOffset > collapseThreshold.floatValue
         }
     }
     BottomSheetScaffold(
         sheetContent = {
-            NewTripScreen(
-                viewModel = newTripViewModel,
-                sheetScaffoldState = modalSheetStates,
-                homeViewModel = viewModel
-            )
+
         },
         sheetContainerColor = CardBackground,
         scaffoldState = modalSheetStates,
@@ -154,11 +152,9 @@ fun HomeScreenMain(
                                 .fillMaxSize()
                                 .background(appGradient)
                                 .then(
-                                    if (viewModel.isAnimationVisible.value)
-                                        Modifier.blur(10.dp)
+                                    if (viewModel.isAnimationVisible.value) Modifier.blur(10.dp)
                                     else Modifier
-                                ),
-                            state = listState
+                                ), state = listState
                         ) {
                             item {
                                 Column(
@@ -170,7 +166,11 @@ fun HomeScreenMain(
                                 ) {
                                     Card(
                                         modifier = Modifier
-                                            .clip(RoundedCornerShape(0.dp, 0.dp, 50.dp, 50.dp))
+                                            .clip(
+                                                RoundedCornerShape(
+                                                    0.dp, 0.dp, 50.dp, 50.dp
+                                                )
+                                            )
                                             .fillMaxWidth(),
                                         colors = CardDefaults.cardColors(
                                             containerColor = CardBackground.copy(0.8f)
@@ -190,30 +190,34 @@ fun HomeScreenMain(
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Column {
+
                                                     Text(
-                                                        text = "Welcome Back",
+                                                        text = "WELCOME TO ",
                                                         color = lightText,
-                                                        fontSize = 13.sp,
+                                                        fontSize = 18.sp,
                                                         fontFamily = monteSB,
                                                         modifier = Modifier.padding(bottom = 7.dp)
                                                     )
+
+                                                        Text(
+                                                            text = "Mumbai",
+                                                            color = Color.White,
+                                                            fontSize = 35.sp,
+                                                            fontFamily = monteSB,
+                                                            modifier = Modifier
+                                                        )
+
+
                                                     Text(
                                                         text = userName.value,
-                                                        color = textColor,
-                                                        fontSize = 20.sp,
-                                                        fontFamily = monteSB,
-                                                        modifier = Modifier.padding(bottom = 7.dp)
-                                                    )
-                                                    Text(
-                                                        text = "We make your travel funn",
                                                         color = lightText,
-                                                        fontSize = 13.sp,
+                                                        fontSize = 23.sp,
                                                         fontFamily = monteSB,
                                                         modifier = Modifier.padding(bottom = 7.dp)
                                                     )
+
                                                 }
-                                                ProfileImage(
-                                                    imageUrl = pfp.value,
+                                                ProfileImage(imageUrl = pfp.value,
                                                     modifier = Modifier
                                                         .size(70.dp)
                                                         .border(
@@ -225,109 +229,24 @@ fun HomeScreenMain(
                                                         .clip(CircleShape)
                                                         .clickable {
                                                             navController.navigate(Screens.Profile.route)
-                                                        }
-                                                )
-                                            }
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(
-                                                        bottom = 20.dp,
-                                                        start = 25.dp,
-                                                        end = 25.dp
-                                                    ),
-                                                horizontalArrangement = Arrangement.SpaceBetween
-                                            ) {
-                                                Column(
-                                                    modifier = Modifier
-                                                        .padding(top = 15.dp),
-                                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                                    verticalArrangement = Arrangement.Center
-                                                ) {
-                                                    Text(
-                                                        text = "Points Earned",
-                                                        color = textColor,
-                                                        fontSize = 14.sp,
-                                                        fontFamily = monteSB,
-                                                        softWrap = true,
-                                                        modifier = Modifier.padding(start = 7.dp)
-                                                    )
-                                                    Row(
-                                                        modifier = Modifier.padding(
-                                                            end = 0.dp,
-                                                            top = 7.dp
-                                                        )
-                                                    ) {
-                                                        Icon(
-                                                            Icons.Filled.Wallet,
-                                                            contentDescription = "coins",
-                                                            modifier = Modifier
-                                                                .size(20.dp)
-                                                                .padding(end = 5.dp),
-                                                            tint = lightText
-                                                        )
-                                                        Text(
-                                                            text = "100",
-                                                            color = textColor,
-                                                            fontSize = 15.sp,
-                                                            fontFamily = monteSB,
-                                                        )
-                                                    }
-
-                                                }
-                                                Column(
-                                                    modifier = Modifier
-                                                        .padding(top = 15.dp),
-                                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                                    verticalArrangement = Arrangement.Center
-                                                ) {
-                                                    Text(
-                                                        text = "Points Earned",
-                                                        color = textColor,
-                                                        fontSize = 14.sp,
-                                                        fontFamily = monteSB,
-                                                        softWrap = true,
-                                                        modifier = Modifier.padding(start = 7.dp)
-                                                    )
-                                                    Row(
-                                                        modifier = Modifier.padding(
-                                                            end = 0.dp,
-                                                            top = 7.dp
-                                                        )
-                                                    ) {
-                                                        Icon(
-                                                            Icons.Filled.Wallet,
-                                                            contentDescription = "coins",
-                                                            modifier = Modifier
-                                                                .size(20.dp)
-                                                                .padding(end = 5.dp),
-                                                            tint = lightText
-                                                        )
-                                                        Text(
-                                                            text = "100",
-                                                            color = textColor,
-                                                            fontSize = 15.sp,
-                                                            fontFamily = monteSB,
-                                                        )
-                                                    }
-
-                                                }
+                                                        })
                                             }
                                             Spacer(modifier = Modifier.height(15.dp))
                                         }
                                     }
 
                                 }
+
+
+
+
+
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(
-                                            top = 16.dp,
-                                            start = 14.dp,
-                                            end = 14.dp,
-                                            bottom = 10.dp
-                                        ),
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                                            top = 16.dp, start = 14.dp, end = 14.dp, bottom = 10.dp
+                                        ), horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
 
                                     Row {
@@ -379,63 +298,153 @@ fun HomeScreenMain(
                                         )
                                         Spacer(modifier = Modifier.width(5.dp))
 
-                                        Text(text = "Quests", fontSize = 20.sp, color = textColor)
-                                    }
-
-                                    Card(colors = CardDefaults.cardColors(containerColor = lightText)) {
                                         Text(
-                                            text = "More",
-                                            modifier = Modifier.padding(all = 6.dp),
+                                            text = "Explore Mumbai",
+                                            fontSize = 20.sp,
                                             color = textColor
                                         )
+
+
+                                    }
+                                }
+                                LazyRow {
+                                    items(image) { icon ->
+
+                                        Spacer(modifier = Modifier.width(15.dp))
+
+
+                                        Card(
+                                            modifier = Modifier
+                                                .height(250.dp)
+                                                .width(170.dp)
+                                        ) {
+                                            Box(modifier = Modifier.fillMaxSize()) {
+
+                                                Image(
+                                                    painter = painterResource(id = icon.image ),
+                                                    contentDescription = "",
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    contentScale = ContentScale.Crop
+                                                )
+                                                Box(
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    contentAlignment = Alignment.BottomCenter
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .align(Alignment.BottomCenter)
+                                                    ) {
+                                                        Card(
+                                                            modifier = Modifier
+
+                                                        ) {
+
+                                                            Row(
+                                                                modifier = Modifier
+                                                                    .fillMaxWidth()
+                                                                    .padding(
+                                                                        horizontal = 10.dp,
+                                                                        vertical = 10.dp
+                                                                    ),
+                                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                                verticalAlignment = Alignment.CenterVertically
+                                                            ) {
+                                                                Text(
+                                                                    text = icon.name,
+                                                                    fontSize = 14.sp,
+
+                                                                    )
+
+                                                                Text(
+                                                                    text = icon.distance,
+                                                                    fontSize = 14.sp,
+                                                                )
+
+
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
 
-
+                                Spacer(modifier = Modifier.height(15.dp))
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(vertical = 0.dp, horizontal = 14.dp),
-                                    horizontalArrangement = Arrangement.Start
+                                        .padding(vertical = 16.dp, horizontal = 14.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
+                                    Row {
+                                        Icon(
+                                            imageVector = Icons.Filled.LocationOn,
+                                            contentDescription = null,
+                                            modifier = Modifier,
+                                            tint = lightText
+                                        )
+                                        Spacer(modifier = Modifier.width(5.dp))
 
-
-                                    Card(
-                                        modifier = Modifier.padding(horizontal = 10.dp),
-                                        colors = CardDefaults.cardColors(containerColor = lightText)
-                                    ) {
                                         Text(
-                                            text = "Recommended",
-                                            modifier = Modifier.padding(all = 5.dp),
+                                            text = "Explore Majestic Maharashtra",
+                                            fontSize = 20.sp,
                                             color = textColor
                                         )
-                                    }
 
-                                    Card(colors = CardDefaults.cardColors(containerColor = lightText)) {
-                                        Text(
-                                            text = "Current ",
-                                            modifier = Modifier.padding(all = 5.dp),
-                                            color = textColor
-                                        )
                                     }
+                                }
+
+                                LazyRow(modifier = Modifier.padding(top = 15.dp, bottom = 15.dp)) {
+                                    items(image2) { icon ->
+
+                                        Spacer(modifier = Modifier.width(20.dp))
+                                        Card(
+                                            modifier = Modifier.size(100.dp),
+                                            shape = CircleShape,
+                                        ) {
+
+                                            Image(
+                                                painter = painterResource(id = icon),
+                                                contentDescription = "",
+                                                contentScale = ContentScale.FillBounds,
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                        }
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(50.dp))
+
+                                Column (modifier = Modifier.fillMaxWidth().padding(start = 20.dp),
+                                    horizontalAlignment = Alignment.Start,
+                                    verticalArrangement = Arrangement.Center){
+                                    Text(
+                                        text = "We make travel fun",
+                                        color = lightText,
+                                        fontSize = 15.sp,
+                                        fontFamily = monteSB,
+                                        modifier = Modifier.padding(bottom = 7.dp)
+                                    )
+                                    Text(
+                                        text = "Waste wise, Reward Rise",
+                                        color = lightText,
+                                        fontSize = 15.sp,
+                                        fontFamily = monteSB,
+                                        modifier = Modifier.padding(bottom = 7.dp)
+                                    )
+                                    Text(
+                                        text = "Effort by Team Centennials ❤️",
+                                        color = lightText,
+                                        fontSize = 15.sp,
+                                        fontFamily = monteSB,
+                                        modifier = Modifier.padding(bottom = 7.dp)
+                                    )
+
 
                                 }
 
-
-                                TravelCards(
-                                    text1 = "Witness the balance of design and innovation",
-                                    text2 = "Quests", text3 = "Quests"
-                                )
-                                TravelCards(
-                                    text1 = "Witness the balance of design and innovation",
-                                    text2 = "Quests", text3 = "Quests"
-                                )
-                                TravelCards(
-                                    text1 = "Witness the balance of design and innovation",
-                                    text2 = "Quests", text3 = "Quests"
-                                )
-
-
+                                Spacer(modifier = Modifier.height(150.dp))
                             }
                         }
                         if (viewModel.isAnimationVisible.value) {
@@ -458,8 +467,7 @@ fun HomeScreenMain(
                                                 iterations = Int.MAX_VALUE,
                                                 contentScale = ContentScale.Crop,
                                                 speed = 1f,
-                                                modifier = Modifier
-                                                    .size(250.dp)
+                                                modifier = Modifier.size(250.dp)
                                             )
 
                                             Text(
@@ -478,8 +486,7 @@ fun HomeScreenMain(
                                                 iterations = Int.MAX_VALUE,
                                                 contentScale = ContentScale.Crop,
                                                 speed = 1f,
-                                                modifier = Modifier
-                                                    .size(250.dp)
+                                                modifier = Modifier.size(250.dp)
                                             )
 
                                             Text(
@@ -502,8 +509,7 @@ fun HomeScreenMain(
                                                 iterations = Int.MAX_VALUE,
                                                 contentScale = ContentScale.Crop,
                                                 speed = 1f,
-                                                modifier = Modifier
-                                                    .size(250.dp)
+                                                modifier = Modifier.size(250.dp)
                                             )
                                             Text(
                                                 text = "Planning Itineary",
@@ -526,8 +532,7 @@ fun HomeScreenMain(
                                                 iterations = Int.MAX_VALUE,
                                                 contentScale = ContentScale.Crop,
                                                 speed = 1f,
-                                                modifier = Modifier
-                                                    .size(250.dp)
+                                                modifier = Modifier.size(250.dp)
                                             )
                                             Text(
                                                 text = "Get Set Go",
@@ -545,8 +550,7 @@ fun HomeScreenMain(
                                                 iterations = Int.MAX_VALUE,
                                                 contentScale = ContentScale.Crop,
                                                 speed = 1f,
-                                                modifier = Modifier
-                                                    .size(250.dp)
+                                                modifier = Modifier.size(250.dp)
                                             )
                                             Text(
                                                 text = "ON your Mark",
@@ -564,8 +568,7 @@ fun HomeScreenMain(
                                                 iterations = Int.MAX_VALUE,
                                                 contentScale = ContentScale.Crop,
                                                 speed = 1f,
-                                                modifier = Modifier
-                                                    .size(250.dp)
+                                                modifier = Modifier.size(250.dp)
                                             )
                                             Text(
                                                 text = "Calculating Distance",
@@ -641,3 +644,53 @@ fun TravelCards(text1: String, text2: String, text3: String) {
         }
     }
 }
+
+
+val image = listOf(
+    MumbaiImages(
+        R.drawable.mum4,
+        "Taj Hotel",
+        "2.1 mi"
+    ),
+    MumbaiImages(
+        R.drawable.mum3,
+        "CSMT",
+        "2.1 mi"
+    ),
+    MumbaiImages(
+        R.drawable.mum6,
+        "Gateway",
+        "2.1 mi"
+    ),
+    MumbaiImages(
+        R.drawable.mum2,
+        "CSMT",
+        "2.1 mi"
+    ),
+    MumbaiImages(
+        R.drawable.mum1,
+        "Wankhede",
+        "2.1 mi"
+    ),
+    MumbaiImages(
+        R.drawable.mum5,
+        "HajiAli",
+        "2.1 mi"
+    ),
+
+    )
+
+data class MumbaiImages(
+    val image: Int,
+    val name: String,
+    val distance: String
+)
+
+val image2= listOf(
+    R.drawable.mum1,
+    R.drawable.mum2,
+    R.drawable.mum3,
+    R.drawable.mum4,
+    R.drawable.mum5,
+    R.drawable.mum6
+)
