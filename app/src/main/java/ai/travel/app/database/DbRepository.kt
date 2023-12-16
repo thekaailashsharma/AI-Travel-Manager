@@ -53,5 +53,11 @@ class DatabaseRepo(private val tripsDao: TripsDao) {
         }
     }
 
+    fun getDepartureDate(day: String, destination: String): Flow<List<String?>> =
+        tripsDao.getDepartureDate(day, destination)
+
+    fun getArrivalDate(day: String, destination: String): Flow<List<String?>> =
+        tripsDao.getArrivalDate(day, destination)
+
 
 }

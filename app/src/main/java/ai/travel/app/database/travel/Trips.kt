@@ -20,6 +20,10 @@ data class TripsEntity(
     var distance: String = "0",
     var duration: String = "0",
     var totalBudget: Double? = 0.0,
+    var departureDate: String? = null,
+    var arrivalDate: String? = null,
+    var departureTime: String? = null,
+    var arrivalTime: String? = null,
 )
 
 
