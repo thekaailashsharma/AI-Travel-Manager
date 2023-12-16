@@ -527,11 +527,15 @@ class HomeViewModel @Inject constructor(
                 dbRepository.getBudget(destination).collectLatest { budgets ->
                     println("budgetssss: $budgets")
                     budgets.forEach {
-                        val regex = Regex("[^\\d]")
-                        val output = it?.replace(regex, "")
-                        println("budgetssss: $output")
-                        _remainingBudget.value +=
-                            output?.toDoubleOrNull() ?: 0.0
+                        val pattern = """\d+""".toRegex()
+                        val matches = pattern.findAll(it ?: "")
+                        val numbers = matches.map { it1 ->
+                            it1.value.toIntOrNull()
+                        }.toList()
+                        numbers.forEach { value ->
+                            _remainingBudget.value +=
+                                value?.toDouble() ?: 0.0
+                        }
 
                     }
                 }
