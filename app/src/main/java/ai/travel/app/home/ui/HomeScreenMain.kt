@@ -47,6 +47,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Card
@@ -75,6 +76,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -97,8 +99,7 @@ fun HomeScreenMain(
     val pfp = userDatastore.getPfp.collectAsState(initial = "")
     val modalSheetStates = rememberBottomSheetScaffoldState(
         bottomSheetState = SheetState(
-            initialValue = SheetValue.Hidden,
-            skipPartiallyExpanded = false
+            initialValue = SheetValue.Hidden, skipPartiallyExpanded = false
         )
     )
     val listState = rememberLazyListState()
@@ -111,8 +112,7 @@ fun HomeScreenMain(
         derivedStateOf {
             val firstVisibleItemOffset = listState.firstVisibleItemScrollOffset
             val firstItemHeight = listState.layoutInfo.visibleItemsInfo.firstOrNull()?.size ?: 0
-            val totalOffset =
-                (firstVisibleItemOffset.toFloat() / firstItemHeight.toFloat())
+            val totalOffset = (firstVisibleItemOffset.toFloat() / firstItemHeight.toFloat())
 
             totalOffset > collapseThreshold.floatValue
         }
@@ -154,11 +154,9 @@ fun HomeScreenMain(
                                 .fillMaxSize()
                                 .background(appGradient)
                                 .then(
-                                    if (viewModel.isAnimationVisible.value)
-                                        Modifier.blur(10.dp)
+                                    if (viewModel.isAnimationVisible.value) Modifier.blur(10.dp)
                                     else Modifier
-                                ),
-                            state = listState
+                                ), state = listState
                         ) {
                             item {
                                 Column(
@@ -170,7 +168,11 @@ fun HomeScreenMain(
                                 ) {
                                     Card(
                                         modifier = Modifier
-                                            .clip(RoundedCornerShape(0.dp, 0.dp, 50.dp, 50.dp))
+                                            .clip(
+                                                RoundedCornerShape(
+                                                    0.dp, 0.dp, 50.dp, 50.dp
+                                                )
+                                            )
                                             .fillMaxWidth(),
                                         colors = CardDefaults.cardColors(
                                             containerColor = CardBackground.copy(0.8f)
@@ -190,13 +192,22 @@ fun HomeScreenMain(
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Column {
-                                                    Text(
-                                                        text = "Welcome Back",
-                                                        color = lightText,
-                                                        fontSize = 13.sp,
-                                                        fontFamily = monteSB,
-                                                        modifier = Modifier.padding(bottom = 7.dp)
-                                                    )
+                                                    Row {
+                                                        Text(
+                                                            text = "Welcome to",
+                                                            color = lightText,
+                                                            fontSize = 13.sp,
+                                                            fontFamily = monteSB,
+                                                            modifier = Modifier.padding(bottom = 7.dp)
+                                                        )
+                                                        Text(
+                                                            text = "Mumbai",
+                                                            color = lightText,
+                                                            fontSize = 18.sp,
+                                                            fontFamily = monteSB,
+                                                            modifier = Modifier.padding(bottom = 7.dp)
+                                                        )
+                                                    }
                                                     Text(
                                                         text = userName.value,
                                                         color = textColor,
@@ -212,8 +223,7 @@ fun HomeScreenMain(
                                                         modifier = Modifier.padding(bottom = 7.dp)
                                                     )
                                                 }
-                                                ProfileImage(
-                                                    imageUrl = pfp.value,
+                                                ProfileImage(imageUrl = pfp.value,
                                                     modifier = Modifier
                                                         .size(70.dp)
                                                         .border(
@@ -225,109 +235,24 @@ fun HomeScreenMain(
                                                         .clip(CircleShape)
                                                         .clickable {
                                                             navController.navigate(Screens.Profile.route)
-                                                        }
-                                                )
+                                                        })
                                             }
-//                                            Row(
-//                                                modifier = Modifier
-//                                                    .fillMaxWidth()
-//                                                    .padding(
-//                                                        bottom = 20.dp,
-//                                                        start = 25.dp,
-//                                                        end = 25.dp
-//                                                    ),
-//                                                horizontalArrangement = Arrangement.SpaceBetween
-//                                            ) {
-//                                                Column(
-//                                                    modifier = Modifier
-//                                                        .padding(top = 15.dp),
-//                                                    horizontalAlignment = Alignment.CenterHorizontally,
-//                                                    verticalArrangement = Arrangement.Center
-//                                                ) {
-//                                                    Text(
-//                                                        text = "Points Earned",
-//                                                        color = textColor,
-//                                                        fontSize = 14.sp,
-//                                                        fontFamily = monteSB,
-//                                                        softWrap = true,
-//                                                        modifier = Modifier.padding(start = 7.dp)
-//                                                    )
-//                                                    Row(
-//                                                        modifier = Modifier.padding(
-//                                                            end = 0.dp,
-//                                                            top = 7.dp
-//                                                        )
-//                                                    ) {
-//                                                        Icon(
-//                                                            Icons.Filled.Wallet,
-//                                                            contentDescription = "coins",
-//                                                            modifier = Modifier
-//                                                                .size(20.dp)
-//                                                                .padding(end = 5.dp),
-//                                                            tint = lightText
-//                                                        )
-//                                                        Text(
-//                                                            text = "100",
-//                                                            color = textColor,
-//                                                            fontSize = 15.sp,
-//                                                            fontFamily = monteSB,
-//                                                        )
-//                                                    }
-//
-//                                                }
-//                                                Column(
-//                                                    modifier = Modifier
-//                                                        .padding(top = 15.dp),
-//                                                    horizontalAlignment = Alignment.CenterHorizontally,
-//                                                    verticalArrangement = Arrangement.Center
-//                                                ) {
-//                                                    Text(
-//                                                        text = "Points Earned",
-//                                                        color = textColor,
-//                                                        fontSize = 14.sp,
-//                                                        fontFamily = monteSB,
-//                                                        softWrap = true,
-//                                                        modifier = Modifier.padding(start = 7.dp)
-//                                                    )
-//                                                    Row(
-//                                                        modifier = Modifier.padding(
-//                                                            end = 0.dp,
-//                                                            top = 7.dp
-//                                                        )
-//                                                    ) {
-//                                                        Icon(
-//                                                            Icons.Filled.Wallet,
-//                                                            contentDescription = "coins",
-//                                                            modifier = Modifier
-//                                                                .size(20.dp)
-//                                                                .padding(end = 5.dp),
-//                                                            tint = lightText
-//                                                        )
-//                                                        Text(
-//                                                            text = "100",
-//                                                            color = textColor,
-//                                                            fontSize = 15.sp,
-//                                                            fontFamily = monteSB,
-//                                                        )
-//                                                    }
-//
-//                                                }
-//                                            }
                                             Spacer(modifier = Modifier.height(15.dp))
                                         }
                                     }
 
                                 }
+
+
+
+
+
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(
-                                            top = 16.dp,
-                                            start = 14.dp,
-                                            end = 14.dp,
-                                            bottom = 10.dp
-                                        ),
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                                            top = 16.dp, start = 14.dp, end = 14.dp, bottom = 10.dp
+                                        ), horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
 
                                     Row {
@@ -379,63 +304,119 @@ fun HomeScreenMain(
                                         )
                                         Spacer(modifier = Modifier.width(5.dp))
 
-                                        Text(text = "Quests", fontSize = 20.sp, color = textColor)
-                                    }
-
-                                    Card(colors = CardDefaults.cardColors(containerColor = lightText)) {
                                         Text(
-                                            text = "More",
-                                            modifier = Modifier.padding(all = 6.dp),
+                                            text = "Explore Mumbai",
+                                            fontSize = 20.sp,
                                             color = textColor
                                         )
+
+
+                                    }
+                                }
+                                LazyRow {
+                                    items(6) { icon ->
+
+                                        Spacer(modifier = Modifier.width(15.dp))
+
+
+                                        Card(
+                                            modifier = Modifier
+                                                .height(250.dp)
+                                                .width(170.dp)
+                                        ) {
+                                            Box(modifier = Modifier.fillMaxSize()) {
+
+                                                Image(
+                                                    painter = painterResource(id = R.drawable.practice),
+                                                    contentDescription = "",
+                                                    modifier = Modifier.fillMaxSize()
+                                                )
+                                                Box(
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    contentAlignment = Alignment.BottomCenter
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .align(Alignment.BottomCenter)
+                                                    ) {
+                                                        Card(
+                                                            modifier = Modifier
+
+                                                        ) {
+
+                                                            Row(
+                                                                modifier = Modifier
+                                                                    .fillMaxWidth()
+                                                                    .padding(
+                                                                        horizontal = 10.dp,
+                                                                        vertical = 10.dp
+                                                                    ),
+                                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                                verticalAlignment = Alignment.CenterVertically
+                                                            ) {
+                                                                Text(
+                                                                    text = "Marine Drive",
+                                                                    fontSize = 14.sp,
+
+                                                                    )
+
+                                                                Text(
+                                                                    text = "2.1 mi",
+                                                                    fontSize = 14.sp,
+                                                                )
+
+
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
 
-
+                                Spacer(modifier = Modifier.height(15.dp))
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(vertical = 0.dp, horizontal = 14.dp),
-                                    horizontalArrangement = Arrangement.Start
+                                        .padding(vertical = 16.dp, horizontal = 14.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
+                                    Row {
+                                        Icon(
+                                            imageVector = Icons.Filled.LocationOn,
+                                            contentDescription = null,
+                                            modifier = Modifier,
+                                            tint = lightText
+                                        )
+                                        Spacer(modifier = Modifier.width(5.dp))
 
-
-                                    Card(
-                                        modifier = Modifier.padding(horizontal = 10.dp),
-                                        colors = CardDefaults.cardColors(containerColor = lightText)
-                                    ) {
                                         Text(
-                                            text = "Recommended",
-                                            modifier = Modifier.padding(all = 5.dp),
+                                            text = "Explore Majestic Maharashtra",
+                                            fontSize = 20.sp,
                                             color = textColor
                                         )
-                                    }
 
-                                    Card(colors = CardDefaults.cardColors(containerColor = lightText)) {
-                                        Text(
-                                            text = "Current ",
-                                            modifier = Modifier.padding(all = 5.dp),
-                                            color = textColor
-                                        )
                                     }
-
                                 }
 
+                                LazyRow(modifier = Modifier.padding(top = 15.dp, bottom = 15.dp)) {
+                                    items(6) { icon ->
 
-                                TravelCards(
-                                    text1 = "Witness the balance of design and innovation",
-                                    text2 = "Quests", text3 = "Quests"
-                                )
-                                TravelCards(
-                                    text1 = "Witness the balance of design and innovation",
-                                    text2 = "Quests", text3 = "Quests"
-                                )
-                                TravelCards(
-                                    text1 = "Witness the balance of design and innovation",
-                                    text2 = "Quests", text3 = "Quests"
-                                )
+                                        Spacer(modifier = Modifier.width(20.dp))
+                                        Card(
+                                            modifier = Modifier.size(100.dp),
+                                            shape = CircleShape,
+                                        ) {
 
-
+                                            Image(
+                                                painter = painterResource(id = R.drawable.practice),
+                                                contentDescription = ""
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                         if (viewModel.isAnimationVisible.value) {
@@ -458,8 +439,7 @@ fun HomeScreenMain(
                                                 iterations = Int.MAX_VALUE,
                                                 contentScale = ContentScale.Crop,
                                                 speed = 1f,
-                                                modifier = Modifier
-                                                    .size(250.dp)
+                                                modifier = Modifier.size(250.dp)
                                             )
 
                                             Text(
@@ -478,8 +458,7 @@ fun HomeScreenMain(
                                                 iterations = Int.MAX_VALUE,
                                                 contentScale = ContentScale.Crop,
                                                 speed = 1f,
-                                                modifier = Modifier
-                                                    .size(250.dp)
+                                                modifier = Modifier.size(250.dp)
                                             )
 
                                             Text(
@@ -502,8 +481,7 @@ fun HomeScreenMain(
                                                 iterations = Int.MAX_VALUE,
                                                 contentScale = ContentScale.Crop,
                                                 speed = 1f,
-                                                modifier = Modifier
-                                                    .size(250.dp)
+                                                modifier = Modifier.size(250.dp)
                                             )
                                             Text(
                                                 text = "Planning Itineary",
@@ -526,8 +504,7 @@ fun HomeScreenMain(
                                                 iterations = Int.MAX_VALUE,
                                                 contentScale = ContentScale.Crop,
                                                 speed = 1f,
-                                                modifier = Modifier
-                                                    .size(250.dp)
+                                                modifier = Modifier.size(250.dp)
                                             )
                                             Text(
                                                 text = "Get Set Go",
@@ -545,8 +522,7 @@ fun HomeScreenMain(
                                                 iterations = Int.MAX_VALUE,
                                                 contentScale = ContentScale.Crop,
                                                 speed = 1f,
-                                                modifier = Modifier
-                                                    .size(250.dp)
+                                                modifier = Modifier.size(250.dp)
                                             )
                                             Text(
                                                 text = "ON your Mark",
@@ -564,8 +540,7 @@ fun HomeScreenMain(
                                                 iterations = Int.MAX_VALUE,
                                                 contentScale = ContentScale.Crop,
                                                 speed = 1f,
-                                                modifier = Modifier
-                                                    .size(250.dp)
+                                                modifier = Modifier.size(250.dp)
                                             )
                                             Text(
                                                 text = "Calculating Distance",
