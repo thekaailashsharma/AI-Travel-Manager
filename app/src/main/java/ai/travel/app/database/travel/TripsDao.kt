@@ -37,6 +37,13 @@ interface TripsDao {
     @Query("SELECT * FROM trips WHERE day = :day ORDER BY timeOfDay ASC")
     suspend fun getTripsForDay(day: String): List<TripsEntity>
 
+    @Query("SELECT departureDate FROM trips WHERE day = :day and destination = :destination")
+    fun getDepartureDate(day: String, destination: String): Flow<List<String?>>
+
+
+    @Query("SELECT arrivalDate FROM trips WHERE day = :day and destination = :destination")
+    fun getArrivalDate(day: String, destination: String): Flow<List<String?>>
+
     @Transaction
     suspend fun swapTripPositions(day: String, fromIndex: Int, toIndex: Int, destination: String) {
         val trips = getTripsForDay(day).toMutableList()
