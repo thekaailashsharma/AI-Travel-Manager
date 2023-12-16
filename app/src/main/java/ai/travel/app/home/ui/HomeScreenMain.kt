@@ -119,11 +119,7 @@ fun HomeScreenMain(
     }
     BottomSheetScaffold(
         sheetContent = {
-            NewTripScreen(
-                viewModel = newTripViewModel,
-                sheetScaffoldState = modalSheetStates,
-                homeViewModel = viewModel
-            )
+
         },
         sheetContainerColor = CardBackground,
         scaffoldState = modalSheetStates,

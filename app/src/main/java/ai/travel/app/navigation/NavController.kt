@@ -8,6 +8,7 @@ import ai.travel.app.home.ui.PfScreen
 import ai.travel.app.home.ui.RtScreen
 import ai.travel.app.mapsSearch.MapsSearchViewModel
 import ai.travel.app.mapsSearch.ui.MapsSearchScreen
+import ai.travel.app.newTrip.NewTripScreen
 import ai.travel.app.newTrip.NewTripViewModel
 import ai.travel.app.profile.NewProfileScreen
 import ai.travel.app.riveanimation.LoginUI
@@ -65,6 +66,10 @@ fun NavController(
 
         composable(Screens.ReorderTrip.route) {
             ReorderLists(viewModel = homeViewModel, paddingValues = paddingValues)
+        }
+
+        composable(Screens.NewTrip.route) {
+            NewTripScreen(viewModel = newTripViewModel, homeViewModel = homeViewModel, navController = navHostController)
         }
     }
 

@@ -9,7 +9,9 @@ import ai.travel.app.dto.PalmApi
 import ai.travel.app.dto.Prompt
 import ai.travel.app.dto.getPlaceId.PlaceIdBody
 import ai.travel.app.repository.ApiService
+import ai.travel.app.tripDetails.TimeSlot
 import android.app.Application
+import android.icu.util.Calendar
 import android.util.Base64
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -26,9 +28,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -48,6 +55,12 @@ class HomeViewModel @Inject constructor(
 
     private val _data = MutableStateFlow(emptyList<Map<String, String>>())
     val data: StateFlow<List<Map<String, String>>> = _data.asStateFlow()
+
+    private val _currentTime = MutableStateFlow<TimeSlot?>(null)
+    val currentTime: StateFlow<TimeSlot?> = _currentTime.asStateFlow()
+
+    private val _progress = MutableStateFlow(0f)
+    val progress: StateFlow<Float> = _progress.asStateFlow()
 
     private val _geoCodesData = MutableStateFlow(emptyList<TourDetails>().toMutableList())
     val geoCodesData: StateFlow<List<TourDetails>> = _geoCodesData.asStateFlow()
@@ -112,6 +125,40 @@ class HomeViewModel @Inject constructor(
                 _loginStatus.value = it
             }
         }
+    }
+
+
+    fun calculateTimeSlotUpdates() {
+        val currentTime = System.currentTimeMillis()
+        val timeSlotFlow = MutableStateFlow(determineTimeSlot(currentTime))
+
+        // Create a coroutine to update the time slot every 15 minutes
+        val coroutine = determineTimeSlot(System.currentTimeMillis())
+        println("coroutineeeee: $coroutine")
+        _currentTime.value = coroutine
+    }
+
+    private fun determineTimeSlot(currentTime: Long): TimeSlot {
+        val instant = Instant.ofEpochMilli(currentTime)
+        val zoneOffset = ZoneOffset.UTC // Change this if you want to use a different time zone
+
+        val localDateTime = LocalDateTime.ofInstant(instant, zoneOffset)
+        println("localDateTimeeeee: $localDateTime")
+        val hour = localDateTime.hour
+        println("localDateTimeeeee 11: $hour")
+
+        return when (getHourFromMillis(currentTime)) {
+            in 9..11 -> TimeSlot.MORNING // 9 AM to 11 AM is morning
+            in 12..16 -> TimeSlot.AFTERNOON // 12 PM to 4 PM is afternoon
+            in 17..20 -> TimeSlot.EVENING // 5 PM to 8 PM is evening
+            else -> TimeSlot.NIGHT // Other times are considered night
+        }
+    }
+
+    private fun getHourFromMillis(systemTimeMillis: Long): Int {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = systemTimeMillis
+        return calendar.get(Calendar.HOUR_OF_DAY)
     }
 
     fun updateUserDetails(
@@ -238,6 +285,18 @@ class HomeViewModel @Inject constructor(
                 _geoCodesData.value = mutableListOf()
             }
         }
+    }
+
+    fun calculateProgress() {
+        val calendar = Calendar.getInstance()
+        val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+        val currentMinute = calendar.get(Calendar.MINUTE)
+
+        val totalAvailableTimeMinutes = TimeUnit.HOURS.toMinutes(12)
+        val elapsedMinutes =
+            ((currentHour - 9) * 60) + currentMinute
+
+        _progress.value = (elapsedMinutes.toFloat() / totalAvailableTimeMinutes).coerceIn(0f, 1f)
     }
 
     private suspend fun getGeoCodes() {
@@ -443,7 +502,7 @@ class HomeViewModel @Inject constructor(
                         val output = it?.replace(regex, "")
                         println("budgetssss: $output")
                         _remainingBudget.value +=
-                                output?.toDoubleOrNull() ?: 0.0
+                            output?.toDoubleOrNull() ?: 0.0
 
                     }
                 }

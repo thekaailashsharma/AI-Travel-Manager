@@ -62,6 +62,7 @@ import androidx.compose.material.icons.filled.AvTimer
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.DonutLarge
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Map
@@ -80,6 +81,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
@@ -91,7 +93,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -166,6 +170,18 @@ fun TripDetailsScreen(
         )
     )
     var currentPoint = remember { mutableStateOf<MapBoxPoint?>(null) }
+
+
+    val currentSlot = viewModel.currentTime
+        .collectAsState(initial = TimeSlot.MORNING)
+
+    val progress = viewModel.progress.collectAsState(initial = 0.0f)
+
+    LaunchedEffect(key1 = currentSlot.value) {
+        viewModel.calculateTimeSlotUpdates()
+    }
+
+
     val collapseThreshold = remember {
         mutableFloatStateOf(0.25f)
     }
@@ -209,6 +225,8 @@ fun TripDetailsScreen(
 
     LaunchedEffect(key1 = Unit) {
         viewModel.extractBudgetValue(viewModel.currentDestination.value)
+        viewModel.calculateTimeSlotUpdates()
+        viewModel.calculateProgress()
     }
 
     LaunchedEffect(key1 = dayTrips.value) {
@@ -302,7 +320,7 @@ fun TripDetailsScreen(
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .then(
-                                            if(isDeleteSheetOpen.value) Modifier.blur(10.dp) else Modifier
+                                            if (isDeleteSheetOpen.value) Modifier.blur(10.dp) else Modifier
                                         ),
                                     state = listState
                                 ) {
@@ -525,57 +543,92 @@ fun TripDetailsScreen(
                                     }
 
                                     item {
-                                        LazyRow {
-                                            items(days.value) { day ->
-                                                Card(
-                                                    colors = CardDefaults.cardColors(
-                                                        containerColor = if (day == currentDay.value) lightText else Color.Transparent,
-                                                    ),
-                                                    border = BorderStroke(
-                                                        1.dp,
-                                                        brush = borderBrush
-                                                    ),
-                                                    shape = RoundedCornerShape(20.dp),
-                                                    elevation = CardDefaults.cardElevation(0.dp),
+                                        Column {
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 10.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    text = "9:AM",
+                                                    color = textColor,
+                                                    fontSize = 12.sp,
                                                     modifier = Modifier
-                                                        .width(120.dp)
-                                                        .padding(
-                                                            start = 12.dp,
-                                                            top = 0.dp,
-                                                            bottom = 12.dp,
-                                                            end = 12.dp
-                                                        )
-                                                        .clickable(
-                                                            interactionSource = MutableInteractionSource(),
-                                                            indication = null
-                                                        ) {
-                                                            coroutineScope.launch {
-                                                                currentDay.value = day ?: "1"
-                                                            }
-                                                        }
+                                                        .padding(start = 10.dp, end = 10.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(10.dp))
+                                                LinearProgressIndicator(
+                                                    progress = progress.value,
+                                                    color = Color(0xFF78FA7D),
+                                                    modifier = Modifier
+                                                        .fillMaxWidth(0.75f)
+                                                        .padding(start = 10.dp, end = 10.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(10.dp))
+                                                Text(
+                                                    text = "9:PM",
+                                                    color = textColor,
+                                                    fontSize = 12.sp,
+                                                    modifier = Modifier
+                                                        .padding(start = 10.dp, end = 10.dp)
+                                                )
+                                            }
 
-                                                ) {
-                                                    Column(
-                                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                                        verticalArrangement = Arrangement.Center,
+                                            Spacer(modifier = Modifier.height(20.dp))
+
+                                            LazyRow {
+                                                items(days.value) { day ->
+                                                    Card(
+                                                        colors = CardDefaults.cardColors(
+                                                            containerColor = if (day == currentDay.value) lightText else Color.Transparent,
+                                                        ),
+                                                        border = BorderStroke(
+                                                            1.dp,
+                                                            brush = borderBrush
+                                                        ),
+                                                        shape = RoundedCornerShape(20.dp),
+                                                        elevation = CardDefaults.cardElevation(0.dp),
                                                         modifier = Modifier
-                                                            .fillMaxWidth()
+                                                            .width(120.dp)
                                                             .padding(
-                                                                start = 0.dp,
-                                                                top = 10.dp,
-                                                                bottom = 10.dp
+                                                                start = 12.dp,
+                                                                top = 0.dp,
+                                                                bottom = 12.dp,
+                                                                end = 12.dp
                                                             )
+                                                            .clickable(
+                                                                interactionSource = MutableInteractionSource(),
+                                                                indication = null
+                                                            ) {
+                                                                coroutineScope.launch {
+                                                                    currentDay.value = day ?: "1"
+                                                                }
+                                                            }
+
                                                     ) {
-                                                        Text(
-                                                            text = "Day $day",
-                                                            color = textColor,
-                                                            fontSize = 18.sp,
-                                                            modifier = Modifier.padding(start = 2.dp)
-                                                        )
+                                                        Column(
+                                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                                            verticalArrangement = Arrangement.Center,
+                                                            modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .padding(
+                                                                    start = 0.dp,
+                                                                    top = 10.dp,
+                                                                    bottom = 10.dp
+                                                                )
+                                                        ) {
+                                                            Text(
+                                                                text = "Day $day",
+                                                                color = textColor,
+                                                                fontSize = 18.sp,
+                                                                modifier = Modifier.padding(start = 2.dp)
+                                                            )
+                                                        }
                                                     }
+
+
                                                 }
-
-
                                             }
                                         }
                                     }
@@ -586,173 +639,235 @@ fun TripDetailsScreen(
                                             backgroundUntilSwipeThreshold = Color(0xFF4792ff),
                                             swipeThreshold = (screenWidth / 2.5).dp
                                         ) {
-                                            Row(
+
+                                            Card(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
-                                                    .padding(
-                                                        start = 0.dp,
-                                                        top = 0.dp,
-                                                        bottom = 12.dp,
-                                                        end = 12.dp
+                                                    .padding(horizontal = 10.dp)
+                                                    .then(
+                                                        if (currentSlot.value?.ordinal == index) Modifier
+                                                            .shadow(10.dp) else Modifier
                                                     ),
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.Start
+                                                colors = CardDefaults.cardColors(
+                                                    containerColor = Color.Transparent,
+                                                ),
+                                                shape = RoundedCornerShape(16.dp),
+                                                elevation = CardDefaults.cardElevation(0.dp),
+                                                border = BorderStroke(
+                                                    0.5.dp,
+                                                    color = if (currentSlot.value?.ordinal == index)
+                                                        bottomBarBorder else Color.Transparent
+                                                )
                                             ) {
-                                                Column(
-                                                    modifier = Modifier.fillMaxWidth(0.3f),
-                                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                                    verticalArrangement = Arrangement.Center
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(
+                                                            start = 0.dp,
+                                                            top = 0.dp,
+                                                            bottom = 12.dp,
+                                                            end = 12.dp
+                                                        ),
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.Start
                                                 ) {
-                                                    if (index != 0) {
-                                                        Spacer(modifier = Modifier.height(5.dp))
-                                                        Icon(
-                                                            imageVector = Icons.Filled.Timer,
-                                                            contentDescription = "topText",
-                                                            tint = textColor,
-                                                            modifier = Modifier
-                                                                .size(35.dp)
-                                                                .background(
-                                                                    Color(0xFF007c6e),
-                                                                    shape = CircleShape
-                                                                )
-                                                                .padding(5.dp)
+                                                    Column(
+                                                        modifier = Modifier.fillMaxWidth(0.3f),
+                                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                                        verticalArrangement = Arrangement.Center
+                                                    ) {
+                                                        if (index != 0) {
+                                                            Spacer(modifier = Modifier.height(5.dp))
+                                                            Icon(
+                                                                imageVector = Icons.Filled.Timer,
+                                                                contentDescription = "topText",
+                                                                tint = textColor,
+                                                                modifier = Modifier
+                                                                    .size(35.dp)
+                                                                    .background(
+                                                                        Color(0xFF007c6e),
+                                                                        shape = CircleShape
+                                                                    )
+                                                                    .padding(5.dp)
 
-                                                        )
+                                                            )
+                                                            Spacer(modifier = Modifier.height(5.dp))
+                                                            VerticalDashedDivider(
+                                                                color = if (currentSlot.value?.ordinal == index)
+                                                                    Color(0xFF78FA7D) else lightText,
+                                                                height = 40,
+                                                                dashWidth = 14f,
+                                                                gapWidth = 10f
+                                                            )
+                                                            Spacer(modifier = Modifier.height(15.dp))
+                                                        }
+                                                        CustomMarker(text = (index + 1).toString())
                                                         Spacer(modifier = Modifier.height(5.dp))
                                                         VerticalDashedDivider(
-                                                            color = lightText,
-                                                            height = 40,
+                                                            color = if (currentSlot.value?.ordinal == index)
+                                                                Color(0xFF78FA7D) else lightText,
+                                                            height = 100,
                                                             dashWidth = 14f,
                                                             gapWidth = 10f
                                                         )
-                                                        Spacer(modifier = Modifier.height(15.dp))
-                                                    }
-                                                    CustomMarker(text = (index + 1).toString())
-                                                    Spacer(modifier = Modifier.height(5.dp))
-                                                    VerticalDashedDivider(
-                                                        color = lightText,
-                                                        height = 100,
-                                                        dashWidth = 14f,
-                                                        gapWidth = 10f
-                                                    )
 
-                                                }
-
-                                                Column(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth(0.7f)
-                                                        .weight(1f),
-                                                    horizontalAlignment = Alignment.Start,
-                                                    verticalArrangement = Arrangement.Center
-                                                ) {
-                                                    if (index != 0) {
-                                                        Spacer(modifier = Modifier.height(15.dp))
-                                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                                            Spacer(modifier = Modifier.width(7.dp))
-                                                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                                                Icon(
-                                                                    imageVector = Icons.Filled.DirectionsCar,
-                                                                    contentDescription = "topText",
-                                                                    tint = Color(0xFF6588bf),
-                                                                    modifier = Modifier.size(25.dp)
-                                                                )
-                                                                Spacer(modifier = Modifier.width(7.dp))
-                                                                Text(
-                                                                    text = dayTrips.value[index]?.distance
-                                                                        ?: "",
-                                                                    color = textColor,
-                                                                    fontSize = 13.sp,
-                                                                )
-                                                            }
-                                                            Spacer(modifier = Modifier.width(7.dp))
-                                                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                                                Icon(
-                                                                    imageVector = Icons.Filled.AvTimer,
-                                                                    contentDescription = "topText",
-                                                                    tint = Color(0xFF6588bf),
-                                                                    modifier = Modifier.size(25.dp)
-                                                                )
-                                                                Spacer(modifier = Modifier.width(7.dp))
-                                                                Text(
-                                                                    text = dayTrips.value[index]?.duration
-                                                                        ?: "",
-                                                                    color = textColor,
-                                                                    fontSize = 13.sp,
-                                                                )
-                                                            }
-                                                        }
-                                                        Spacer(modifier = Modifier.height(55.dp))
                                                     }
-                                                    Text(
-                                                        text = if (index == 0) "Morning" else if (index == 1) "Afternoon" else "Evening",
-                                                        color = textColor,
-                                                        fontSize = 25.sp,
+
+                                                    Column(
                                                         modifier = Modifier
-                                                    )
-                                                    Spacer(modifier = Modifier.height(10.dp))
-                                                    Text(
-                                                        text = it?.name ?: "",
-                                                        color = textColor,
-                                                        fontSize = 13.sp,
-                                                        modifier = Modifier,
-                                                        softWrap = true
-                                                    )
-                                                    Spacer(modifier = Modifier.height(10.dp))
-                                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                                        Icon(
-                                                            imageVector = Icons.Filled.Wallet,
-                                                            contentDescription = "topText",
-                                                            tint = lightText,
-                                                            modifier = Modifier.size(20.dp)
-                                                        )
-                                                        Spacer(modifier = Modifier.width(7.dp))
-                                                        Text(
-                                                            text = it?.budget ?: "",
-                                                            color = textColor,
-                                                            fontSize = 12.sp,
-                                                        )
-                                                    }
-                                                    Spacer(modifier = Modifier.height(10.dp))
-                                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                                        Button(
-                                                            onClick = {
-                                                                viewModel.currentDay.value =
-                                                                    currentDay.value
-                                                                viewModel.currentTimeOfDay.value =
-                                                                    it?.timeOfDay ?: ""
-                                                                viewModel.currentNewDestination.value =
-                                                                    it?.name ?: ""
-                                                                coroutineScope.launch {
-                                                                    isReorderVisible = false
-                                                                    modalSheetStates.bottomSheetState.expand()
+                                                            .fillMaxWidth(0.7f)
+                                                            .weight(1f),
+                                                        horizontalAlignment = Alignment.Start,
+                                                        verticalArrangement = Arrangement.Center
+                                                    ) {
+                                                        if (index != 0) {
+                                                            Spacer(modifier = Modifier.height(15.dp))
+                                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                                Spacer(modifier = Modifier.width(7.dp))
+                                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                                    Icon(
+                                                                        imageVector = Icons.Filled.DirectionsCar,
+                                                                        contentDescription = "topText",
+                                                                        tint = Color(0xFF6588bf),
+                                                                        modifier = Modifier.size(25.dp)
+                                                                    )
+                                                                    Spacer(
+                                                                        modifier = Modifier.width(
+                                                                            7.dp
+                                                                        )
+                                                                    )
+                                                                    Text(
+                                                                        text = dayTrips.value[index]?.distance
+                                                                            ?: "",
+                                                                        color = textColor,
+                                                                        fontSize = 13.sp,
+                                                                    )
                                                                 }
-                                                            },
-                                                            colors = ButtonDefaults.buttonColors(
-                                                                containerColor = lightText,
-                                                                contentColor = textColor
-                                                            )
-                                                        ) {
-                                                            Text(
-                                                                text = "More Info",
-                                                                color = textColor,
-                                                                fontSize = 12.sp,
-                                                            )
-
+                                                                Spacer(modifier = Modifier.width(7.dp))
+                                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                                    Icon(
+                                                                        imageVector = Icons.Filled.AvTimer,
+                                                                        contentDescription = "topText",
+                                                                        tint = Color(0xFF6588bf),
+                                                                        modifier = Modifier.size(25.dp)
+                                                                    )
+                                                                    Spacer(
+                                                                        modifier = Modifier.width(
+                                                                            7.dp
+                                                                        )
+                                                                    )
+                                                                    Text(
+                                                                        text = dayTrips.value[index]?.duration
+                                                                            ?: "",
+                                                                        color = textColor,
+                                                                        fontSize = 13.sp,
+                                                                    )
+                                                                }
+                                                            }
+                                                            Spacer(modifier = Modifier.height(55.dp))
                                                         }
-                                                        Spacer(modifier = Modifier.width(10.dp))
-                                                        Button(
-                                                            onClick = { /*TODO*/ },
-                                                            colors = ButtonDefaults.buttonColors(
-                                                                containerColor = lightText,
-                                                                contentColor = textColor
-                                                            )
+                                                        Row(
+                                                            modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .padding(horizontal = 10.dp),
+                                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                                            verticalAlignment = Alignment.CenterVertically
                                                         ) {
                                                             Text(
-                                                                text = "Navigate",
+                                                                text = if (index == 0) "Morning" else if (index == 1) "Afternoon" else "Evening",
+                                                                color = textColor,
+                                                                fontSize = 25.sp,
+                                                                modifier = Modifier
+                                                            )
+                                                            if (currentSlot.value?.ordinal == index) {
+                                                                Row(
+                                                                    verticalAlignment = Alignment.CenterVertically,
+                                                                    modifier = Modifier.padding(end = 15.dp)
+                                                                ) {
+                                                                    Icon(
+                                                                        imageVector = Icons.Filled.DonutLarge,
+                                                                        contentDescription = "topText",
+                                                                        tint = Color(0xFF78FA7D),
+                                                                        modifier = Modifier.size(20.dp)
+                                                                    )
+                                                                    Spacer(
+                                                                        modifier = Modifier.width(
+                                                                            7.dp
+                                                                        )
+                                                                    )
+                                                                    Text(
+                                                                        text = "Explore",
+                                                                        color = Color(0xFF78FA7D),
+                                                                        fontSize = 12.sp,
+                                                                    )
+                                                                }
+                                                            }
+                                                        }
+                                                        Spacer(modifier = Modifier.height(10.dp))
+                                                        Text(
+                                                            text = it?.name ?: "",
+                                                            color = textColor,
+                                                            fontSize = 13.sp,
+                                                            modifier = Modifier,
+                                                            softWrap = true
+                                                        )
+                                                        Spacer(modifier = Modifier.height(10.dp))
+                                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                                            Icon(
+                                                                imageVector = Icons.Filled.Wallet,
+                                                                contentDescription = "topText",
+                                                                tint = lightText,
+                                                                modifier = Modifier.size(20.dp)
+                                                            )
+                                                            Spacer(modifier = Modifier.width(7.dp))
+                                                            Text(
+                                                                text = it?.budget ?: "",
                                                                 color = textColor,
                                                                 fontSize = 12.sp,
                                                             )
+                                                        }
+                                                        Spacer(modifier = Modifier.height(10.dp))
+                                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                                            Button(
+                                                                onClick = {
+                                                                    viewModel.currentDay.value =
+                                                                        currentDay.value
+                                                                    viewModel.currentTimeOfDay.value =
+                                                                        it?.timeOfDay ?: ""
+                                                                    viewModel.currentNewDestination.value =
+                                                                        it?.name ?: ""
+                                                                    coroutineScope.launch {
+                                                                        isReorderVisible = false
+                                                                        modalSheetStates.bottomSheetState.expand()
+                                                                    }
+                                                                },
+                                                                colors = ButtonDefaults.buttonColors(
+                                                                    containerColor = lightText,
+                                                                    contentColor = textColor
+                                                                )
+                                                            ) {
+                                                                Text(
+                                                                    text = "More Info",
+                                                                    color = textColor,
+                                                                    fontSize = 12.sp,
+                                                                )
 
+                                                            }
+                                                            Spacer(modifier = Modifier.width(10.dp))
+                                                            Button(
+                                                                onClick = { /*TODO*/ },
+                                                                colors = ButtonDefaults.buttonColors(
+                                                                    containerColor = lightText,
+                                                                    contentColor = textColor
+                                                                )
+                                                            ) {
+                                                                Text(
+                                                                    text = "Navigate",
+                                                                    color = textColor,
+                                                                    fontSize = 12.sp,
+                                                                )
+
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -999,16 +1114,20 @@ fun TripDetailsScreen(
 
                     AnimatedVisibility(
                         visible = isDeleteSheetOpen.value,
-                        enter = slideInVertically(initialOffsetY = {
-                            it
-                        }, animationSpec = tween(
-                            durationMillis = 50,
-                        )),
-                        exit = slideOutVertically(targetOffsetY = {
-                            -it
-                        }, animationSpec = tween(
+                        enter = slideInVertically(
+                            initialOffsetY = {
+                                it
+                            }, animationSpec = tween(
+                                durationMillis = 50,
+                            )
+                        ),
+                        exit = slideOutVertically(
+                            targetOffsetY = {
+                                -it
+                            }, animationSpec = tween(
                                 durationMillis = 80,
-                        ))
+                            )
+                        )
                     ) {
                         Box(
                             modifier = Modifier
@@ -1024,12 +1143,16 @@ fun TripDetailsScreen(
                     }
                     AnimatedVisibility(
                         visible = isDeleteClicked.value,
-                        enter = fadeIn(animationSpec = tween(
-                            durationMillis = 50,
-                        )),
-                        exit = fadeOut(animationSpec = tween(
-                            durationMillis = 50,
-                        ))
+                        enter = fadeIn(
+                            animationSpec = tween(
+                                durationMillis = 50,
+                            )
+                        ),
+                        exit = fadeOut(
+                            animationSpec = tween(
+                                durationMillis = 50,
+                            )
+                        )
                     ) {
                         Box(
                             modifier = Modifier

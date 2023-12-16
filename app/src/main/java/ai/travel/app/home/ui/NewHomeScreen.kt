@@ -111,11 +111,11 @@ fun NewHomeScreen(
     val trips = viewModel.allTrips.collectAsState(initial = emptyList())
     BottomSheetScaffold(
         sheetContent = {
-            NewTripScreen(
-                viewModel = newTripViewModel,
-                sheetScaffoldState = modalSheetStates,
-                homeViewModel = viewModel
-            )
+//            NewTripScreen(
+//                viewModel = newTripViewModel,
+//                sheetScaffoldState = modalSheetStates,
+//                homeViewModel = viewModel
+//            )
         },
         sheetContainerColor = CardBackground,
         scaffoldState = modalSheetStates,
