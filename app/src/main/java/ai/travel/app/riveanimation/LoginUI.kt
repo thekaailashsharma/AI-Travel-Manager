@@ -277,7 +277,7 @@ fun LoginUI(
                                         fontFamily = monteSB,
                                     )
                                 ) {
-                                    append("Rive")
+                                    append("Tripify")
                                 }
                                 append(" ")
                             }, fontSize = 25.sp)

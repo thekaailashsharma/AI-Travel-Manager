@@ -386,7 +386,7 @@ fun MoreInfoTrips(viewModel: HomeViewModel, paddingValues: PaddingValues) {
                                 }
                             }
                         }
-                        
+
                         Spacer(modifier = Modifier.height(40.dp))
 
 
@@ -398,4 +398,3 @@ fun MoreInfoTrips(viewModel: HomeViewModel, paddingValues: PaddingValues) {
         }
     }
 }
-
