@@ -228,91 +228,91 @@ fun HomeScreenMain(
                                                         }
                                                 )
                                             }
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(
-                                                        bottom = 20.dp,
-                                                        start = 25.dp,
-                                                        end = 25.dp
-                                                    ),
-                                                horizontalArrangement = Arrangement.SpaceBetween
-                                            ) {
-                                                Column(
-                                                    modifier = Modifier
-                                                        .padding(top = 15.dp),
-                                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                                    verticalArrangement = Arrangement.Center
-                                                ) {
-                                                    Text(
-                                                        text = "Points Earned",
-                                                        color = textColor,
-                                                        fontSize = 14.sp,
-                                                        fontFamily = monteSB,
-                                                        softWrap = true,
-                                                        modifier = Modifier.padding(start = 7.dp)
-                                                    )
-                                                    Row(
-                                                        modifier = Modifier.padding(
-                                                            end = 0.dp,
-                                                            top = 7.dp
-                                                        )
-                                                    ) {
-                                                        Icon(
-                                                            Icons.Filled.Wallet,
-                                                            contentDescription = "coins",
-                                                            modifier = Modifier
-                                                                .size(20.dp)
-                                                                .padding(end = 5.dp),
-                                                            tint = lightText
-                                                        )
-                                                        Text(
-                                                            text = "100",
-                                                            color = textColor,
-                                                            fontSize = 15.sp,
-                                                            fontFamily = monteSB,
-                                                        )
-                                                    }
-
-                                                }
-                                                Column(
-                                                    modifier = Modifier
-                                                        .padding(top = 15.dp),
-                                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                                    verticalArrangement = Arrangement.Center
-                                                ) {
-                                                    Text(
-                                                        text = "Points Earned",
-                                                        color = textColor,
-                                                        fontSize = 14.sp,
-                                                        fontFamily = monteSB,
-                                                        softWrap = true,
-                                                        modifier = Modifier.padding(start = 7.dp)
-                                                    )
-                                                    Row(
-                                                        modifier = Modifier.padding(
-                                                            end = 0.dp,
-                                                            top = 7.dp
-                                                        )
-                                                    ) {
-                                                        Icon(
-                                                            Icons.Filled.Wallet,
-                                                            contentDescription = "coins",
-                                                            modifier = Modifier
-                                                                .size(20.dp)
-                                                                .padding(end = 5.dp),
-                                                            tint = lightText
-                                                        )
-                                                        Text(
-                                                            text = "100",
-                                                            color = textColor,
-                                                            fontSize = 15.sp,
-                                                            fontFamily = monteSB,
-                                                        )
-                                                    }
-
-                                                }
-                                            }
+//                                            Row(
+//                                                modifier = Modifier
+//                                                    .fillMaxWidth()
+//                                                    .padding(
+//                                                        bottom = 20.dp,
+//                                                        start = 25.dp,
+//                                                        end = 25.dp
+//                                                    ),
+//                                                horizontalArrangement = Arrangement.SpaceBetween
+//                                            ) {
+//                                                Column(
+//                                                    modifier = Modifier
+//                                                        .padding(top = 15.dp),
+//                                                    horizontalAlignment = Alignment.CenterHorizontally,
+//                                                    verticalArrangement = Arrangement.Center
+//                                                ) {
+//                                                    Text(
+//                                                        text = "Points Earned",
+//                                                        color = textColor,
+//                                                        fontSize = 14.sp,
+//                                                        fontFamily = monteSB,
+//                                                        softWrap = true,
+//                                                        modifier = Modifier.padding(start = 7.dp)
+//                                                    )
+//                                                    Row(
+//                                                        modifier = Modifier.padding(
+//                                                            end = 0.dp,
+//                                                            top = 7.dp
+//                                                        )
+//                                                    ) {
+//                                                        Icon(
+//                                                            Icons.Filled.Wallet,
+//                                                            contentDescription = "coins",
+//                                                            modifier = Modifier
+//                                                                .size(20.dp)
+//                                                                .padding(end = 5.dp),
+//                                                            tint = lightText
+//                                                        )
+//                                                        Text(
+//                                                            text = "100",
+//                                                            color = textColor,
+//                                                            fontSize = 15.sp,
+//                                                            fontFamily = monteSB,
+//                                                        )
+//                                                    }
+//
+//                                                }
+//                                                Column(
+//                                                    modifier = Modifier
+//                                                        .padding(top = 15.dp),
+//                                                    horizontalAlignment = Alignment.CenterHorizontally,
+//                                                    verticalArrangement = Arrangement.Center
+//                                                ) {
+//                                                    Text(
+//                                                        text = "Points Earned",
+//                                                        color = textColor,
+//                                                        fontSize = 14.sp,
+//                                                        fontFamily = monteSB,
+//                                                        softWrap = true,
+//                                                        modifier = Modifier.padding(start = 7.dp)
+//                                                    )
+//                                                    Row(
+//                                                        modifier = Modifier.padding(
+//                                                            end = 0.dp,
+//                                                            top = 7.dp
+//                                                        )
+//                                                    ) {
+//                                                        Icon(
+//                                                            Icons.Filled.Wallet,
+//                                                            contentDescription = "coins",
+//                                                            modifier = Modifier
+//                                                                .size(20.dp)
+//                                                                .padding(end = 5.dp),
+//                                                            tint = lightText
+//                                                        )
+//                                                        Text(
+//                                                            text = "100",
+//                                                            color = textColor,
+//                                                            fontSize = 15.sp,
+//                                                            fontFamily = monteSB,
+//                                                        )
+//                                                    }
+//
+//                                                }
+//                                            }
                                             Spacer(modifier = Modifier.height(15.dp))
                                         }
                                     }
