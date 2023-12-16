@@ -12,12 +12,14 @@ import ai.travel.app.newTrip.NewTripViewModel
 import ai.travel.app.ui.theme.CardBackground
 import ai.travel.app.ui.theme.appGradient
 import ai.travel.app.ui.theme.bottomBarBackground
+import ai.travel.app.ui.theme.igGradient
 import ai.travel.app.ui.theme.lightText
 import ai.travel.app.ui.theme.monteSB
 import ai.travel.app.ui.theme.textColor
 import ai.travel.app.utils.ProfileImage
 import ai.travel.app.utils.dashedBorder
 import android.widget.Space
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -82,6 +84,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
@@ -263,14 +266,6 @@ fun HomeScreenMain(
                                             color = textColor
                                         )
                                     }
-                                    Card(colors = CardDefaults.cardColors(containerColor = lightText)) {
-                                        Text(
-                                            text = "More",
-                                            modifier = Modifier.padding(all = 7.dp),
-                                            color = textColor
-                                        )
-                                    }
-
                                 }
                             }
                             item {
@@ -316,12 +311,19 @@ fun HomeScreenMain(
                                         Card(
                                             modifier = Modifier
                                                 .height(250.dp)
-                                                .width(170.dp)
+                                                .width(170.dp),
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = CardBackground
+                                            ),
+                                            border = BorderStroke(
+                                                width = 1.dp,
+                                                color = textColor
+                                            )
                                         ) {
                                             Box(modifier = Modifier.fillMaxSize()) {
 
-                                                Image(
-                                                    painter = painterResource(id = icon.image ),
+                                                AsyncImage(
+                                                    model = icon.image,
                                                     contentDescription = "",
                                                     modifier = Modifier.fillMaxSize(),
                                                     contentScale = ContentScale.Crop
@@ -336,8 +338,12 @@ fun HomeScreenMain(
                                                             .align(Alignment.BottomCenter)
                                                     ) {
                                                         Card(
-                                                            modifier = Modifier
-
+                                                            modifier = Modifier,
+                                                            colors = CardDefaults.cardColors(containerColor = CardBackground),
+                                                            border = BorderStroke(
+                                                                width = 1.dp,
+                                                                color = textColor,
+                                                            )
                                                         ) {
 
                                                             Row(
@@ -353,13 +359,9 @@ fun HomeScreenMain(
                                                                 Text(
                                                                     text = icon.name,
                                                                     fontSize = 14.sp,
+                                                                    color = textColor
 
                                                                     )
-
-                                                                Text(
-                                                                    text = icon.distance,
-                                                                    fontSize = 14.sp,
-                                                                )
 
 
                                                             }
@@ -397,16 +399,22 @@ fun HomeScreenMain(
                                 }
 
                                 LazyRow(modifier = Modifier.padding(top = 15.dp, bottom = 15.dp)) {
-                                    items(image2) { icon ->
+                                    items(image) { icon ->
 
                                         Spacer(modifier = Modifier.width(20.dp))
                                         Card(
-                                            modifier = Modifier.size(100.dp),
+                                            modifier = Modifier
+                                                .size(100.dp)
+                                                .padding(4.dp),
                                             shape = CircleShape,
+                                            border = BorderStroke(
+                                                width = 3.5.dp,
+                                                brush = igGradient,
+                                            )
                                         ) {
 
-                                            Image(
-                                                painter = painterResource(id = icon),
+                                            AsyncImage(
+                                                model = icon.image,
                                                 contentDescription = "",
                                                 contentScale = ContentScale.FillBounds,
                                                 modifier = Modifier.fillMaxSize()
@@ -414,37 +422,38 @@ fun HomeScreenMain(
                                         }
                                     }
                                 }
-                                Spacer(modifier = Modifier.height(50.dp))
+                                Spacer(modifier = Modifier.height(5.dp))
+                                val lastTextColor = textColor
 
-                                Column (modifier = Modifier.fillMaxWidth().padding(start = 20.dp),
-                                    horizontalAlignment = Alignment.Start,
-                                    verticalArrangement = Arrangement.Center){
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(start = 10.dp)
+                                ) {
+                                    Spacer(modifier = Modifier.height(5.dp))
                                     Text(
-                                        text = "We make travel fun",
-                                        color = lightText,
-                                        fontSize = 15.sp,
+                                        text = "Travel Explore",
+                                        color = lastTextColor.copy(0.75f),
+                                        fontSize = 33.sp,
                                         fontFamily = monteSB,
-                                        modifier = Modifier.padding(bottom = 7.dp)
                                     )
+                                    Spacer(modifier = Modifier.height(0.dp))
                                     Text(
-                                        text = "Waste wise, Reward Rise",
-                                        color = lightText,
-                                        fontSize = 15.sp,
+                                        text = "Dream. Discover",
+                                        color = lastTextColor.copy(0.5f),
+                                        fontSize = 23.sp,
                                         fontFamily = monteSB,
-                                        modifier = Modifier.padding(bottom = 7.dp)
                                     )
+                                    Spacer(modifier = Modifier.height(10.dp))
                                     Text(
-                                        text = "Effort by Team Centennials ❤️",
-                                        color = lightText,
-                                        fontSize = 15.sp,
+                                        text = "Crafted with ❤️ by The Centennials",
+                                        color = lastTextColor.copy(0.75f),
+                                        fontSize = 10.sp,
                                         fontFamily = monteSB,
-                                        modifier = Modifier.padding(bottom = 7.dp)
                                     )
-
-
                                 }
 
-                                Spacer(modifier = Modifier.height(150.dp))
+                                Spacer(modifier = Modifier.height(50.dp))
                             }
                         }
                         if (viewModel.isAnimationVisible.value) {
@@ -648,49 +657,35 @@ fun TravelCards(text1: String, text2: String, text3: String) {
 
 val image = listOf(
     MumbaiImages(
-        R.drawable.mum4,
-        "Taj Hotel",
+        "https://firebasestorage.googleapis.com/v0/b/ai-travel-manager.appspot.com/o/mum1.png?alt=media&token=d3f3a67b-ed60-4f4d-8b63-8ebc6c6d75e0",
+        "Wankhede Stadium",
         "2.1 mi"
     ),
     MumbaiImages(
-        R.drawable.mum3,
+        "https://firebasestorage.googleapis.com/v0/b/ai-travel-manager.appspot.com/o/mum2.png?alt=media&token=9028fe3d-1642-41fd-8276-c889e0cb8374",
+        "BMC",
+        "2.1 mi"
+    ),
+    MumbaiImages(
+        "https://firebasestorage.googleapis.com/v0/b/ai-travel-manager.appspot.com/o/mum3.png?alt=media&token=ce6f8e93-3967-4196-880d-83da4be78b0e",
         "CSMT",
         "2.1 mi"
     ),
     MumbaiImages(
-        R.drawable.mum6,
-        "Gateway",
+        "https://firebasestorage.googleapis.com/v0/b/ai-travel-manager.appspot.com/o/mum4.png?alt=media&token=1fde14ff-e54b-43e6-b237-d486b8c80fb6",
+        "Taj Hotels",
         "2.1 mi"
     ),
     MumbaiImages(
-        R.drawable.mum2,
-        "CSMT",
+        "https://firebasestorage.googleapis.com/v0/b/ai-travel-manager.appspot.com/o/mum6.png?alt=media&token=0217d830-49be-4a81-8d80-9d7a15f27ed6",
+        "Gateway of India",
         "2.1 mi"
     ),
-    MumbaiImages(
-        R.drawable.mum1,
-        "Wankhede",
-        "2.1 mi"
-    ),
-    MumbaiImages(
-        R.drawable.mum5,
-        "HajiAli",
-        "2.1 mi"
-    ),
-
-    )
+)
 
 data class MumbaiImages(
-    val image: Int,
+    val image: String,
     val name: String,
     val distance: String
 )
 
-val image2= listOf(
-    R.drawable.mum1,
-    R.drawable.mum2,
-    R.drawable.mum3,
-    R.drawable.mum4,
-    R.drawable.mum5,
-    R.drawable.mum6
-)

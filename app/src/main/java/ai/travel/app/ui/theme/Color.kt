@@ -25,6 +25,17 @@ val appGradient: Brush
         500.0f to Color(0xFF1b304d),
     )
 
+val igGradient: Brush
+    @Composable
+    get() = Brush.verticalGradient(
+        0.0f to Color(0xFFe60396),
+//        150.0f to Color(0xFF271c4d),
+//        200.0f to Color(0xFF142742),
+//        300.0f to Color(0xFF1b325d),
+//        400.0f to Color(0xFF1b304d),
+        500.0f to Color(0xFFffa22e),
+    )
+
 
 
 val textColor = Color(0xFFE0E0E0)
