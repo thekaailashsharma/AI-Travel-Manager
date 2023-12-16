@@ -73,6 +73,10 @@ class MainActivity : ComponentActivity() {
                 Screens.Login.route -> {
                     isBottomBarVisible.value = false
                 }
+
+                Screens.NewTrip.route -> {
+                    isBottomBarVisible.value = false
+                }
             }
 
 

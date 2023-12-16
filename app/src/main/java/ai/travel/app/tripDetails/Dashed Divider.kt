@@ -1,5 +1,6 @@
 package ai.travel.app.tripDetails
 
+import android.icu.util.Calendar
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
@@ -9,6 +10,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 
 @Composable
@@ -28,4 +38,13 @@ fun VerticalDashedDivider(
             pathEffect = pathEffect
         )
     }
+}
+
+
+
+enum class TimeSlot {
+    MORNING,
+    AFTERNOON,
+    EVENING,
+    NIGHT
 }
