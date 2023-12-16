@@ -282,6 +282,40 @@ fun NewTripScreen(
         )
 
         TextFieldWithIcons(
+            textValue = "What you want to visit?",
+            placeholder = "Eg : Temples, Sea, Historical Places etc",
+            icon = Icons.Filled.CalendarToday,
+            mutableText = homeViewModel.likes.value,
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Next,
+            isTrailingVisible = false,
+            trailingIcon = null,
+            onTrailingClick = {},
+            ifIsOtp = false,
+            isEnabled = true,
+            onValueChanged = { value ->
+                homeViewModel.likes.value = value
+            }
+        )
+
+        TextFieldWithIcons(
+            textValue = "What you don't want to visit?",
+            placeholder = "Eg : Temples, Sea, Historical Places etc",
+            icon = Icons.Filled.CalendarToday,
+            mutableText = homeViewModel.disLikes.value,
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Next,
+            isTrailingVisible = false,
+            trailingIcon = null,
+            onTrailingClick = {},
+            ifIsOtp = false,
+            isEnabled = true,
+            onValueChanged = { value ->
+                homeViewModel.disLikes.value = value
+            }
+        )
+
+        TextFieldWithIcons(
             textValue = "No of Days",
             placeholder = "Enter No of Days",
             icon = Icons.Filled.CalendarToday,
@@ -592,9 +626,15 @@ fun NewTripScreen(
                                     "[LOCATION] for [NUMBER_OF_DAYS] days, considering various factors " +
                                     "such as [BUDGET_RANGE], preferred activities, accommodations, " +
                                     "transportation, and any specific preferences.1. Destination: " +
-                                    "[${homeViewModel.destination.value.text}] 2. Duration: [${homeViewModel.tripNoOfDays.value.text}] days 3. Budget: [${homeViewModel.tripBudget.value.text}] 4. " +
-                                    "Activities: [TEMPLES, Sea] 5. Accommodations: [AC] 6. " +
-                                    "Transportation: [Bus, Car] 7. Special Preferences: [None]." +
+                                    "[${homeViewModel.destination.value.text}] " +
+                                    "2. Duration: [${homeViewModel.tripNoOfDays.value.text}] days " +
+                                    "3. Budget: [${homeViewModel.tripBudget.value.text}] " +
+                                    "4. Activities that should be include: ${homeViewModel.likes.value.text} " +
+                                    "and Activities that should not be include: ${homeViewModel.disLikes.value.text}" +
+                                    "Please follow activities strictly. Only add those that should be included " +
+                                    "and do not add those that should not be included. Follow the order strictly." +
+                                    "5. Accommodations: [AC] 6. Transportation: [Bus, Car] " +
+                                    "7. Special Preferences: [None]." +
                                     "Provide a comprehensive guided tour plan that includes " +
                                     "recommended activities, places to visit, estimated costs, " +
                                     "suitable accommodations, transportation options, and any other " +

@@ -92,6 +92,8 @@ class HomeViewModel @Inject constructor(
     val tripName = mutableStateOf(TextFieldValue(""))
     val tripBudget = mutableStateOf(TextFieldValue(""))
     val tripNoOfDays = mutableStateOf(TextFieldValue(""))
+    val likes = mutableStateOf(TextFieldValue(""))
+    val disLikes = mutableStateOf(TextFieldValue(""))
     val tags = mutableStateListOf<String>()
     val travelMode = mutableStateListOf<String>()
     val source = mutableStateOf(TextFieldValue(""))
