@@ -1,0 +1,36 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "master", "*" ]
+  pull_request:
+    branches: [ "master" , "*"]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Create local.properties
+      run: |
+        echo "API_KEY=\"ABCDEF\" " > local.properties
+        echo "Here_API_KEY=\"ABCDEF\" " >> local.properties
+        echo "Places_API_KEY=\"ABCDEF\" " >> local.properties
+
+      # Optionally, you might want to display the content of local.properties for debugging
+    - name: Display local.properties
+      run: cat local.properties
+
+    - name: Build with Gradle
+      run: ./gradlew build
