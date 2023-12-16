@@ -84,7 +84,7 @@ fun PersonalRoutes(
             item {
                 NewRouteCard(sheetState)
             }
-            items(newItems) { item ->
+            items(newItems.reversed()) { item ->
                 RouteCard(item, navController, homeViewModel)
             }
 
