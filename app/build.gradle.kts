@@ -8,6 +8,7 @@ plugins {
     kotlin("kapt")
     id("kotlinx-serialization")
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -146,6 +147,8 @@ dependencies {
     implementation("com.google.firebase:firebase-storage:20.3.0")
     implementation("com.google.firebase:firebase-auth-ktx:22.3.0")
     implementation("com.google.firebase:firebase-firestore-ktx:24.9.1")
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-analytics-ktx:20.0.2")
     implementation("com.github.raipankaj:JetFirestore:1.0.2")
 
     // DataStore
