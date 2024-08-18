@@ -615,7 +615,7 @@ fun NewTripScreen(
 
             Button(
                 onClick = {
-                    if (totalTrips.value.size <= 1) {
+                    if (totalTrips.value.size <= 30) {
                         if (homeViewModel.tripName.value.text.isNotEmpty() && homeViewModel.source.value.text.isNotEmpty()
                             && homeViewModel.destination.value.text.isNotEmpty()
                             && homeViewModel.tripBudget.value.text.isNotEmpty()

@@ -33,10 +33,14 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
@@ -50,6 +54,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,8 +68,10 @@ import androidx.navigation.NavController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -182,7 +189,13 @@ fun NewHomeScreen(
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     when (state.value) {
                                         is ApiState.Error -> {
-
+                                            val errorMessage = (state.value as ApiState.Error).exception.message
+                                            ErrorHandler(
+                                                errorMessage = errorMessage,
+                                                onDismiss = {
+                                                    viewModel.isAnimationVisible.value = false
+                                                }
+                                            )
                                         }
 
                                         is ApiState.Loaded -> {
@@ -282,4 +295,32 @@ fun NewHomeScreen(
             }
         }
     }
+}
+
+@Composable
+fun ErrorHandler(
+    errorMessage: String?,
+    onDismiss: () -> Unit,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
+) {
+    if (!errorMessage.isNullOrEmpty()) {
+        LaunchedEffect(errorMessage) {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(errorMessage)
+                onDismiss()
+            }
+        }
+    }
+
+    SnackbarHost(
+        hostState = snackbarHostState,
+        snackbar = { snackbarData ->
+            Snackbar(
+                modifier = Modifier.padding(16.dp),
+                content = { Text(text = snackbarData.visuals.message, color = textColor)},
+                containerColor = CardBackground,
+            )
+        }
+    )
 }

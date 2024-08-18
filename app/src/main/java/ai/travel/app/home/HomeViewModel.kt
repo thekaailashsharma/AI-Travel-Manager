@@ -13,6 +13,7 @@ import ai.travel.app.tripDetails.TimeSlot
 import android.app.Application
 import android.icu.util.Calendar
 import android.util.Base64
+import android.widget.Toast
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,7 @@ class HomeViewModel @Inject constructor(
     private val repository: ApiService,
     private val dbRepository: DatabaseRepo,
 ) : AndroidViewModel(application) {
+    val context = application.applicationContext
 
     private val _imageState = MutableStateFlow<ApiState>(ApiState.NotStarted)
     val imageState: StateFlow<ApiState> = _imageState.asStateFlow()
@@ -314,6 +316,7 @@ class HomeViewModel @Inject constructor(
                     _imageState.value = ApiState.ReceivedPhoto
                     _geoCodesData.value = mutableListOf()
                 } catch (e: Exception) {
+                    _imageState.value = ApiState.Error(e)
                     println("EException is $e")
                 }
             }
