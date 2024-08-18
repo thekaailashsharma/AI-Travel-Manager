@@ -10,6 +10,7 @@ import ai.travel.app.mapsSearch.MapsSearchViewModel
 import ai.travel.app.mapsSearch.ui.MapsSearchScreen
 import ai.travel.app.newTrip.NewTripScreen
 import ai.travel.app.newTrip.NewTripViewModel
+import ai.travel.app.premium.PremiumScreen
 import ai.travel.app.profile.NewProfileScreen
 import ai.travel.app.riveanimation.LoginUI
 import ai.travel.app.tripDetails.ReorderLists
@@ -70,6 +71,10 @@ fun NavController(
 
         composable(Screens.NewTrip.route) {
             NewTripScreen(viewModel = newTripViewModel, homeViewModel = homeViewModel, navController = navHostController)
+        }
+
+        composable(Screens.PremiumScreen.route) {
+            PremiumScreen(navHostController = navHostController, paddingValues = paddingValues)
         }
     }
 

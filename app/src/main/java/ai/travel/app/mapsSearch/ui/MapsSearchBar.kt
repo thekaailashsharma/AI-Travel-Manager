@@ -1,7 +1,9 @@
 package ai.travel.app.mapsSearch.ui
 
+import ai.travel.app.datastore.UserDatastore
 import ai.travel.app.home.ApiState
 import ai.travel.app.mapsSearch.MapsSearchViewModel
+import ai.travel.app.navigation.Screens
 import ai.travel.app.newTrip.TextFieldWithIcons
 import ai.travel.app.ui.theme.lightText
 import ai.travel.app.ui.theme.textColor
@@ -49,11 +51,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -66,6 +70,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun MapsSearchBar(
@@ -75,11 +80,16 @@ fun MapsSearchBar(
     viewModel: MapsSearchViewModel,
     navController: NavController,
 ) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val dataStore = UserDatastore(context)
+    val mapsCountToken = dataStore.mapsTokenCount.collectAsState(initial = 0)
     val isChecking by viewModel.isChecking.collectAsState()
     var isCheckingJob: Job? = null // Initialize isCheckingJob
     val addresses = viewModel.addresses.collectAsState()
     val imageState = viewModel.imageState.collectAsState()
     val searchResponse = viewModel.searchResponse.collectAsState()
+    println("Maps Token is ${mapsCountToken.value}")
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -137,6 +147,14 @@ fun MapsSearchBar(
                 },
                 onSearch = {
                     viewModel.getAutoComplete(mutableText.text)
+//                    scope.launch {
+//                        dataStore.countMapsToken(mapsCountToken.value + 1)
+//                        if (mapsCountToken.value <= 3) {
+//                            viewModel.getAutoComplete(mutableText.text)
+//                        } else {
+//                            navController.navigate(Screens.PremiumScreen.route)
+//                        }
+//                    }
                 },
                 contentColor = textColor,
                 containerColor = Color.Black.copy(0.8f),
@@ -172,7 +190,18 @@ fun MapsSearchBar(
                                 interactionSource = MutableInteractionSource(),
                                 indication = null
                             ) {
-                                viewModel.searchPlace(index)
+                                scope.launch {
+                                    withContext(Dispatchers.IO) {
+                                        dataStore.countMapsToken(mapsCountToken.value + 1)
+                                    }
+                                    withContext(Dispatchers.Main) {
+                                        if (mapsCountToken.value <= 3) {
+                                            viewModel.searchPlace(index)
+                                        } else {
+                                            navController.navigate(Screens.PremiumScreen.route)
+                                        }
+                                    }
+                                }
                             },
                         colors = CardDefaults.cardColors(
                             containerColor = Color.Transparent

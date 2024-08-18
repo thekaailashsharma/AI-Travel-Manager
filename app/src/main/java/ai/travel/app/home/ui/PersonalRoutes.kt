@@ -91,7 +91,7 @@ fun PersonalRoutes(
     Column {
         LazyRow() {
             item {
-                NewRouteCard(sheetState, navController)
+                NewRouteCard(sheetState, navController, items.value.size)
             }
             items(newItems.reversed()) { item ->
                 RouteCard(item, navController, homeViewModel)
@@ -104,7 +104,11 @@ fun PersonalRoutes(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewRouteCard(sheetState: BottomSheetScaffoldState, navController: NavController) {
+fun NewRouteCard(
+    sheetState: BottomSheetScaffoldState,
+    navController: NavController,
+    items: Int
+) {
     val coroutineScope = rememberCoroutineScope()
     Card(
         modifier = Modifier
@@ -113,7 +117,11 @@ fun NewRouteCard(sheetState: BottomSheetScaffoldState, navController: NavControl
             .padding(16.dp)
             .clickable(interactionSource = MutableInteractionSource(), indication = null,
                 onClick = {
-                    navController.navigate(Screens.NewTrip.route)
+                    if (items <= 1) {
+                        navController.navigate(Screens.NewTrip.route)
+                    } else {
+                        navController.navigate(Screens.PremiumScreen.route)
+                    }
                 }),
         colors = CardDefaults.cardColors(
             containerColor = CardBackground

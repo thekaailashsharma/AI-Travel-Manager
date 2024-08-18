@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Tripify</string>
     <string name="title_activity_base">BaseActivity</string>
-    <string name="mapbox_access_token">pk.eyJ1IjoidGhla2FhaWxhc2hzaGFybWEiLCJhIjoiY2xtNm9sbW00MnY4bTNlbzl2c2Y2Z3g3byJ9.HZmK-5aP8z6hVA8IIU0q6A</string>
+    <string name="mapbox_access_token">pk.eyJ1IjoidGhla2FhaWxhc2giLCJhIjoiY2xzcTEwcHB1MHV4ODJpdGdudnRrbTZmdCJ9.oPesPCn2YUA1qhqqLPEkqg</string>
 </resources>

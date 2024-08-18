@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +20,17 @@ class UserDatastore(private val context: Context) {
         val gender = stringPreferencesKey("gender")
         val isLoggedIn = booleanPreferencesKey("login")
         val pfp = stringPreferencesKey("pfp")
+        val mapsCount = intPreferencesKey("mapsCount")
+    }
+
+    val mapsTokenCount: Flow<Int> = context.datastore.data.map {
+        it[mapsCount] ?: 0
+    }
+
+    suspend fun countMapsToken(number: Int) {
+        context.datastore.edit {
+            it[mapsCount] = number
+        }
     }
 
     val getNumber: Flow<String> = context.datastore.data.map {

@@ -58,6 +58,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -99,7 +100,7 @@ fun NewTripScreen(
     homeViewModel: HomeViewModel,
     navController: NavHostController,
 ) {
-
+    val totalTrips = homeViewModel.allTrips.collectAsState(initial = emptyList())
     val travelModes = listOf(
         TravelModes("Flight", Icons.Filled.Flight),
         TravelModes("Train", Icons.Filled.Train),
@@ -614,48 +615,51 @@ fun NewTripScreen(
 
             Button(
                 onClick = {
-
-                    if (homeViewModel.tripName.value.text.isNotEmpty() && homeViewModel.source.value.text.isNotEmpty()
-                        && homeViewModel.destination.value.text.isNotEmpty()
-                        && homeViewModel.tripBudget.value.text.isNotEmpty()
-                        && homeViewModel.tripNoOfDays.value.text.isNotEmpty() && homeViewModel.travelMode.isNotEmpty()
-                        && homeViewModel.tripBudget.value.text.isDigitsOnly()
-                    ) {
-                        homeViewModel.updateMessage(
-                            "Generate a guided tour plan for a trip to " +
-                                    "[LOCATION] for [NUMBER_OF_DAYS] days, considering various factors " +
-                                    "such as [BUDGET_RANGE], preferred activities, accommodations, " +
-                                    "transportation, and any specific preferences.1. Destination: " +
-                                    "[${homeViewModel.destination.value.text}] " +
-                                    "2. Duration: [${homeViewModel.tripNoOfDays.value.text}] days " +
-                                    "3. Budget: [${homeViewModel.tripBudget.value.text}] " +
-                                    "4. Activities that should be include: ${homeViewModel.likes.value.text} " +
-                                    "and Activities that should not be include: ${homeViewModel.disLikes.value.text}" +
-                                    "Please follow activities strictly. Only add those that should be included " +
-                                    "and do not add those that should not be included. Follow the order strictly." +
-                                    "5. Accommodations: [AC] 6. Transportation: [Bus, Car] " +
-                                    "7. Special Preferences: [None]." +
-                                    "Provide a comprehensive guided tour plan that includes " +
-                                    "recommended activities, places to visit, estimated costs, " +
-                                    "suitable accommodations, transportation options, and any other " +
-                                    "relevant information. Please consider the specified factors to " +
-                                    "tailor the plan accordingly. GIVE OUTPUT IN THE FORMAT I ASKED ONLY. " +
-                                    "DO NOT CHANGE THE output FORMAT. DO NOT. DO NOT change the FORMAT. " +
-                                    "Format is Day1 Morning: 1. Location (Latitude, Longitude) 2. Name:" +
-                                    " Name of Location 3. Budget, 4. Some additional notes. " +
-                                    "Same for afternoon & evening. Generate same output for all days",
-                            location = homeViewModel.destination.value.text,
-                            noOfDays = homeViewModel.tripNoOfDays.value.text
-                        )
-                        homeViewModel.updateDates(
-                            departureDate = departFormattedDate,
-                            arrivalDate = arrivalFormattedDate,
-                            departureTime = departFormattedTime,
-                            arrivalTime = arrivalFormattedTime
-                        )
-                        homeViewModel.getApiData()
-                        homeViewModel.isAnimationVisible.value = true
-                        navController.navigate(Screens.Home.route)
+                    if (totalTrips.value.size <= 1) {
+                        if (homeViewModel.tripName.value.text.isNotEmpty() && homeViewModel.source.value.text.isNotEmpty()
+                            && homeViewModel.destination.value.text.isNotEmpty()
+                            && homeViewModel.tripBudget.value.text.isNotEmpty()
+                            && homeViewModel.tripNoOfDays.value.text.isNotEmpty() && homeViewModel.travelMode.isNotEmpty()
+                            && homeViewModel.tripBudget.value.text.isDigitsOnly()
+                        ) {
+                            homeViewModel.updateMessage(
+                                "Generate a guided tour plan for a trip to " +
+                                        "[LOCATION] for [NUMBER_OF_DAYS] days, considering various factors " +
+                                        "such as [BUDGET_RANGE], preferred activities, accommodations, " +
+                                        "transportation, and any specific preferences.1. Destination: " +
+                                        "[${homeViewModel.destination.value.text}] " +
+                                        "2. Duration: [${homeViewModel.tripNoOfDays.value.text}] days " +
+                                        "3. Budget: [${homeViewModel.tripBudget.value.text}] " +
+                                        "4. Activities that should be include: ${homeViewModel.likes.value.text} " +
+                                        "and Activities that should not be include: ${homeViewModel.disLikes.value.text}" +
+                                        "Please follow activities strictly. Only add those that should be included " +
+                                        "and do not add those that should not be included. Follow the order strictly." +
+                                        "5. Accommodations: [AC] 6. Transportation: [Bus, Car] " +
+                                        "7. Special Preferences: [None]." +
+                                        "Provide a comprehensive guided tour plan that includes " +
+                                        "recommended activities, places to visit, estimated costs, " +
+                                        "suitable accommodations, transportation options, and any other " +
+                                        "relevant information. Please consider the specified factors to " +
+                                        "tailor the plan accordingly. GIVE OUTPUT IN THE FORMAT I ASKED ONLY. " +
+                                        "DO NOT CHANGE THE output FORMAT. DO NOT. DO NOT change the FORMAT. " +
+                                        "Format is Day1 Morning: 1. Location (Latitude, Longitude) 2. Name:" +
+                                        " Name of Location 3. Budget, 4. Some additional notes. " +
+                                        "Same for afternoon & evening. Generate same output for all days",
+                                location = homeViewModel.destination.value.text,
+                                noOfDays = homeViewModel.tripNoOfDays.value.text
+                            )
+                            homeViewModel.updateDates(
+                                departureDate = departFormattedDate,
+                                arrivalDate = arrivalFormattedDate,
+                                departureTime = departFormattedTime,
+                                arrivalTime = arrivalFormattedTime
+                            )
+                            homeViewModel.getApiData()
+                            homeViewModel.isAnimationVisible.value = true
+                            navController.navigate(Screens.Home.route)
+                        }
+                    } else {
+                        navController.navigate(Screens.PremiumScreen.route)
                     }
                 }, colors = ButtonDefaults.buttonColors(
                     containerColor = CardBackground

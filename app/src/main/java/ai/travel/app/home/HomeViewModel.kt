@@ -210,108 +210,112 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             println("messageeeee: ${_message.value}")
             withContext(Dispatchers.IO) {
-                val apiData =
-                    repository.getApiData(
-                        ApiPrompt(
-                            prompt = Prompt(
-                                text = _message.value
+                try {
+                    val apiData =
+                        repository.getApiData(
+                            ApiPrompt(
+                                prompt = Prompt(
+                                    text = _message.value
+                                )
                             )
                         )
-                    )
-                _imageState.value = ApiState.Loaded(apiData)
-                println("dataaaaaaaaa message: ${_message.value}")
-                println("dataaaaaaaaa value: ${apiData.candidates?.get(0)?.output ?: ""}")
-                extractTourDetails(apiData.candidates?.get(0)?.output ?: "")
-                println("dataaaaaaaaa: ${_data.value}")
-                _data.value.forEachIndexed { index, location ->
-                    val geoCodes = mutableMapOf<String, String>()
-                    val day = location.getOrDefault("Day", "-2")
-                    val locationName = location.getOrDefault("Name", "")
+                    _imageState.value = ApiState.Loaded(apiData)
+                    println("dataaaaaaaaa message: ${_message.value}")
+                    println("dataaaaaaaaa value: ${apiData.candidates?.get(0)?.output ?: ""}")
+                    extractTourDetails(apiData.candidates?.get(0)?.output ?: "")
+                    println("dataaaaaaaaa: ${_data.value}")
+                    _data.value.forEachIndexed { index, location ->
+                        val geoCodes = mutableMapOf<String, String>()
+                        val day = location.getOrDefault("Day", "-2")
+                        val locationName = location.getOrDefault("Name", "")
 //                    if (locationName != "") {
-                    val apiData =
-                        repository.getGeocodingData(
-                            query = "$locationName, ${_location.value}",
+                        val apiData =
+                            repository.getGeocodingData(
+                                query = "$locationName, ${_location.value}",
+                            )
+                        geoCodes["latitude"] =
+                            apiData.items?.get(0)?.position?.lat?.toString() ?: ""
+                        geoCodes["longitude"] =
+                            apiData.items?.get(0)?.position?.lng?.toString() ?: ""
+                        _geoCodesData.value[index].geoCode = GeoCode(
+                            latitude = geoCodes["latitude"] ?: "",
+                            longitude = geoCodes["longitude"] ?: ""
                         )
-                    geoCodes["latitude"] =
-                        apiData.items?.get(0)?.position?.lat?.toString() ?: ""
-                    geoCodes["longitude"] =
-                        apiData.items?.get(0)?.position?.lng?.toString() ?: ""
-                    _geoCodesData.value[index].geoCode = GeoCode(
-                        latitude = geoCodes["latitude"] ?: "",
-                        longitude = geoCodes["longitude"] ?: ""
-                    )
 //                    }
 
-                }
-                _imageState.value = ApiState.ReceivedGeoCodes
-                println("geoCodesDataaaaa: ${_geoCodesData.value}")
-                _geoCodesData.value.forEachIndexed { index, tourDetails ->
-                    if (index != 0) {
-                        val apiData =
-                            repository.getDistanceMatrix(
-                                origins = _geoCodesData.value[index - 1].name,
-                                destinations = _geoCodesData.value[index].name,
-                            )
-                        _geoCodesData.value[index].distance =
-                            apiData.rows?.get(0)?.elements?.get(0)?.distance?.text ?: "0 m"
-                        _geoCodesData.value[index].duration =
-                            apiData.rows?.get(0)?.elements?.get(0)?.duration?.text ?: "0 hrs"
                     }
-                }
-                _imageState.value = ApiState.CalculatedDistance
-                _geoCodesData.value.forEachIndexed { index, location ->
-                    val apiData =
-                        repository.getPlaceIdData(
-                            PlaceIdBody(
-                                textQuery = location.name
+                    _imageState.value = ApiState.ReceivedGeoCodes
+                    println("geoCodesDataaaaa: ${_geoCodesData.value}")
+                    _geoCodesData.value.forEachIndexed { index, tourDetails ->
+                        if (index != 0) {
+                            val apiData =
+                                repository.getDistanceMatrix(
+                                    origins = _geoCodesData.value[index - 1].name,
+                                    destinations = _geoCodesData.value[index].name,
+                                )
+                            _geoCodesData.value[index].distance =
+                                apiData.rows?.get(0)?.elements?.get(0)?.distance?.text ?: "0 m"
+                            _geoCodesData.value[index].duration =
+                                apiData.rows?.get(0)?.elements?.get(0)?.duration?.text ?: "0 hrs"
+                        }
+                    }
+                    _imageState.value = ApiState.CalculatedDistance
+                    _geoCodesData.value.forEachIndexed { index, location ->
+                        val apiData =
+                            repository.getPlaceIdData(
+                                PlaceIdBody(
+                                    textQuery = location.name
+                                )
                             )
+                        _geoCodesData.value[index].placeId = apiData.places?.get(0)?.id ?: ""
+                        println("placeIddddd: ${_geoCodesData.value[index].placeId}")
+                    }
+                    _imageState.value = ApiState.ReceivedPlaceId
+                    _geoCodesData.value.forEachIndexed { index, location ->
+                        val apiData =
+                            repository.getPhotoId(
+                                photoId = _geoCodesData.value[index].placeId ?: ""
+                            )
+                        _geoCodesData.value[index].photoID =
+                            apiData.result?.photos?.get(0)?.photo_reference ?: ""
+                        println("photoIddddd: ${apiData.result}")
+                        println("photoIddddd 111: ${_geoCodesData.value[index].placeId}")
+                    }
+                    _imageState.value = ApiState.ReceivedPhotoId
+                    _geoCodesData.value.forEachIndexed { index, location ->
+                        val apiData =
+                            repository.getPhoto(
+                                photoReference = _geoCodesData.value[index].photoID ?: "",
+                                maxWidth = 1200,
+                            )
+                        _geoCodesData.value[index].photo = apiData
+                    }
+                    dbRepository.insertAllTrips(_geoCodesData.value.take(8).map {
+                        TripsEntity(
+                            day = it.day,
+                            timeOfDay = it.timeOfDay,
+                            name = it.name,
+                            budget = it.budget,
+                            latitude = it.geoCode?.latitude?.toDouble(),
+                            longitude = it.geoCode?.longitude?.toDouble(),
+                            photoBase64 = byteArrayToBase64(it.photo ?: ByteArray(0)),
+                            source = source.value.text,
+                            destination = destination.value.text,
+                            travelActivity = "",
+                            distance = it.distance,
+                            duration = it.duration,
+                            totalBudget = tripBudget.value.text.toDoubleOrNull(),
+                            departureDate = _departureDate.value,
+                            arrivalDate = _arrivalDate.value,
+                            departureTime = _departureTime.value,
+                            arrivalTime = _arrivalTime.value,
                         )
-                    _geoCodesData.value[index].placeId = apiData.places?.get(0)?.id ?: ""
-                    println("placeIddddd: ${_geoCodesData.value[index].placeId}")
+                    })
+                    _imageState.value = ApiState.ReceivedPhoto
+                    _geoCodesData.value = mutableListOf()
+                } catch (e: Exception) {
+                    println("EException is $e")
                 }
-                _imageState.value = ApiState.ReceivedPlaceId
-                _geoCodesData.value.forEachIndexed { index, location ->
-                    val apiData =
-                        repository.getPhotoId(
-                            photoId = _geoCodesData.value[index].placeId ?: ""
-                        )
-                    _geoCodesData.value[index].photoID =
-                        apiData.result?.photos?.get(0)?.photo_reference ?: ""
-                    println("photoIddddd: ${apiData.result}")
-                    println("photoIddddd 111: ${_geoCodesData.value[index].placeId}")
-                }
-                _imageState.value = ApiState.ReceivedPhotoId
-                _geoCodesData.value.forEachIndexed { index, location ->
-                    val apiData =
-                        repository.getPhoto(
-                            photoReference = _geoCodesData.value[index].photoID ?: "",
-                            maxWidth = 1200,
-                        )
-                    _geoCodesData.value[index].photo = apiData
-                }
-                dbRepository.insertAllTrips(_geoCodesData.value.take(8).map {
-                    TripsEntity(
-                        day = it.day,
-                        timeOfDay = it.timeOfDay,
-                        name = it.name,
-                        budget = it.budget,
-                        latitude = it.geoCode?.latitude?.toDouble(),
-                        longitude = it.geoCode?.longitude?.toDouble(),
-                        photoBase64 = byteArrayToBase64(it.photo ?: ByteArray(0)),
-                        source = source.value.text,
-                        destination = destination.value.text,
-                        travelActivity = "",
-                        distance = it.distance,
-                        duration = it.duration,
-                        totalBudget = tripBudget.value.text.toDoubleOrNull(),
-                        departureDate = _departureDate.value,
-                        arrivalDate = _arrivalDate.value,
-                        departureTime = _departureTime.value,
-                        arrivalTime = _arrivalTime.value,
-                    )
-                })
-                _imageState.value = ApiState.ReceivedPhoto
-                _geoCodesData.value = mutableListOf()
             }
         }
     }

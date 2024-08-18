@@ -70,7 +70,7 @@ class ApiServiceImpl(
 
     override suspend fun getPlaceIdData(text: PlaceIdBody): PlaceIdResponse {
         return try {
-            client.post {
+            var a = client.post {
                 url(ApiRoutes.getPlaceIdApi)
                 setBody(text)
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
@@ -79,7 +79,8 @@ class ApiServiceImpl(
                     append("X-Goog-Api-Key", BuildConfig.Places_API_KEY)
                     append("X-Goog-FieldMask", "places.id,places.displayName,places.formattedAddress")
                 }
-            }.body()
+            }.body<PlaceIdResponse>()
+            return a
         } catch (e: Exception) {
             Log.i("ApiException", e.message.toString())
             return PlaceIdResponse(

@@ -21,6 +21,7 @@ import ai.travel.app.ui.theme.appGradient
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -77,6 +78,10 @@ class MainActivity : ComponentActivity() {
                 Screens.NewTrip.route -> {
                     isBottomBarVisible.value = false
                 }
+
+                Screens.PremiumScreen.route -> {
+                    isBottomBarVisible.value = false
+                }
             }
 
 
@@ -116,7 +121,11 @@ class MainActivity : ComponentActivity() {
                 override fun onFailure() {}
             }
         val intentFilter = IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION)
-        registerReceiver(smsBroadcastReceiver, intentFilter)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(smsBroadcastReceiver, intentFilter, RECEIVER_EXPORTED)
+        } else {
+            registerReceiver(smsBroadcastReceiver, intentFilter)
+        }
     }
 
 

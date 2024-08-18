@@ -36,8 +36,12 @@ val igGradient: Brush
         500.0f to Color(0xFFffa22e),
     )
 
-
-
+val backGround = Color(0xFF1a1b1b)
+val yellow = Color(0xFFfabf31)
+val indigo = Color(0xFFdcc0fe)
+val orange = Color(0xFFf7653c)
+val blue = Color(0xFF38abf2)
+val green = Color(0xFF98d65c)
 val textColor = Color(0xFFE0E0E0)
 val lightText = Color(0xFF3f68a8)
 
