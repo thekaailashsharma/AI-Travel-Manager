@@ -195,7 +195,7 @@ fun MapsSearchBar(
                                         dataStore.countMapsToken(mapsCountToken.value + 1)
                                     }
                                     withContext(Dispatchers.Main) {
-                                        if (mapsCountToken.value <= 3) {
+                                        if (mapsCountToken.value <= 15) {
                                             viewModel.searchPlace(index)
                                         } else {
                                             navController.navigate(Screens.PremiumScreen.route)

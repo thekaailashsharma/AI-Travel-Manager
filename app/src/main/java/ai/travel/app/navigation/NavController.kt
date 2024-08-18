@@ -51,7 +51,7 @@ fun NavController(
 //            TripDetailsScreen(viewModel = homeViewModel, paddingValues = paddingValues)
         }
         composable(Screens.Profile.route) {
-            NewProfileScreen(navHostController)
+            NewProfileScreen(navHostController, paddingValues = paddingValues)
         }
         composable(Screens.Routes.route) {
             MapsSearchScreen(viewModel = mapsViewModel, navController = navHostController)

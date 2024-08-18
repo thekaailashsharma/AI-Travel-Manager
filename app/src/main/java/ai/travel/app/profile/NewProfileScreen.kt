@@ -16,6 +16,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,8 +24,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContactPage
 import androidx.compose.material.icons.filled.EditNote
@@ -68,6 +71,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun NewProfileScreen(
     navController: NavHostController,
+    paddingValues: PaddingValues
 ) {
     val context = LocalContext.current
     val dataStore = UserDatastore(context)
@@ -81,144 +85,167 @@ fun NewProfileScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(appGradient)
+            .verticalScroll(rememberScrollState())
     ) {
 
-            Row(
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 35.dp, bottom = 7.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            ProfileImage(
+                imageUrl = pfp,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 35.dp, bottom = 7.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                ProfileImage(
-                    imageUrl = pfp,
-                    modifier = Modifier
-                        .size(100.dp)
-                        .border(
-                            width = 1.dp,
-                            color = lightText,
-                            shape = CircleShape
-                        )
-                        .padding(3.dp)
-                        .clip(CircleShape),
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 7.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = name ?: "User Name",
-                    color = textColor,
-                    fontSize = 20.sp,
-                    fontFamily = monteSB,
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 7.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = myPhoneNumber ?: "Phone Number",
-                    color = textColor,
-                    fontSize = 12.sp,
-                    fontFamily = monteSB,
-                    softWrap = true,
-                    modifier = Modifier.padding(end = 7.dp)
-                )
-            }
-            Spacer(modifier = Modifier.height(30.dp))
-
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = CardBackground.copy(0.8f)
-                ),
-                elevation = CardDefaults.cardElevation(10.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-            ) {
-                Column {
-
-                    RepeatedProfileInfo(
-                        icon = Icons.Filled.EditNote,
-                        text = "Edit Profile"
+                    .size(100.dp)
+                    .border(
+                        width = 1.dp,
+                        color = lightText,
+                        shape = CircleShape
                     )
-                    RepeatedProfileInfo(
-                        icon = Icons.Filled.Notifications,
-                        text = "Notifications"
-                    )
-                }
+                    .padding(3.dp)
+                    .clip(CircleShape),
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 7.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = name ?: "User Name",
+                color = textColor,
+                fontSize = 20.sp,
+                fontFamily = monteSB,
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 7.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = myPhoneNumber ?: "Phone Number",
+                color = textColor,
+                fontSize = 12.sp,
+                fontFamily = monteSB,
+                softWrap = true,
+                modifier = Modifier.padding(end = 7.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(30.dp))
 
-            }
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = CardBackground.copy(0.8f)
+            ),
+            elevation = CardDefaults.cardElevation(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+        ) {
+            Column {
 
-            Spacer(modifier = Modifier.height(30.dp))
-
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = CardBackground.copy(0.8f)
-                ),
-                elevation = CardDefaults.cardElevation(10.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-            ) {
-                Column {
-
-                    RepeatedProfileInfo(
-                        icon = Icons.Filled.SupportAgent,
-                        text = "Help and Support"
-                    )
-                    RepeatedProfileInfo(
-                        icon = Icons.Filled.ContactPage,
-                        text = "Contact Us"
-                    )
-                    RepeatedProfileInfo(
-                        icon = Icons.Filled.PrivacyTip,
-                        text = "Privacy Policy"
-                    )
-                }
-
-            }
-
-            Button(
-                onClick = {
-                    coroutineScope.launch {
-                        dataStore.saveName("")
-                        dataStore.savePfp("")
-                        dataStore.saveName("")
-                        dataStore.saveGender("")
-                        dataStore.saveLoginStatus(false)
-                    }
-                    Firebase.auth.signOut()
-                    navController.navigate(Screens.Login.route)
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFD5065),
-                    contentColor = Color.White
-                ),
-                shape = RoundedCornerShape(35.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(50.dp)
-            ) {
-                Text(
-                    text = "Logout",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontFamily = monteSB,
-                    modifier = Modifier.padding(bottom = 4.dp),
-                    maxLines = 1,
-                    softWrap = true
+                RepeatedProfileInfo(
+                    icon = Icons.Filled.Notifications,
+                    text = "Notifications"
                 )
             }
 
         }
-    }
 
+        Spacer(modifier = Modifier.height(30.dp))
+
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = CardBackground.copy(0.8f)
+            ),
+            elevation = CardDefaults.cardElevation(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+        ) {
+            Column {
+
+                RepeatedProfileInfo(
+                    icon = Icons.Filled.SupportAgent,
+                    text = "Help and Support"
+                )
+                RepeatedProfileInfo(
+                    icon = Icons.Filled.ContactPage,
+                    text = "Contact Us"
+                )
+            }
+
+        }
+
+        Button(
+            onClick = {
+                coroutineScope.launch {
+                    dataStore.saveName("")
+                    dataStore.savePfp("")
+                    dataStore.saveName("")
+                    dataStore.saveGender("")
+                    dataStore.saveLoginStatus(false)
+                }
+                Firebase.auth.signOut()
+                navController.navigate(Screens.Login.route)
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFD5065),
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(35.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 50.dp, start = 50.dp, end = 50.dp, bottom = 10.dp)
+        ) {
+            Text(
+                text = "Logout",
+                color = Color.White,
+                fontSize = 18.sp,
+                fontFamily = monteSB,
+                modifier = Modifier.padding(bottom = 4.dp),
+                maxLines = 1,
+                softWrap = true
+            )
+        }
+
+        Button(
+            onClick = {
+                coroutineScope.launch {
+                    dataStore.saveName("")
+                    dataStore.savePfp("")
+                    dataStore.saveName("")
+                    dataStore.saveGender("")
+                    dataStore.saveLoginStatus(false)
+                }
+                Firebase.auth.signOut()
+                navController.navigate(Screens.Login.route)
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFD5065),
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(35.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 5.dp, horizontal = 50.dp)
+        ) {
+            Text(
+                text = "Delete Account",
+                color = Color.White,
+                fontSize = 18.sp,
+                fontFamily = monteSB,
+                modifier = Modifier.padding(bottom = 4.dp),
+                maxLines = 1,
+                softWrap = true
+            )
+        }
+    }
+}
 
 
 @Composable

@@ -117,7 +117,7 @@ fun NewRouteCard(
             .padding(16.dp)
             .clickable(interactionSource = MutableInteractionSource(), indication = null,
                 onClick = {
-                    if (items <= 1) {
+                    if (items <= 3) {
                         navController.navigate(Screens.NewTrip.route)
                     } else {
                         navController.navigate(Screens.PremiumScreen.route)
