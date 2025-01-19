@@ -1,105 +1,112 @@
-<h1 align="center"> 📲 Tripify ✈️ </h1> <br>
+<h1 align="center"> 🤖 Forge AI 🚀 </h1> <br>
 <p align="center">
-  <a href="https://firebasestorage.googleapis.com/v0/b/palmapi-b548f.appspot.com/o/Banner.png?alt=media&token=c748e6b7-fe10-4f66-b509-d9d9925aad6a">
-    <img src="https://firebasestorage.googleapis.com/v0/b/palmapi-b548f.appspot.com/o/Banner.png?alt=media&token=c748e6b7-fe10-4f66-b509-d9d9925aad6a" alt="HiewAF9.md.png" border="0">
-  </a
+  <a href="https://firebasestorage.googleapis.com/v0/b/ai-travel-manager.appspot.com/o/Screenshot%202025-01-19%20at%2014.07.23.png?alt=media&token=e4d35a3d-b4d5-48fc-ac6d-f75d53cddd2b">
+    <img src="https://firebasestorage.googleapis.com/v0/b/ai-travel-manager.appspot.com/o/Screenshot%202025-01-19%20at%2014.07.23.png?alt=media&token=e4d35a3d-b4d5-48fc-ac6d-f75d53cddd2b" alt="Forge AI Banner" border="0">
+  </a>
 </p>
 
-
-# Tripify – Your AI passport to discovery
+# Forge AI – Empowering Smarter Agent Selection
 
 ![Static Badge](https://img.shields.io/badge/Kotlin-black?style=for-the-badge&logo=kotlin&logoColor=%237F52FF&labelColor=black)
 ![Static Badge](https://img.shields.io/badge/Jetpack_Compose-black?style=for-the-badge&logo=Jetpack%20Compose&logoColor=%234285F4&labelColor=black)
 ![Static Badge](https://img.shields.io/badge/Firebase-black?style=for-the-badge&logo=firebase&logoColor=%23FFCA28&labelColor=black)
-![Static Badge](https://img.shields.io/badge/Mapbox-black?style=for-the-badge&logo=mapbox&logoColor=%23000000&labelColor=white)
-![Static Badge](https://img.shields.io/badge/HERE-black?style=for-the-badge&logo=here&logoColor=%2300AFAA&labelColor=black)
+![Static Badge](https://img.shields.io/badge/AGP-black?style=for-the-badge&logo=android&logoColor=%23007ACC&labelColor=black)
 
 **Available only for Android.**
 
-### Tripify is an AI travel planner revolutionizing journeys. 
-Explore hidden gems, discover new places, engage in captivating events, and share your own travel stories with Tripify.
+### Forge AI is a revolutionary AI-driven platform designed to streamline the process of selecting the right AI agents for businesses. With a focus on automation, scalability, and trust-building, Forge AI simplifies agent evaluation.
 
-- 🌆  A fingertip pulse on your city: Never miss a beat with real-time updates on `Local happenings` and exciting events
-- 🔄  A platform to `Create and Share`: Document your adventures and inspire others with your travel experiences.
-- 🌍  A gateway to endless exploration: Explore everything you've ever dreamed of, all in one place with the power of `Tripify` and `HERE API`.
-- 📅  Plan your perfect trip: Build personalized `Itineraries` based on your `Interests`, `Budget`, and `Travel-Style` using the `Power of AI`.
+- 🤝 **Trust Simplified**: Build confidence in your AI choices through accurate evaluation.
+- 🚀 **Scalability Made Easy**: Designed for efficient and large-scale agent assessment.
+- ⚙️ **Data-Driven Insights**: Leverage structured data to make informed decisions.
+- 🎯 **Automation at its Core**: Reduces manual effort with an automated evaluation process.
 
+---
+
+## Problem Statement: Choosing the Right AI Agent
+
+**Presented at Pan IIT PIWOT Hackathon 2025**
+
+### Challenge:
+In an era dominated by AI agents, choosing the right one has become as challenging as hiring the perfect candidate. Companies risk losing trust in technology if they invest in the wrong agents.
+
+### Vision:
+Create a system that automates evaluation, leverages structured data, and provides clear insights to help businesses select the right AI agent, ensuring trust and reducing the cost of errors.
+
+### Solution Highlights:
+1. 🛠 **Data Cleaning Room**: Prepare and structure data for consistent and reliable evaluations.
+2. 🤖 **Automated Agent Assignment**: Design AI-driven assignments tailored for specific niches.
+3. 📊 **Performance Metrics**: Analyze results through clear, actionable insights.
+4. 🌐 **Scalable Framework**: Enable businesses to evaluate agents efficiently across large datasets.
+
+---
+
+## Features ✏️
+
+1. **Agent Matching** - Leverages machine learning to match agents to specific niches.
+2. **Automated Evaluations** - Minimizes manual intervention with structured workflows.
+3. **Custom Metrics** - Enables tailored performance analysis for diverse business needs.
+4. **Real-Time Insights** - Generates actionable reports for decision-making.
+
+---
 
 ## Demo Video
 __________________
 > Demo Video Link: [Click here](https://youtu.be/ipniPvVFRyY?feature=shared)
 
+---
 
-## Map your moments, live your itinerary
-
-| Preview  | Full Search  |
-|----------|--------------|
-| ![Preview](https://firebasestorage.googleapis.com/v0/b/palmapi-b548f.appspot.com/o/Screenrecorder-2023-12-10-22-55-41-661.gif?alt=media&token=8166ac59-eaa7-42b4-9f3b-b86f4b8e2cff) | ![theme_celestial](https://firebasestorage.googleapis.com/v0/b/palmapi-b548f.appspot.com/o/Maps.gif?alt=media&token=3c81389b-985c-4450-9d5d-d8610752dc19) |
-
-## Features ✏️
-
-1. 🗺  **Discovery** - Explore a map powered by `HERE API` showcasing various places.
-2. 📱 **Geo-Memories** - Create `location-based` memory blocks with media integration.
-3. 📅  **Curated Plans** -Tailored `itineraries` based on interests, budgets, and destinations using `AI`.
-4. 🧭  **Navigate** - Get `real-time directions` for walking, biking, driving, or public transport.
-
-
-## Let's have a look
-
+## Screenshots 📸
 <p align="center">
-  <a href="https://firebasestorage.googleapis.com/v0/b/palmapi-b548f.appspot.com/o/Screenshot%202023-12-11%20at%202.08.04%20AM.png?alt=media&token=8d6d698e-ffd9-4f22-ac48-45fe1c0e5d5c">
-    <img src="https://firebasestorage.googleapis.com/v0/b/palmapi-b548f.appspot.com/o/Screenshot%202023-12-11%20at%202.08.04%20AM.png?alt=media&token=8d6d698e-ffd9-4f22-ac48-45fe1c0e5d5c" border="0"></a>
+  <a href="https://firebasestorage.googleapis.com/v0/b/ai-travel-manager.appspot.com/o/Screenshot%202025-01-19%20at%2014.10.18.png?alt=media&token=cc82fe53-9f50-49fc-a17e-58879597004a">
+    <img src="https://firebasestorage.googleapis.com/v0/b/ai-travel-manager.appspot.com/o/Screenshot%202025-01-19%20at%2014.10.18.png?alt=media&token=cc82fe53-9f50-49fc-a17e-58879597004a" alt="Forge AI Banner" border="0">
+  </a>
 </p>
 
 <p align="center">
-  <a href="https://firebasestorage.googleapis.com/v0/b/palmapi-b548f.appspot.com/o/Screenshot%202023-12-11%20at%202.19.32%20AM.png?alt=media&token=d317fe56-16d3-4875-bff0-2075e6c8d550">
-    <img src="https://firebasestorage.googleapis.com/v0/b/palmapi-b548f.appspot.com/o/Screenshot%202023-12-11%20at%202.19.32%20AM.png?alt=media&token=d317fe56-16d3-4875-bff0-2075e6c8d550" border="0"></a>
+  <a href="https://firebasestorage.googleapis.com/v0/b/ai-travel-manager.appspot.com/o/Screenshot%202025-01-19%20at%2014.12.09.png?alt=media&token=0861d036-6965-471a-8650-81a3d4cc03bb">
+    <img src="https://firebasestorage.googleapis.com/v0/b/ai-travel-manager.appspot.com/o/Screenshot%202025-01-19%20at%2014.12.09.png?alt=media&token=0861d036-6965-471a-8650-81a3d4cc03bb" alt="Forge AI Banner" border="0">
+  </a>
 </p>
 
 
-| Uses of Here API    |
-|--------------------------|
-| 1. Geocoding          |
-| 2. Reverse Geocoding     |
-| 3. Nearby hotels         |
-| 4. Nearby tourist attractions |
-| 5. Here AutoSuggest |
+---
 
+## Tech Stack
 
-### Tech Stack
-| Name | Description |
-| --- | --- |
-| [`@palm-llm`](https://makersuite.google.com) | Palm API 2 |
-| [`@here-api`](https://www.here.com/docs/) | Here API |
-| [`@mapbox`](https://docs.mapbox.com/) | Mapbox |
-| [`@compose`](https://developer.android.com/jetpack/compose) | Jetpack Compose |
-| [`@materialUI`](https://m3.material.io/) | Material 3 |
-| [`@ktor-client`](https://ktor.io/docs/create-client.html) | Ktor CLient |
-| [`@navigation-compose`](https://developer.android.com/jetpack/compose/navigation) | Navigation Compose |
-| [`@coil`](https://coil-kt.github.io/coil/compose/) | Coil-Compose |
-| [`@ksp-room`](https://developer.android.com/build/migrate-to-ksp) | Room Android |
-| [`@dagger-hilt`](https://developer.android.com/training/dependency-injection/hilt-android) | Dagger-hilt |
+| Technology | Description |
+|------------|-------------|
+| **Kotlin** | Android development |
+| **Jetpack Compose** | UI framework |
+| **Firebase** | Backend integration |
+| **Room** | Local database |
+| **HERE API** | Location-based services |
+| **Dagger Hilt** | Dependency injection |
+| **Ktor Client** | Networking |
+| **Material 3** | Modern UI design |
+| **Coil** | Image loading |
 
-## Steps To Run on your Device
-- The Following project was build using `AGP 8.1.0`
--  Check your Android Studio's AGP.
--  If it is `lower` than given AGP follow given steps :-
--  -  #### Go to gradle/libs.version.toml
-   -  #### In [versions] change value of AGP as per requirement
+---
 
-## Steps To Install on your Device
-- Visit the following link 
-- [Install Now](https://drive.google.com/drive/folders/1_IQ9iA7CroncRSsy5x06kdQ4sjPRhHW_?usp=drive_link)
-- Minimum SDK `27` --> `Android version 8.1`
+## Revenue Sources 💰
 
+1. **Subscription Model** - Monthly/annual plans for premium agent evaluation.
+2. **B2B Integration** - Custom solutions for enterprise clients.
+3. **Data Insights** - Monetize anonymized and aggregated data for research.
 
-## Authors
+---
 
-[@nandinisingh](https://linkedin.com/in/heyfromnandini)
-[@vignesh](https://linkedin.com/in/vigneshgadhari)
-[@thekaailashsharma](https://linkedin.com/in/thekaailashsharma)
+## Unique Selling Proposition (USP)
 
+- 🌟 **Accuracy**: Forge AI ensures precise evaluation for trust-building.
+- 🌐 **Automation**: Automates the agent selection process for efficiency.
+- 📈 **Scalability**: Adaptable to diverse business requirements.
 
+---
 
+## Steps to Run
 
-
+- Clone the project repositories:
+  ```bash
+  git clone https://github.com/HeyfromNandini/forge_ai.git frontend
+  git clone https://github.com/VigneshGadhari/AIAgentSuggestor.git backend
